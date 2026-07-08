@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FireCash — what if Kaspa was anonymous?</title>
+<meta name="description" content="Meet FireCash (FC) — an anonymous-by-default proof-of-work BlockDAG. Kaspa's speed, anonymous by construction." />
+<link rel="icon" type="image/jpeg" href="/logo.jpg" />
+<link rel="apple-touch-icon" href="/logo.jpg" />
+<meta property="og:title" content="FireCash — what if Kaspa was anonymous?" />
+<meta property="og:image" content="/logo.jpg" />
+<style>
+  :root{
+    /* Dark theme — matches the FireCash explorer / wallet / pool palette. */
+    --ink:#f6f6f8;
+    --mut:#a0a0b0;
+    --fant:#70707e;
+    --line:#23232c;
+    --line2:#33333f;
+    --ember:#ff6b35;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono","DejaVu Sans Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{
+    margin:0;background:#0b0b0f;color:var(--ink);
+    font-family:var(--mono);font-size:15px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    /* subtle ember light-source wash on a dark field — no motion */
+    background-image:
+      radial-gradient(70% 42% at 50% -4%, rgba(255,107,53,.08), rgba(11,11,15,0) 72%),
+      radial-gradient(38% 30% at 88% 6%, rgba(255,134,89,.05), rgba(11,11,15,0) 70%);
+    background-repeat:no-repeat;
+  }
+  .wrap{max-width:940px;margin:0 auto;padding:0 28px}
+  a{color:inherit;text-decoration:none}
+  .label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--fant)}
+
+  /* top bar */
+  header{border-bottom:1px solid var(--line);background:rgba(11,11,15,.72);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20}
+  .bar{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .wordmark{display:inline-flex;align-items:center;font-weight:700;letter-spacing:.06em;font-size:14px}
+  .wordmark b{color:var(--ink)}
+  /* logo slots — drop /logo.svg (or /logo.png) into the web root to fill them.
+     On error the element removes itself, so nothing broken shows until uploaded. */
+  .logo{height:26px;width:26px;margin-right:10px;display:block;border-radius:6px}
+  .hero-logo{height:132px;width:132px;margin:0 auto 24px;display:block;border-radius:22px;box-shadow:0 8px 44px rgba(255,107,53,.20)}
+  nav{display:flex;gap:24px}
+  nav a{font-size:12.5px;color:var(--mut)}
+  nav a:hover{color:var(--ink)}
+  @media(max-width:620px){nav{display:none}}
+
+  /* hero — centered, spacious */
+  .hero{text-align:center;padding:66px 0 56px}
+  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);
+        border-radius:999px;padding:6px 14px;font-size:11px;letter-spacing:.14em;
+        text-transform:uppercase;color:var(--mut)}
+  .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--ember);box-shadow:0 0 8px var(--ember)}
+  h1{font-weight:700;letter-spacing:-.03em;line-height:1.04;
+     font-size:clamp(34px,7vw,64px);margin:20px auto 0;max-width:16ch}
+  .tagline{margin:14px auto 0;font-weight:700;letter-spacing:-.01em;line-height:1.15;
+           font-size:clamp(18px,3vw,25px);color:var(--ink)}
+  .hero .sub{margin:16px auto 0;font-size:16.5px;color:var(--mut);max-width:60ch}
+  .cta{margin-top:32px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{border:1px solid var(--ember);background:var(--ember);border-radius:8px;padding:11px 20px;font-size:12.5px;
+       letter-spacing:.04em;text-transform:uppercase;color:#1a1206;font-weight:700}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.ghost{border-color:var(--line2);background:transparent;color:var(--ink);font-weight:400}
+  .btn.ghost:hover{border-color:var(--ink);background:transparent;color:var(--ink)}
+  .ticker{margin-top:40px;display:flex;gap:10px 26px;justify-content:center;flex-wrap:wrap;
+          font-size:12px;color:var(--fant);letter-spacing:.02em}
+  .ticker b{color:var(--ink);font-weight:700}
+
+  /* section scaffold */
+  section{padding:60px 0;border-top:1px solid var(--line)}
+  .sec-head{text-align:center;margin-bottom:34px}
+  .sec-head .label{display:block;margin-bottom:11px}
+  .sec-head h2{font-weight:700;letter-spacing:-.02em;font-size:clamp(22px,3.6vw,30px);margin:0;line-height:1.15}
+  .sec-head p{margin:12px auto 0;color:var(--mut);max-width:56ch}
+
+  /* design grid — hairlines, no boxes */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:0 48px}
+  @media(max-width:620px){.grid{grid-template-columns:1fr;gap:0}}
+  .item{border-top:1px solid var(--line);padding:22px 0}
+  .item .n{font-size:11px;letter-spacing:.18em;color:var(--fant)}
+  .item h3{font-weight:700;font-size:15px;margin:10px 0 6px}
+  .item p{margin:0;color:var(--mut);font-size:14px}
+
+  /* table */
+  .tblwrap{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  thead th{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
+           text-align:left;font-weight:700;padding:12px 18px 12px 0;white-space:nowrap}
+  tbody td{border-bottom:1px solid var(--line);padding:12px 18px 12px 0;vertical-align:top}
+  tbody tr:last-child td{border-bottom:1px solid var(--ink)}
+  .fc-row td{font-weight:700}
+  caption{caption-side:bottom;text-align:left;color:var(--fant);font-size:12px;margin-top:14px;line-height:1.6}
+
+  /* emission figures */
+  .figs{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin:4px 0 28px;text-align:center}
+  @media(max-width:620px){.figs{grid-template-columns:repeat(2,1fr);gap:28px 24px}}
+  .fig .k{font-size:26px;font-weight:700;letter-spacing:-.02em}
+  .fig .v{margin-top:6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fant)}
+  .prose{max-width:60ch;margin:0 auto;text-align:center;color:var(--mut)}
+
+  /* emission chart (inline SVG, monochrome to match) */
+  .chart{max-width:600px;margin:0 auto}
+  .chart svg{width:100%;height:auto;display:block;font-family:var(--mono)}
+  .chart .axis{fill:var(--fant);font-size:11px}
+  .chart .yl{fill:var(--mut);font-size:11px}
+  .chart .anno{fill:var(--ink);font-size:11.5px;font-weight:700}
+  .chart .cap{margin:16px auto 0;text-align:center;color:var(--fant);font-size:12px;line-height:1.6;max-width:58ch}
+  .chart .cap b{color:var(--ink);font-weight:700}
+
+  /* roadmap */
+  .road{max-width:640px;margin:0 auto;list-style:none;padding:0}
+  .road li{display:grid;grid-template-columns:96px 1fr;gap:24px;padding:20px 0;border-top:1px solid var(--line)}
+  .road li:first-child{border-top:none}
+  .road .ph{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--fant);padding-top:3px}
+  .road h3{font-weight:700;font-size:15px;margin:0 0 6px}
+  .road p{margin:0;color:var(--mut);font-size:14px}
+  @media(max-width:620px){.road li{grid-template-columns:1fr;gap:8px}}
+
+  /* community */
+  .community{text-align:center}
+  .socials{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .social{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line2);
+          border-radius:8px;padding:12px 18px;font-size:13px;color:var(--ink)}
+  .social:hover{border-color:var(--ink)}
+  .social svg{width:15px;height:15px;fill:currentColor;display:block}
+
+  footer{border-top:1px solid var(--ink);padding:30px 0 64px}
+  .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--mut)}
+  .foot .fsoc a{color:var(--mut);margin-left:16px}
+  .foot .fsoc a:hover{color:var(--ink)}
+  .disc{margin-top:18px;font-size:11.5px;color:var(--fant);max-width:74ch;line-height:1.7}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="wordmark" href="#top"><img class="logo" src="/logo.jpg" alt="" onerror="this.remove()" /><b>Fire<span style="color:var(--ember)">Cash</span></b></a>
+    <nav>
+      <a href="#overview">Overview</a>
+      <a href="#design">Design</a>
+      <a href="#comparison">Comparison</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="https://wallet.firecash.info" target="_blank" rel="noopener">Wallet</a>
+      <a href="https://mining-pool.firecash.info" target="_blank" rel="noopener">Pool</a>
+      <a href="#community">Community</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap hero" id="top">
+  <img class="hero-logo" src="/logo.jpg" alt="FireCash" onerror="this.remove()" />
+  <span class="pill"><span class="dot"></span> Launching 12 July 2026 · FC</span>
+  <h1>Meet FireCash.</h1>
+  <p class="tagline">What if Kaspa was anonymous?</p>
+  <p class="sub">
+    FireCash is a fork of Kaspa that makes value anonymous by default — the same
+    ten-blocks-per-second proof-of-work BlockDAG, with every amount, sender, and
+    recipient hidden by construction.
+  </p>
+  <div class="cta">
+    <a class="btn" href="https://wallet.firecash.info" target="_blank" rel="noopener">Open wallet</a>
+    <a class="btn ghost" href="https://mining-pool.firecash.info" target="_blank" rel="noopener">Start mining</a>
+    <a class="btn ghost" href="/whitepaper.html" target="_blank" rel="noopener">Whitepaper</a>
+  </div>
+  <div class="ticker">
+    <span><b>0.1s</b> block time</span>
+    <span><b>Orchard</b> · Halo 2</span>
+    <span><b>3-month</b> halving</span>
+    <span><b>0.3 FC</b> perpetual tail</span>
+    <span><b>No VC</b> · no premine</span>
+  </div>
+</div>
+
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">01 — Overview</span>
+      <h2>Kaspa speed, without the transparency.</h2>
+      <p>Kaspa proved proof-of-work can confirm blocks in a fraction of a second — but its ledger is fully public. FireCash keeps the speed and changes the default.</p>
+    </div>
+    <div class="prose">
+      <p>All value lives in a shielded pool. The only public quantity is the fee a
+      spender chooses to expose to the miner, so privacy is a property of the whole
+      network rather than of the few who opt in.</p>
+    </div>
+  </div>
+</section>
+
+<section id="design">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">02 — Design</span>
+      <h2>Four decisions.</h2>
+    </div>
+    <div class="grid">
+      <div class="item"><div class="n">01</div><h3>Shielded by default</h3>
+        <p>Every coinbase reward and transfer commits to an Orchard note-commitment tree. Balances are zero-knowledge notes, not cleartext outputs.</p></div>
+      <div class="item"><div class="n">02</div><h3>BlockDAG consensus</h3>
+        <p>GHOSTDAG at ten blocks per second. The DAG keeps proof-of-work security intact under a high block rate.</p></div>
+      <div class="item"><div class="n">03</div><h3>Zero-knowledge validation</h3>
+        <p>Transactions verify with succinct Halo&nbsp;2 proofs — no trusted setup. Value conservation is checked without revealing amounts.</p></div>
+      <div class="item"><div class="n">04</div><h3>Fair proof-of-work launch</h3>
+        <p>No venture capital, no presale, no allocation. FireCash uses kHeavyHash — the same proof-of-work as Kaspa — so it can be merge-mined with Kaspa's hashrate; low opening difficulty lets ordinary hardware mine from block one, then ramps to steady state.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="comparison">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">03 — Comparison</span>
+      <h2>Speed and privacy, side by side.</h2>
+    </div>
+    <div class="tblwrap">
+      <table>
+        <thead>
+          <tr><th>Network</th><th>Block time</th><th>Privacy model</th><th>Private by default</th><th>Mining</th></tr>
+        </thead>
+        <tbody>
+          <tr class="fc-row"><td>FireCash</td><td>0.1 s</td><td>Orchard · Halo 2</td><td>By default</td><td>kHeavyHash · merge-mineable</td></tr>
+          <tr><td>Kaspa</td><td>0.1 s</td><td>Transparent</td><td>No</td><td>kHeavyHash · ASIC</td></tr>
+          <tr><td>Zcash</td><td>75 s</td><td>Orchard · Halo 2</td><td>Optional</td><td>Equihash · ASIC</td></tr>
+          <tr><td>Monero</td><td>120 s</td><td>Ring signatures · RingCT</td><td>By default</td><td>RandomX · CPU</td></tr>
+        </tbody>
+        <caption>Nominal block time, privacy model, and proof-of-work algorithm. FireCash keeps the sub-second speed of Kaspa — its transparent parent — but shields every transaction by default, where Kaspa's ledger is fully public and Zcash's privacy is opt-in. It shares Kaspa's kHeavyHash proof-of-work — so it can be merge-mined alongside Kaspa — and settles ~750× faster than Zcash, ~1,200× faster than Monero.</caption>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="emission">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">04 — Emission</span>
+      <h2>Mined from block one. No VC, no premine.</h2>
+    </div>
+    <div class="figs">
+      <div class="fig"><div class="k">6 FC</div><div class="v">Reward at block 1</div></div>
+      <div class="fig"><div class="k">3 months</div><div class="v">Halving</div></div>
+      <div class="fig"><div class="k">0.3 FC</div><div class="v">Perpetual tail / block</div></div>
+      <div class="fig"><div class="k">0%</div><div class="v">Premine · VC</div></div>
+    </div>
+    <div class="chart">
+      <svg viewBox="0 0 640 300" role="img" aria-labelledby="emit-t emit-d">
+        <title id="emit-t">FireCash block reward over time</title>
+        <desc id="emit-d">The block reward starts at 6 FC and halves every three months. Around month ten the decay is caught by a tail floor of 0.6 FC per block, which holds through month twenty-four and then steps down once to a permanent 0.3 FC per block, paid forever to fund proof-of-work security. There is no fixed supply cap.</desc>
+        <g stroke="#23232c" stroke-width="1">
+          <line x1="48" y1="18" x2="622" y2="18"/>
+          <line x1="48" y1="99" x2="622" y2="99"/>
+          <line x1="48" y1="181" x2="622" y2="181"/>
+          <line x1="48" y1="262" x2="622" y2="262"/>
+        </g>
+        <g stroke="#33333f" stroke-width="1" stroke-dasharray="3 3">
+          <line x1="206.9" y1="237.6" x2="206.9" y2="262"/>
+          <line x1="430.7" y1="237.6" x2="430.7" y2="262"/>
+        </g>
+        <path d="M48,18 L63.9,68.3 L79.9,108.3 L95.8,140 L111.8,165.2 L127.7,185.1 L143.7,201 L159.6,213.6 L175.6,223.6 L191.5,231.5 L206.9,237.6 L430.7,237.6 L430.7,249.8 L622,249.8 L622,262 L48,262 Z" fill="rgba(255,107,53,.10)"/>
+        <path d="M48,18 L63.9,68.3 L79.9,108.3 L95.8,140 L111.8,165.2 L127.7,185.1 L143.7,201 L159.6,213.6 L175.6,223.6 L191.5,231.5 L206.9,237.6 L430.7,237.6 L430.7,249.8 L622,249.8" fill="none" stroke="#ff6b35" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        <g fill="#ff6b35" stroke="#0b0b0f" stroke-width="2">
+          <circle cx="48" cy="18" r="3.6"/>
+          <circle cx="95.8" cy="140" r="3.6"/>
+          <circle cx="206.9" cy="237.6" r="3.6"/>
+          <circle cx="430.7" cy="249.8" r="3.6"/>
+        </g>
+        <text class="anno" x="58" y="14">6 FC at launch</text>
+        <text class="anno" x="318" y="232" text-anchor="middle">0.6 FC tail</text>
+        <text class="anno" x="618" y="245" text-anchor="end">steps to 0.3 FC — forever</text>
+        <g class="yl" text-anchor="end">
+          <text x="40" y="21">6 FC</text>
+          <text x="40" y="102">4 FC</text>
+          <text x="40" y="184">2 FC</text>
+          <text x="40" y="265">0</text>
+        </g>
+        <g class="axis" text-anchor="middle">
+          <text x="48" y="281">0</text>
+          <text x="95.8" y="281">3</text>
+          <text x="143.7" y="281">6</text>
+          <text x="191.5" y="281">9</text>
+          <text x="239.3" y="281">12</text>
+          <text x="335" y="281">18</text>
+          <text x="430.7" y="281">24</text>
+          <text x="526.3" y="281">30</text>
+          <text x="622" y="281">36</text>
+          <text x="335" y="297">months since launch</text>
+        </g>
+      </svg>
+      <p class="cap">Block reward per block. It <b>halves every 3 months</b> from 6 FC, crossing a <b>0.6 FC/block tail</b> around month 10; that floor holds until month 24, then steps down once to a <b>perpetual 0.3 FC/block tail</b> (~95M FC/year) — steeply disinflationary early, a low constant floor in the long run, with <b>no fixed supply cap</b>.</p>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">05 — Roadmap</span>
+      <h2>Where it goes.</h2>
+    </div>
+    <ul class="road">
+      <li><div class="ph">Stage 1</div><div><h3>Shielded mainnet</h3>
+        <p>Fair proof-of-work launch. Shielded-by-default coinbase and payments on a ten-blocks-per-second GHOSTDAG BlockDAG.</p></div></li>
+      <li><div class="ph">Stage 2</div><div><h3>Full-chain membership proofs (FCMP)</h3>
+        <p>Adopt the next-generation privacy primitive advanced by Monero — membership against every note ever created, not a fixed ring.</p></div></li>
+      <li><div class="ph">Stage 3</div><div><h3>Private smart contracts</h3>
+        <p>Programmable value that stays confidential — contracts executing over shielded state, so applications inherit the base layer's privacy.</p></div></li>
+    </ul>
+  </div>
+</section>
+
+<section id="community">
+  <div class="wrap community">
+    <div class="sec-head">
+      <span class="label">06 — Community</span>
+      <h2>Run a node. Join the network.</h2>
+      <p>FireCash is open, permissionless, and mined by anyone. Come build it.</p>
+    </div>
+    <div class="socials">
+      <a class="social" href="https://x.com/firecashx" rel="noopener" target="_blank" aria-label="X">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"/></svg>
+        X
+      </a>
+      <a class="social" href="https://discord.gg/jysMS4XNFT" rel="noopener" target="_blank" aria-label="Discord">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.369A19.79 19.79 0 0 0 15.885 3c-.2.356-.43.835-.588 1.216a18.27 18.27 0 0 0-5.594 0A12.6 12.6 0 0 0 9.11 3 19.74 19.74 0 0 0 4.677 4.37C1.9 8.49 1.145 12.5 1.522 16.456A19.9 19.9 0 0 0 7.6 19.51c.492-.67.93-1.382 1.307-2.13-.72-.27-1.41-.605-2.06-1 .173-.127.342-.26.505-.396 3.98 1.86 8.28 1.86 12.21 0 .166.14.335.27.505.397-.65.394-1.34.73-2.06 1 .377.748.815 1.46 1.307 2.13a19.86 19.86 0 0 0 6.08-3.055c.443-4.585-.756-8.56-3.18-12.087ZM8.02 14.02c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.41 2.15-2.41s2.17 1.09 2.15 2.41c0 1.33-.95 2.41-2.15 2.41Zm7.96 0c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.41 2.15-2.41s2.17 1.09 2.15 2.41c0 1.33-.94 2.41-2.15 2.41Z"/></svg>
+        Discord
+      </a>
+      <a class="social" href="/whitepaper.html" rel="noopener" target="_blank" aria-label="Whitepaper">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm8 1.5V8h4.5L14 3.5ZM8 12h8v1.5H8V12Zm0 3.5h8V17H8v-1.5ZM8 8.5h4V10H8V8.5Z"/></svg>
+        Whitepaper
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <span>© 2026 FireCash · firecash.info</span>
+      <span class="fsoc">
+        <a href="https://wallet.firecash.info" target="_blank" rel="noopener">Wallet</a>
+        <a href="https://mining-pool.firecash.info" target="_blank" rel="noopener">Pool</a>
+        <a href="https://explorer.firecash.info" target="_blank" rel="noopener">Explorer</a>
+        <a href="https://x.com/firecashx" target="_blank" rel="noopener">X</a>
+        <a href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">Discord</a>
+      </span>
+    </div>
+    <p class="disc">
+      Open-source software, provided without warranty. Nothing herein is financial
+      advice or an offer of any security. Proof-of-work mining and private-transaction
+      cryptography carry technical and regulatory risk. Verify the source and run your
+      own node.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
