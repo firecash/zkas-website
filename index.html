@@ -160,8 +160,8 @@
   <p class="tagline">What if Kaspa was anonymous?</p>
   <p class="sub">
     FireCash is a fork of Kaspa that makes value anonymous by default — the same
-    ten-blocks-per-second proof-of-work BlockDAG, with every amount, sender, and
-    recipient hidden by construction.
+    proof-of-work BlockDAG, running at one block per second, with every amount,
+    sender, and recipient hidden by construction.
   </p>
   <div class="cta">
     <a class="btn" href="https://wallet.firecash.info" target="_blank" rel="noopener">Open wallet</a>
@@ -169,11 +169,11 @@
     <a class="btn ghost" href="/whitepaper.html" target="_blank" rel="noopener">Whitepaper</a>
   </div>
   <div class="ticker">
-    <span><b>0.1s</b> block time</span>
+    <span><b>1s</b> block time</span>
     <span><b>Orchard</b> · Halo 2</span>
     <span><b>3-month</b> halving</span>
-    <span><b>0.3 $firecash</b> perpetual tail</span>
-    <span><b>No VC</b> · no premine</span>
+    <span><b>3 $firecash</b> perpetual tail</span>
+    <span><b>No VC</b> · kHeavyHash PoW</span>
   </div>
 </div>
 
@@ -202,11 +202,11 @@
       <div class="item"><div class="n">01</div><h3>Shielded by default</h3>
         <p>Every coinbase reward and transfer commits to an Orchard note-commitment tree. Balances are zero-knowledge notes, not cleartext outputs.</p></div>
       <div class="item"><div class="n">02</div><h3>BlockDAG consensus</h3>
-        <p>GHOSTDAG at ten blocks per second. The DAG keeps proof-of-work security intact under a high block rate.</p></div>
+        <p>GHOSTDAG at one block per second. The DAG keeps proof-of-work security intact under a parallel block rate.</p></div>
       <div class="item"><div class="n">03</div><h3>Zero-knowledge validation</h3>
         <p>Transactions verify with succinct Halo&nbsp;2 proofs — no trusted setup. Value conservation is checked without revealing amounts.</p></div>
       <div class="item"><div class="n">04</div><h3>Fair proof-of-work launch</h3>
-        <p>No venture capital, no presale, no allocation. FireCash uses kHeavyHash — the same proof-of-work as Kaspa — so it can be merge-mined with Kaspa's hashrate; low opening difficulty lets ordinary hardware mine from block one, then ramps to steady state.</p></div>
+        <p>No venture capital. FireCash uses kHeavyHash — the same proof-of-work as Kaspa — so it can be merge-mined with Kaspa's hashrate; low opening difficulty lets ordinary hardware mine from block one, then ramps to steady state.</p></div>
     </div>
   </div>
 </section>
@@ -223,12 +223,12 @@
           <tr><th>Network</th><th>Block time</th><th>Privacy model</th><th>Private by default</th><th>Mining</th></tr>
         </thead>
         <tbody>
-          <tr class="fc-row"><td>FireCash</td><td>0.1 s</td><td>Orchard · Halo 2</td><td>By default</td><td>kHeavyHash · merge-mineable</td></tr>
+          <tr class="fc-row"><td>FireCash</td><td>1 s</td><td>Orchard · Halo 2</td><td>By default</td><td>kHeavyHash · merge-mineable</td></tr>
           <tr><td>Kaspa</td><td>0.1 s</td><td>Transparent</td><td>No</td><td>kHeavyHash · ASIC</td></tr>
           <tr><td>Zcash</td><td>75 s</td><td>Orchard · Halo 2</td><td>Optional</td><td>Equihash · ASIC</td></tr>
           <tr><td>Monero</td><td>120 s</td><td>Ring signatures · RingCT</td><td>By default</td><td>RandomX · CPU</td></tr>
         </tbody>
-        <caption>Nominal block time, privacy model, and proof-of-work algorithm. FireCash keeps the sub-second speed of Kaspa — its transparent parent — but shields every transaction by default, where Kaspa's ledger is fully public and Zcash's privacy is opt-in. It shares Kaspa's kHeavyHash proof-of-work — so it can be merge-mined alongside Kaspa — and settles ~750× faster than Zcash, ~1,200× faster than Monero.</caption>
+        <caption>Nominal block time, privacy model, and proof-of-work algorithm. FireCash inherits Kaspa's fast BlockDAG — its transparent parent — but shields every transaction by default, where Kaspa's ledger is fully public and Zcash's privacy is opt-in. It shares Kaspa's kHeavyHash proof-of-work — so it can be merge-mined alongside Kaspa — and at one-second blocks settles ~75× faster than Zcash, ~120× faster than Monero.</caption>
       </table>
     </div>
   </div>
@@ -238,18 +238,18 @@
   <div class="wrap">
     <div class="sec-head">
       <span class="label">04 — Emission</span>
-      <h2>Mined from block one. No VC, no premine.</h2>
+      <h2>Mined from block one. No VC.</h2>
     </div>
     <div class="figs">
-      <div class="fig"><div class="k">6 $firecash</div><div class="v">Reward at block 1</div></div>
+      <div class="fig"><div class="k">60 $firecash</div><div class="v">Reward at block 1</div></div>
       <div class="fig"><div class="k">3 months</div><div class="v">Halving</div></div>
-      <div class="fig"><div class="k">0.3 $firecash</div><div class="v">Perpetual tail / block</div></div>
-      <div class="fig"><div class="k">0%</div><div class="v">Premine · VC</div></div>
+      <div class="fig"><div class="k">3 $firecash</div><div class="v">Perpetual tail / block</div></div>
+      <div class="fig"><div class="k">0%</div><div class="v">VC allocation</div></div>
     </div>
     <div class="chart">
       <svg viewBox="0 0 640 300" role="img" aria-labelledby="emit-t emit-d">
         <title id="emit-t">FireCash block reward over time</title>
-        <desc id="emit-d">The block reward starts at 6 $firecash and halves every three months. Around month ten the decay is caught by a tail floor of 0.6 $firecash per block, which holds through month twenty-four and then steps down once to a permanent 0.3 $firecash per block, paid forever to fund proof-of-work security. There is no fixed supply cap.</desc>
+        <desc id="emit-d">The block reward starts at 60 $firecash and halves every three months. Around month ten the decay is caught by a tail floor of 6 $firecash per block, which holds through month twenty-four and then steps down once to a permanent 3 $firecash per block, paid forever to fund proof-of-work security. There is no fixed supply cap.</desc>
         <g stroke="#23232c" stroke-width="1">
           <line x1="48" y1="18" x2="622" y2="18"/>
           <line x1="48" y1="99" x2="622" y2="99"/>
@@ -268,13 +268,13 @@
           <circle cx="206.9" cy="237.6" r="3.6"/>
           <circle cx="430.7" cy="249.8" r="3.6"/>
         </g>
-        <text class="anno" x="58" y="14">6 $firecash at launch</text>
-        <text class="anno" x="318" y="232" text-anchor="middle">0.6 $firecash tail</text>
-        <text class="anno" x="618" y="245" text-anchor="end">steps to 0.3 $firecash — forever</text>
+        <text class="anno" x="58" y="14">60 $firecash at launch</text>
+        <text class="anno" x="318" y="232" text-anchor="middle">6 $firecash tail</text>
+        <text class="anno" x="618" y="245" text-anchor="end">steps to 3 $firecash — forever</text>
         <g class="yl" text-anchor="end">
-          <text x="40" y="21">6 $firecash</text>
-          <text x="40" y="102">4 $firecash</text>
-          <text x="40" y="184">2 $firecash</text>
+          <text x="40" y="21">60 $firecash</text>
+          <text x="40" y="102">40 $firecash</text>
+          <text x="40" y="184">20 $firecash</text>
           <text x="40" y="265">0</text>
         </g>
         <g class="axis" text-anchor="middle">
@@ -290,7 +290,7 @@
           <text x="335" y="297">months since launch</text>
         </g>
       </svg>
-      <p class="cap">Block reward per block. It <b>halves every 3 months</b> from 6 $firecash, crossing a <b>0.6 $firecash/block tail</b> around month 10; that floor holds until month 24, then steps down once to a <b>perpetual 0.3 $firecash/block tail</b> (~95M $firecash/year) — steeply disinflationary early, a low constant floor in the long run, with <b>no fixed supply cap</b>.</p>
+      <p class="cap">Block reward per block. It <b>halves every 3 months</b> from 60 $firecash, crossing a <b>6 $firecash/block tail</b> around month 10; that floor holds until month 24, then steps down once to a <b>perpetual 3 $firecash/block tail</b> (~95M $firecash/year) — steeply disinflationary early, a low constant floor in the long run, with <b>no fixed supply cap</b>.</p>
     </div>
   </div>
 </section>
@@ -303,7 +303,7 @@
     </div>
     <ul class="road">
       <li><div class="ph">Stage 1</div><div><h3>Shielded mainnet</h3>
-        <p>Fair proof-of-work launch. Shielded-by-default coinbase and payments on a ten-blocks-per-second GHOSTDAG BlockDAG.</p></div></li>
+        <p>Fair proof-of-work launch. Shielded-by-default coinbase and payments on a one-block-per-second GHOSTDAG BlockDAG.</p></div></li>
       <li><div class="ph">Stage 2</div><div><h3>Full-chain membership proofs (FCMP)</h3>
         <p>Adopt the next-generation privacy primitive advanced by Monero — membership against every note ever created, not a fixed ring.</p></div></li>
       <li><div class="ph">Stage 3</div><div><h3>Private smart contracts</h3>
