@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FireCash — A Private-by-Default Proof-of-Work BlockDAG</title>
-<link rel="icon" type="image/jpeg" href="/logo.jpg">
+<title>ZKas — A Private-by-Default Proof-of-Work BlockDAG</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
 <style>
   :root{
     --ink:#14171a; --mut:#5b6570; --line:#d9dde2; --accent:#c0392b; --bg:#ffffff;
@@ -82,20 +82,20 @@
 
 <!-- ============ COVER ============ -->
 <section class="cover">
-  <img src="/logo.jpg" alt="FireCash" style="width:104px;height:104px;border-radius:18px;display:block;margin:0 auto 22px" onerror="this.remove()">
+  <img src="/logo.png" alt="ZKas" style="width:104px;height:104px;border-radius:18px;display:block;margin:0 auto 22px" onerror="this.remove()">
   <div class="kicker">Technical Whitepaper · v1.0</div>
-  <h1>FireCash</h1>
+  <h1>ZKas</h1>
   <div class="sub">A private-by-default proof-of-work BlockDAG — privacy at settlement speed</div>
   <div class="rule"></div>
-  <p class="lead">FireCash is a from-genesis cryptocurrency that combines Kaspa's GHOSTDAG BlockDAG — fast, parallel, proof-of-work block production — with Zcash's Orchard shielded protocol, so that every amount, sender, and recipient is hidden by construction. There is no transparent transfer type; the only public value event is the block subsidy, whose amount must be public to be checked against the emission schedule. Its premise is that privacy and scalability are compatible: a shielded ledger settles in about a second when its state transition runs along the order the consensus engine already produces.</p>
+  <p class="lead">ZKas is a from-genesis cryptocurrency that combines Kaspa's GHOSTDAG BlockDAG — fast, parallel, proof-of-work block production — with Zcash's Orchard shielded protocol, so that every amount, sender, and recipient is hidden by construction. There is no transparent transfer type; the only public value event is the block subsidy, whose amount must be public to be checked against the emission schedule. Its premise is that privacy and scalability are compatible: a shielded ledger settles in about a second when its state transition runs along the order the consensus engine already produces.</p>
 
   <div class="abstract">
     <h4>Abstract</h4>
-    <p class="small">Existing private ledgers pay for confidentiality with latency: Zcash settles in ~75&nbsp;s, Monero in ~120&nbsp;s, and both inherit a single-chain throughput ceiling. FireCash is built to avoid that tradeoff. It forks the rusty-kaspa engine — GHOSTDAG ordering over a directed acyclic graph of blocks at one block per second — and replaces the transparent UTXO value layer with a mandatory Orchard shielded pool proven in Halo&nbsp;2 (no trusted setup, Pasta curve cycle). The one genuinely novel piece of engineering is keeping Orchard's two order-sensitive global structures — the append-only nullifier set and the depth-32 note-commitment tree — consistent across a graph whose blocks are produced in parallel and ordered <em>after the fact</em>. FireCash solves this with a three-tier commitment tree whose global layer is advanced strictly in GHOSTDAG accepted order inside the virtual processor, so every honest node computes an identical nullifier set and an identical anchor. Because there is no transparent ledger to cross-check, supply integrity is enforced directly as consensus: a <em>turnstile invariant</em> requires the shielded pool to equal cumulative coinbase minus cumulative fees, backed per transaction by the homomorphic binding signature that already proves each bundle balances. Spends prove against a matured, reorg-safe anchor rather than the volatile tip. Issuance is proof-of-work only — with no venture allocation — mined with kHeavyHash, the same proof-of-work as Kaspa, which lets FireCash be merge-mined with Kaspa's hashrate; it launches at a low-difficulty target and follows a three-month halving. This paper specifies the consensus integration, the anti-inflation model, the verification-scaling path, the monetary policy, and the roadmap toward full-chain membership proofs and private programmability.</p>
+    <p class="small">Existing private ledgers pay for confidentiality with latency: Zcash settles in ~75&nbsp;s, Monero in ~120&nbsp;s, and both inherit a single-chain throughput ceiling. ZKas is built to avoid that tradeoff. It forks the rusty-kaspa engine — GHOSTDAG ordering over a directed acyclic graph of blocks at one block per second — and replaces the transparent UTXO value layer with a mandatory Orchard shielded pool proven in Halo&nbsp;2 (no trusted setup, Pasta curve cycle). The one genuinely novel piece of engineering is keeping Orchard's two order-sensitive global structures — the append-only nullifier set and the depth-32 note-commitment tree — consistent across a graph whose blocks are produced in parallel and ordered <em>after the fact</em>. ZKas solves this with a three-tier commitment tree whose global layer is advanced strictly in GHOSTDAG accepted order inside the virtual processor, so every honest node computes an identical nullifier set and an identical anchor. Because there is no transparent ledger to cross-check, supply integrity is enforced directly as consensus: a <em>turnstile invariant</em> requires the shielded pool to equal cumulative coinbase minus cumulative fees, backed per transaction by the homomorphic binding signature that already proves each bundle balances. Spends prove against a matured, reorg-safe anchor rather than the volatile tip. Issuance is proof-of-work only — with no venture allocation — mined with kHeavyHash, the same proof-of-work as Kaspa, which lets ZKas be merge-mined with Kaspa's hashrate; it launches at a low-difficulty target and follows a three-month halving. This paper specifies the consensus integration, the anti-inflation model, the verification-scaling path, the monetary policy, and the roadmap toward full-chain membership proofs and private programmability.</p>
   </div>
 
   <div class="meta">
-    Ticker: <strong>$firecash</strong> &nbsp;·&nbsp; Engine: rusty-kaspa (GHOSTDAG) &nbsp;·&nbsp; Privacy: Orchard / Halo&nbsp;2 &nbsp;·&nbsp; PoW: kHeavyHash (merge-mineable with Kaspa) &nbsp;·&nbsp; Block time: 1&nbsp;s<br>
+    Ticker: <strong>ZKAS</strong> &nbsp;·&nbsp; Engine: rusty-kaspa (GHOSTDAG) &nbsp;·&nbsp; Privacy: Orchard / Halo&nbsp;2 &nbsp;·&nbsp; PoW: kHeavyHash (merge-mineable with Kaspa) &nbsp;·&nbsp; Block time: 1&nbsp;s<br>
     This document describes the protocol as designed and, where noted, as implemented. Forward-looking items are explicitly marked <em>(roadmap)</em>.
   </div>
 </section>
@@ -128,18 +128,18 @@
 <h2 id="s1">1 · Introduction</h2>
 <p>Most public blockchains expose every balance and every payment to anyone, permanently. Ledgers that hide this information exist, but the ones with the strongest guarantees run on linear chains that confirm in minutes, so privacy has come bundled with low throughput and high latency.</p>
 <p>Kaspa showed that proof-of-work need not be slow. Its GHOSTDAG protocol generalizes Nakamoto consensus from a single chain to a directed acyclic graph of blocks and orders that graph into one agreed sequence, while producing blocks in parallel at ten per second. The result is sub-second settlement without weakening proof-of-work security. Kaspa's ledger, however, is fully transparent.</p>
-<p>FireCash combines the two: Orchard's confidentiality on a GHOSTDAG BlockDAG. This is workable because an Orchard transaction is self-contained. It balances its own value through homomorphic commitments and proves its own validity in zero knowledge, independent of the order of other transactions. Only two structures are globally order-sensitive: the set of spent-note nullifiers and the Merkle tree of note commitments. A BlockDAG already linearizes its accepted transactions, and FireCash advances those two structures along that existing order. Confidentiality therefore adds little latency, and the problem that usually makes a private chain hard — keeping global state consistent under parallel block production — reduces to reusing an ordering the engine already computes.</p>
+<p>ZKas combines the two: Orchard's confidentiality on a GHOSTDAG BlockDAG. This is workable because an Orchard transaction is self-contained. It balances its own value through homomorphic commitments and proves its own validity in zero knowledge, independent of the order of other transactions. Only two structures are globally order-sensitive: the set of spent-note nullifiers and the Merkle tree of note commitments. A BlockDAG already linearizes its accepted transactions, and ZKas advances those two structures along that existing order. Confidentiality therefore adds little latency, and the problem that usually makes a private chain hard — keeping global state consistent under parallel block production — reduces to reusing an ordering the engine already computes.</p>
 <p>Two properties follow from making privacy mandatory. Because there is no transparent pool to reconcile against, supply integrity has to be enforced directly as a consensus rule rather than observed after the fact. And because there is no transparent fallback, every participant scans continuously and every spender must be able to produce a proof, which makes wallet performance a protocol concern rather than an afterthought.</p>
 
 <!-- ============ 2 ============ -->
 <h2 id="s2">2 · Inspirations &amp; related work</h2>
-<p>FireCash reuses established cryptography and consensus, and adds new engineering only where combining them requires it. It draws on four bodies of work.</p>
+<p>ZKas reuses established cryptography and consensus, and adds new engineering only where combining them requires it. It draws on four bodies of work.</p>
 <h3>2.1 Kaspa &amp; GHOSTDAG</h3>
-<p>The consensus engine, block structure, virtual-chain processor, difficulty machinery, and UTXO conflict-resolution model are inherited from rusty-kaspa. GHOSTDAG (the PHANTOM line of work) is what lets blocks be mined in parallel yet still be totally ordered, and it is precisely this <em>after-the-fact linearization</em> that FireCash exploits to serialize its shielded state. The consensus engine is otherwise left untouched: the only surgery is inserting the shielded state transition into the accepted-order path.</p>
+<p>The consensus engine, block structure, virtual-chain processor, difficulty machinery, and UTXO conflict-resolution model are inherited from rusty-kaspa. GHOSTDAG (the PHANTOM line of work) is what lets blocks be mined in parallel yet still be totally ordered, and it is precisely this <em>after-the-fact linearization</em> that ZKas exploits to serialize its shielded state. The consensus engine is otherwise left untouched: the only surgery is inserting the shielded state transition into the accepted-order path.</p>
 <h3>2.2 Zcash &amp; Orchard</h3>
 <p>The privacy layer is Orchard — Zcash's third-generation shielded protocol — reused through the audited <code>orchard</code> crate rather than re-implemented. Orchard's <em>Action</em> (a merged spend-and-output), its Pedersen value commitments, its Sinsemilla note-commitment tree, and its nullifier derivation are adopted as-is. Critically, Orchard has <em>no interstitial treestates</em>: transactions within a block do not chain tree state to one another, which is what makes the three-tier construction of §6 possible.</p>
 <h3>2.3 Halo 2</h3>
-<p>Statements are proven in Halo&nbsp;2 over the Pallas/Vesta ("Pasta") curve cycle. Halo&nbsp;2 needs <strong>no trusted setup</strong> — a decisive property for a coin with no trusted-setup ceremony and no privileged parties — and its inner-product argument supports both batch verification and, ultimately, recursive proof composition, the two levers FireCash uses to make shielded verification scale (§9).</p>
+<p>Statements are proven in Halo&nbsp;2 over the Pallas/Vesta ("Pasta") curve cycle. Halo&nbsp;2 needs <strong>no trusted setup</strong> — a decisive property for a coin with no trusted-setup ceremony and no privileged parties — and its inner-product argument supports both batch verification and, ultimately, recursive proof composition, the two levers ZKas uses to make shielded verification scale (§9).</p>
 <h3>2.4 Monero &amp; Mina (forward influences)</h3>
 <p>Two systems shape the roadmap rather than v1. Monero's <em>Full-Chain Membership Proofs</em> (FCMP++ / Curve Trees) point toward an anonymity set spanning the entire history rather than a single anchor's tree, and their tree structure is an even cleaner fit for a DAG. Mina's recursive-proof architecture points toward per-chain-block aggregation and, at the limit, a single succinct proof for the whole shielded history. Both are treated as future upgrades, and the tree/membership module is kept behind an interface so the swap is possible without re-architecting consensus.</p>
 
@@ -154,12 +154,12 @@
   <li><strong>Upgradable privacy.</strong> A membership argument that can migrate to full-chain proofs later.</li>
 </ul>
 <h4>Adversary &amp; assumptions</h4>
-<p>The network adversary controls a minority of hash power and may reorganize the recent tip, produce conflicting parallel blocks, and attempt double-spends; GHOSTDAG's security bounds hold as in Kaspa. The privacy adversary observes the full public DAG and all network traffic and attempts to link, deanonymize, or forge. The economic adversary attempts to create value through any seam — malformed coinbase, value-commitment edge cases, dummy/zero-value notes, or a spend against an anchor from an abandoned branch. FireCash assumes it <em>inherits latent bugs</em> from the code it forks: in 2026 a missing equality constraint in a Halo&nbsp;2 scalar-multiplication gadget allowed nullifier forgery and silent pool inflation in live Orchard, undetected for four years of expert review. The turnstile invariant (§8) exists precisely so that such a class of bug degrades to a halt, not a counterfeit.</p>
+<p>The network adversary controls a minority of hash power and may reorganize the recent tip, produce conflicting parallel blocks, and attempt double-spends; GHOSTDAG's security bounds hold as in Kaspa. The privacy adversary observes the full public DAG and all network traffic and attempts to link, deanonymize, or forge. The economic adversary attempts to create value through any seam — malformed coinbase, value-commitment edge cases, dummy/zero-value notes, or a spend against an anchor from an abandoned branch. ZKas assumes it <em>inherits latent bugs</em> from the code it forks: in 2026 a missing equality constraint in a Halo&nbsp;2 scalar-multiplication gadget allowed nullifier forgery and silent pool inflation in live Orchard, undetected for four years of expert review. The turnstile invariant (§8) exists precisely so that such a class of bug degrades to a halt, not a counterfeit.</p>
 
 <!-- ============ 4 ============ -->
 <h2 id="s4">4 · Consensus: the GHOSTDAG BlockDAG</h2>
 <p>Blocks reference multiple parents and form a DAG. GHOSTDAG selects a <em>k</em>-cluster of well-connected blocks, derives a single <em>selected chain</em>, and from it a total order over every block and transaction in the graph — the same order used to resolve transparent UTXO double-spends (first occurrence in accepted order wins). The <em>virtual</em> block represents the current tip of this ordering, and the virtual-chain processor is where the ledger's state is advanced.</p>
-<p>FireCash runs this engine at a target of one block per second (1&nbsp;s spacing). Everything that follows hooks into a single point: the place where the processor has <em>already</em> linearized the accepted transaction set. That linear order is the substrate on which the private state becomes deterministic.</p>
+<p>ZKas runs this engine at a target of one block per second (1&nbsp;s spacing). Everything that follows hooks into a single point: the place where the processor has <em>already</em> linearized the accepted transaction set. That linear order is the substrate on which the private state becomes deterministic.</p>
 
 <!-- ============ 5 ============ -->
 <h2 id="s5">5 · The shielded value layer</h2>
@@ -182,7 +182,7 @@
 
 <!-- ============ 6 ============ -->
 <h2 id="s6" class="pagebreak">6 · Shielded state on a DAG — the core construction</h2>
-<p>This is the one component of FireCash that is genuinely new; everything else is integration.</p>
+<p>This is the one component of ZKas that is genuinely new; everything else is integration.</p>
 
 <h3>6.1 The three-tier commitment tree</h3>
 <p>The note-commitment tree is built in three layers, so that the only serialized step is as small as possible:</p>
@@ -193,7 +193,7 @@
 </ul>
 
 <h3>6.2 The state transition</h3>
-<p>At the point where the processor linearizes the accepted set, FireCash appends the following steps immediately after the transparent UTXO update, per accepted chain block, in order:</p>
+<p>At the point where the processor linearizes the accepted set, ZKas appends the following steps immediately after the transparent UTXO update, per accepted chain block, in order:</p>
 <ol>
   <li><strong>Resolve nullifier conflicts.</strong> For each Action in accepted order, if its nullifier is already present, the transaction is a conflict and is dropped — identical to a double-spent UTXO. First occurrence wins.</li>
   <li><strong>Insert surviving nullifiers</strong> into the set.</li>
@@ -210,8 +210,8 @@
 
 <!-- ============ 7 ============ -->
 <h2 id="s7">7 · Anchors, finality &amp; reorg safety</h2>
-<p>The selected chain reorganizes its recent tip frequently, so a spend must never prove against the volatile tip. Orchard permits proving against any historical anchor at no extra cost, so FireCash requires spends to reference a <strong>matured</strong> anchor — one buried at least <span class="mono">shielded_anchor_depth</span> blocks deep, roughly ten minutes at one block per second — after which reorg probability past it is negligible. At this block rate even a ten-minute-old anchor already commits to an enormous note set, so the anonymity cost of "deep" anchors is negligible.</p>
-<p>Maturity alone is not sufficient; the anchor must also be <em>canonical</em>. FireCash indexes each anchor to the chain block that produced it and, at validation time, accepts a spend only if that source block is a selected-chain ancestor of the spending block (decided by the reachability service) <em>and</em> at least <span class="mono">shielded_anchor_depth</span> deep. An anchor produced on a branch that a deep reorg later abandoned fails the ancestry test by construction, closing a value-creation vector in which a note could otherwise be "un-spent" by a reorg while its spend remained valid. Coinbase-funded, output-only bundles carry the empty-tree anchor and are exempt, since they reveal no nullifier.</p>
+<p>The selected chain reorganizes its recent tip frequently, so a spend must never prove against the volatile tip. Orchard permits proving against any historical anchor at no extra cost, so ZKas requires spends to reference a <strong>matured</strong> anchor — one buried at least <span class="mono">shielded_anchor_depth</span> blocks deep, roughly ten minutes at one block per second — after which reorg probability past it is negligible. At this block rate even a ten-minute-old anchor already commits to an enormous note set, so the anonymity cost of "deep" anchors is negligible.</p>
+<p>Maturity alone is not sufficient; the anchor must also be <em>canonical</em>. ZKas indexes each anchor to the chain block that produced it and, at validation time, accepts a spend only if that source block is a selected-chain ancestor of the spending block (decided by the reachability service) <em>and</em> at least <span class="mono">shielded_anchor_depth</span> deep. An anchor produced on a branch that a deep reorg later abandoned fails the ancestry test by construction, closing a value-creation vector in which a note could otherwise be "un-spent" by a reorg while its spend remained valid. Coinbase-funded, output-only bundles carry the empty-tree anchor and are exempt, since they reveal no nullifier.</p>
 
 <!-- ============ 8 ============ -->
 <h2 id="s8">8 · Supply integrity: the turnstile invariant</h2>
@@ -230,7 +230,7 @@
 
 <!-- ============ 9 ============ -->
 <h2 id="s9">9 · Verification &amp; scalability</h2>
-<p>A shielded proof costs on the order of 100–700× a signature check, so at one block per second naive per-Action verification would still overwhelm a node under load. FireCash addresses this in layers.</p>
+<p>A shielded proof costs on the order of 100–700× a signature check, so at one block per second naive per-Action verification would still overwhelm a node under load. ZKas addresses this in layers.</p>
 <h4>Encoding &amp; soundness gates (implemented)</h4>
 <p>Every bundle is checked for the three independent properties that make private value trustworthy: <em>balance</em> (the binding signature), <em>membership + authority + nullifier integrity</em> (the Halo&nbsp;2 proof against the audited upstream circuit), and <em>spend authorization</em> (per-Action randomized-key signatures over a domain-separated sighash that binds each bundle to this chain and this transaction, preventing cross-network and cross-transaction replay). Consensus additionally rejects non-canonical field encodings and, following the 2026 disclosure, identity-point randomized and ephemeral keys that could split consensus by panicking a verifier. A node built without proof verification refuses shielded transactions outright, rather than admitting an unverified bundle.</p>
 <h4>Batch &amp; parallel verification (implemented)</h4>
@@ -240,8 +240,8 @@
 
 <!-- ============ 10 ============ -->
 <h2 id="s10">10 · Proof-of-work: kHeavyHash &amp; merged mining</h2>
-<p>FireCash secures block production with <strong>kHeavyHash</strong> — byte-for-byte the same proof-of-work as its parent chain, Kaspa. This is a deliberate design choice, not an incidental inheritance: sharing Kaspa's algorithm makes FireCash <em>merge-mineable</em> with Kaspa, so one hashing effort can secure both chains at once. For a young network, security borrowed from an established chain — at zero marginal cost to that chain's miners — is a stronger and more honest bootstrap than an isolated hashrate that must be grown from scratch. For a shielded chain the decisive protection against a chain reorg is finality, not raw hashrate (§7): spends prove only against a matured, canonical anchor, so merged mining is a security <em>amplifier</em> on top of that guarantee rather than the sole line of defense.</p>
-<p>Under merged mining FireCash is the <em>auxiliary</em> chain and Kaspa the parent: a miner embeds a 32-byte commitment to its FireCash block in the parent coinbase, mines Kaspa normally, and any solution clearing FireCash's own target yields a valid FireCash block — proven by the parent header plus a Merkle path to that commitment. FireCash sets its <em>own</em> difficulty and is never slaved to Kaspa's; because that target is typically far easier, the great majority of hashes that fail Kaspa's target still secure FireCash. Blocks are admitted by <strong>dual acceptance</strong> — valid if they carry either a native kHeavyHash header <em>or</em> a valid auxiliary proof — so liveness never depends on merged-mining participation: native mining is always the backbone, and merged mining augments security as it is adopted.</p>
+<p>ZKas secures block production with <strong>kHeavyHash</strong> — byte-for-byte the same proof-of-work as its parent chain, Kaspa. This is a deliberate design choice, not an incidental inheritance: sharing Kaspa's algorithm makes ZKas <em>merge-mineable</em> with Kaspa, so one hashing effort can secure both chains at once. For a young network, security borrowed from an established chain — at zero marginal cost to that chain's miners — is a stronger and more honest bootstrap than an isolated hashrate that must be grown from scratch. For a shielded chain the decisive protection against a chain reorg is finality, not raw hashrate (§7): spends prove only against a matured, canonical anchor, so merged mining is a security <em>amplifier</em> on top of that guarantee rather than the sole line of defense.</p>
+<p>Under merged mining ZKas is the <em>auxiliary</em> chain and Kaspa the parent: a miner embeds a 32-byte commitment to its ZKas block in the parent coinbase, mines Kaspa normally, and any solution clearing ZKas's own target yields a valid ZKas block — proven by the parent header plus a Merkle path to that commitment. ZKas sets its <em>own</em> difficulty and is never slaved to Kaspa's; because that target is typically far easier, the great majority of hashes that fail Kaspa's target still secure ZKas. Blocks are admitted by <strong>dual acceptance</strong> — valid if they carry either a native kHeavyHash header <em>or</em> a valid auxiliary proof — so liveness never depends on merged-mining participation: native mining is always the backbone, and merged mining augments security as it is adopted.</p>
 <div class="note">Status: native kHeavyHash mining is implemented and live, and the auxiliary-proof verifier is implemented and tested. Full merged-mining deployment — carrying the auxiliary proof through block propagation and the merged-mining pool tooling — is on the roadmap (§15).</div>
 <p>The launch difficulty follows a three-phase schedule so that ordinary hardware can mine from block one without leaving the chain permanently easy to attack:</p>
 <ul>
@@ -254,47 +254,47 @@
 <h2 id="s11">11 · Monetary policy &amp; emission</h2>
 <p>Issuance is <strong>proof-of-work only</strong>, with no venture or investor allocation. Rewards enter the mandatory shielded pool as coinbase notes (§8.3), so even newly issued coins are private after a single hop.</p>
 <h3>11.1 Key figures</h3>
-<p>The block reward begins at <strong>60&nbsp;$firecash per block</strong> (60&nbsp;$firecash per second at one block per second) and follows a smooth decay that <strong>halves every three months</strong> from genesis. The curve does not fall to zero: it is caught by a <strong>two-step perpetual tail</strong>. The decay crosses <strong>6&nbsp;$firecash per block</strong> around month&nbsp;10, and that floor is paid through <strong>month&nbsp;24</strong>; the reward then steps down once to <strong>3&nbsp;$firecash per block</strong> and stays there permanently. The final 3&nbsp;$firecash/block tail — roughly <strong>95&nbsp;million&nbsp;$firecash per year</strong> — funds proof-of-work security indefinitely rather than leaving miners to rely on fees alone. There is therefore no fixed supply cap; issuance is steeply disinflationary early and settles onto a low constant floor in the long run.</p>
+<p>The block reward begins at <strong>60&nbsp;ZKAS per block</strong> (60&nbsp;ZKAS per second at one block per second) and follows a smooth decay that <strong>halves every three months</strong> from genesis. The curve does not fall to zero: it is caught by a <strong>two-step perpetual tail</strong>. The decay crosses <strong>6&nbsp;ZKAS per block</strong> around month&nbsp;10, and that floor is paid through <strong>month&nbsp;24</strong>; the reward then steps down once to <strong>3&nbsp;ZKAS per block</strong> and stays there permanently. The final 3&nbsp;ZKAS/block tail — roughly <strong>95&nbsp;million&nbsp;ZKAS per year</strong> — funds proof-of-work security indefinitely rather than leaving miners to rely on fees alone. There is therefore no fixed supply cap; issuance is steeply disinflationary early and settles onto a low constant floor in the long run.</p>
 <table>
   <tr><th>Quantity</th><th>Value</th></tr>
-  <tr><td>Initial block reward</td><td>60 $firecash/block (60 $firecash/s)</td></tr>
-  <tr><td>Reward after first halving (month 3)</td><td>30 $firecash/block</td></tr>
+  <tr><td>Initial block reward</td><td>60 ZKAS/block (60 ZKAS/s)</td></tr>
+  <tr><td>Reward after first halving (month 3)</td><td>30 ZKAS/block</td></tr>
   <tr><td>Halving interval</td><td>3 months</td></tr>
-  <tr><td>Tail — first step</td><td>6 $firecash/block (≈ month 10 through month 24; ≈ 189M $firecash/year)</td></tr>
-  <tr><td>Tail — perpetual floor</td><td>3 $firecash/block (from month 24 forever; ≈ 95M $firecash/year)</td></tr>
+  <tr><td>Tail — first step</td><td>6 ZKAS/block (≈ month 10 through month 24; ≈ 189M ZKAS/year)</td></tr>
+  <tr><td>Tail — perpetual floor</td><td>3 ZKAS/block (from month 24 forever; ≈ 95M ZKAS/year)</td></tr>
   <tr><td>Supply cap</td><td>None — perpetual tail</td></tr>
-  <tr><td>Smallest unit</td><td>1 sompi = 10⁻⁸ $firecash</td></tr>
+  <tr><td>Smallest unit</td><td>1 sompi = 10⁻⁸ ZKAS</td></tr>
 </table>
 <h3>11.2 Halving schedule</h3>
-<p>The schedule is front-loaded: a fast three-month halving distributes most coins in the first year, after which the reward is caught by the tail and issuance slows sharply. The curve halves 60&nbsp;→&nbsp;30&nbsp;→&nbsp;15&nbsp;→&nbsp;7.5&nbsp;$firecash over the first four quarters, crossing the <strong>6&nbsp;$firecash</strong> first-step floor around month&nbsp;10; that floor holds through month&nbsp;24, then steps down once to the perpetual <strong>3&nbsp;$firecash</strong> floor. The figures below are computed from the on-chain per-block subsidy schedule.</p>
+<p>The schedule is front-loaded: a fast three-month halving distributes most coins in the first year, after which the reward is caught by the tail and issuance slows sharply. The curve halves 60&nbsp;→&nbsp;30&nbsp;→&nbsp;15&nbsp;→&nbsp;7.5&nbsp;ZKAS over the first four quarters, crossing the <strong>6&nbsp;ZKAS</strong> first-step floor around month&nbsp;10; that floor holds through month&nbsp;24, then steps down once to the perpetual <strong>3&nbsp;ZKAS</strong> floor. The figures below are computed from the on-chain per-block subsidy schedule.</p>
 <table>
-  <tr><th>Milestone</th><th>Reward / block</th><th>Cumulative supply ($firecash)</th></tr>
-  <tr><td>Genesis</td><td>60 $firecash</td><td>0</td></tr>
-  <tr><td>End of month 3 (first halving)</td><td>30 $firecash</td><td>≈ 341,000,000</td></tr>
-  <tr><td>End of month 6</td><td>15 $firecash</td><td>≈ 512,000,000</td></tr>
-  <tr><td>≈ month 10 (tail first step begins)</td><td>6 $firecash</td><td>≈ 615,000,000</td></tr>
-  <tr><td>End of month 12</td><td>6 $firecash</td><td>≈ 647,000,000</td></tr>
-  <tr><td>End of month 24 (tail steps down)</td><td>3 $firecash</td><td>≈ 836,000,000</td></tr>
-  <tr><td>End of month 36</td><td>3 $firecash</td><td>≈ 931,000,000</td></tr>
-  <tr><td>Each year thereafter</td><td>3 $firecash</td><td>+ ≈ 95,000,000 / year</td></tr>
+  <tr><th>Milestone</th><th>Reward / block</th><th>Cumulative supply (ZKAS)</th></tr>
+  <tr><td>Genesis</td><td>60 ZKAS</td><td>0</td></tr>
+  <tr><td>End of month 3 (first halving)</td><td>30 ZKAS</td><td>≈ 341,000,000</td></tr>
+  <tr><td>End of month 6</td><td>15 ZKAS</td><td>≈ 512,000,000</td></tr>
+  <tr><td>≈ month 10 (tail first step begins)</td><td>6 ZKAS</td><td>≈ 615,000,000</td></tr>
+  <tr><td>End of month 12</td><td>6 ZKAS</td><td>≈ 647,000,000</td></tr>
+  <tr><td>End of month 24 (tail steps down)</td><td>3 ZKAS</td><td>≈ 836,000,000</td></tr>
+  <tr><td>End of month 36</td><td>3 ZKAS</td><td>≈ 931,000,000</td></tr>
+  <tr><td>Each year thereafter</td><td>3 ZKAS</td><td>+ ≈ 95,000,000 / year</td></tr>
 </table>
-<p>The per-block reward tracks the shape of Kaspa's emission table, divided by the block rate so per-second issuance is rate-invariant, with two FireCash-specific transforms: every value is scaled by 3/22 (setting a per-second rate of 60&nbsp;$firecash/s versus Kaspa's unscaled base), and the table is traversed four times faster so a full halving takes three months rather than a year. At the live one-block-per-second rate this yields 60&nbsp;$firecash/block. Once the curve decays below the tail it is replaced by a fixed floor — 6&nbsp;$firecash/block through month&nbsp;24, then 3&nbsp;$firecash/block forever — giving the two-step perpetual tail. Because the schedule is defined per second and divided by the block rate, per-second issuance is rate-invariant and there is no over-issuance.</p>
+<p>The per-block reward tracks the shape of Kaspa's emission table, divided by the block rate so per-second issuance is rate-invariant, with two ZKas-specific transforms: every value is scaled by 3/22 (setting a per-second rate of 60&nbsp;ZKAS/s versus Kaspa's unscaled base), and the table is traversed four times faster so a full halving takes three months rather than a year. At the live one-block-per-second rate this yields 60&nbsp;ZKAS/block. Once the curve decays below the tail it is replaced by a fixed floor — 6&nbsp;ZKAS/block through month&nbsp;24, then 3&nbsp;ZKAS/block forever — giving the two-step perpetual tail. Because the schedule is defined per second and divided by the block rate, per-second issuance is rate-invariant and there is no over-issuance.</p>
 <div class="note">Because there is no transparent pool, circulating supply is not something an observer can sum from the ledger; it is instead pinned by the turnstile accounting (§8), which every node computes identically from the public coinbase schedule and the perpetual tail.</div>
 
 <!-- ============ 12 ============ -->
 <h2 id="s12">12 · Keys, wallets &amp; disclosure</h2>
-<p>FireCash uses Orchard's key hierarchy: a spending key (spend authority), a full viewing key, an incoming viewing key, and an outgoing viewing key, with diversified addresses. A wallet tracks a Merkle witness per owned note, advancing it as the global tree finalizes, and detects spends of its own notes by matching on-chain nullifiers. A reference wallet builds, proves, and submits real multi-note shielded payments — selecting input notes, adding a recipient output and change, and paying the fee as the bundle's value balance — against a matured anchor.</p>
+<p>ZKas uses Orchard's key hierarchy: a spending key (spend authority), a full viewing key, an incoming viewing key, and an outgoing viewing key, with diversified addresses. A wallet tracks a Merkle witness per owned note, advancing it as the global tree finalizes, and detects spends of its own notes by matching on-chain nullifiers. A reference wallet builds, proves, and submits real multi-note shielded payments — selecting input notes, adding a recipient output and change, and paying the fee as the bundle's value balance — against a matured anchor.</p>
 <h3>12.1 Selective disclosure</h3>
 <p>Viewing keys provide opt-in transparency: a holder can reveal their <em>own</em> transaction history — for an auditor, an exchange, or a counterparty — without exposing spend authority and without weakening anyone else's privacy. Disclosure is a choice made by the coin's owner, not a property forced on the network. By Orchard's key separation, delegated services (e.g. proving, §15) can be handed the material they need without ever gaining the ability to spend.</p>
 
 <!-- ============ 13 ============ -->
 <h2 id="s13">13 · State growth &amp; fees</h2>
-<p>Two structures grow monotonically. The note-commitment tree is append-only, but nodes need only its ~32-node frontier; wallets hold their own witnesses. The nullifier set, by contrast, can never be pruned — a spent note must remain un-spendable forever. This is irreducible; the design bounds the <em>rate</em> rather than eliminating it. FireCash extends Kaspa's KIP-9 storage-mass formula to price nullifier and commitment insertion, so that shielded-dust spam costs roughly what transparent dust already costs on Kaspa and cannot be used to bloat consensus state cheaply.</p>
+<p>Two structures grow monotonically. The note-commitment tree is append-only, but nodes need only its ~32-node frontier; wallets hold their own witnesses. The nullifier set, by contrast, can never be pruned — a spent note must remain un-spendable forever. This is irreducible; the design bounds the <em>rate</em> rather than eliminating it. ZKas extends Kaspa's KIP-9 storage-mass formula to price nullifier and commitment insertion, so that shielded-dust spam costs roughly what transparent dust already costs on Kaspa and cannot be used to bloat consensus state cheaply.</p>
 
 <!-- ============ 14 ============ -->
 <h2 id="s14">14 · Comparison</h2>
 <table>
-  <tr><th>Property</th><th>FireCash</th><th>Zcash</th><th>Monero</th></tr>
+  <tr><th>Property</th><th>ZKas</th><th>Zcash</th><th>Monero</th></tr>
   <tr><td>Nominal block time</td><td>1&nbsp;s</td><td>~75&nbsp;s</td><td>~120&nbsp;s</td></tr>
   <tr><td>Ledger structure</td><td>BlockDAG (GHOSTDAG)</td><td>Linear chain</td><td>Linear chain</td></tr>
   <tr><td>Privacy model</td><td>Orchard · Halo&nbsp;2</td><td>Orchard · Halo&nbsp;2</td><td>Ring signatures · RingCT</td></tr>
@@ -303,7 +303,7 @@
   <tr><td>Proof-of-work</td><td>kHeavyHash · shared with Kaspa (merge-mineable)</td><td>Equihash · ASIC</td><td>RandomX · CPU</td></tr>
   <tr><td>Issuance</td><td>PoW only · no VC · tail emission</td><td>PoW · founders' reward (historical)</td><td>PoW · tail emission</td></tr>
 </table>
-<p class="small muted">Block times are nominal. FireCash settles roughly 750× faster than Zcash and 1,200× faster than Monero while shielding every transaction by default — the combination this design exists to demonstrate.</p>
+<p class="small muted">Block times are nominal. ZKas settles roughly 750× faster than Zcash and 1,200× faster than Monero while shielding every transaction by default — the combination this design exists to demonstrate.</p>
 
 <!-- ============ 15 ============ -->
 <!-- ============ 15 ============ -->
@@ -320,12 +320,12 @@
   <li><strong>Light-wallet infrastructure</strong> — indexer, compact filters, oblivious sync, delegated and GPU-assisted proving.</li>
   <li><strong>Audit &amp; formal verification</strong> — independent review of the circuit, a public high-block-rate testnet soak, and a real bug bounty before final launch.</li>
   <li><strong>Multi-node network</strong> — seeders and shielded-state sync for pruned and fast-bootstrapping nodes.</li>
-  <li><strong>Merged mining</strong> — full deployment of auxiliary-proof propagation and merged-mining pool tooling, so FireCash can be secured alongside Kaspa at zero marginal cost (the auxiliary-proof verifier is already built and tested).</li>
+  <li><strong>Merged mining</strong> — full deployment of auxiliary-proof propagation and merged-mining pool tooling, so ZKas can be secured alongside Kaspa at zero marginal cost (the auxiliary-proof verifier is already built and tested).</li>
 </ul>
 
 <!-- ============ 17 ============ -->
 <h2 id="s16">16 · Conclusion</h2>
-<p>Privacy and throughput have looked like a tradeoff largely because private ledgers were built on linear chains with opt-in confidentiality. FireCash changes both: privacy is the default, and the shielded state transition runs along the order a GHOSTDAG BlockDAG already produces. The result is Orchard-grade confidentiality at roughly one-second settlement, with supply integrity enforced as a consensus rule rather than assumed. The remaining work — recursive verification at scale, light-client infrastructure, full-chain membership, private programmability, and independent audit — is substantial but well understood. The design goal is a proof-of-work currency that is fast, openly mineable, and private at once.</p>
+<p>Privacy and throughput have looked like a tradeoff largely because private ledgers were built on linear chains with opt-in confidentiality. ZKas changes both: privacy is the default, and the shielded state transition runs along the order a GHOSTDAG BlockDAG already produces. The result is Orchard-grade confidentiality at roughly one-second settlement, with supply integrity enforced as a consensus rule rather than assumed. The remaining work — recursive verification at scale, light-client infrastructure, full-chain membership, private programmability, and independent audit — is substantial but well understood. The design goal is a proof-of-work currency that is fast, openly mineable, and private at once.</p>
 
 <hr class="sec">
 
@@ -354,17 +354,17 @@
   <tr><td>Transfer types</td><td>Shielded only; coinbase is the sole public value event</td></tr>
   <tr><td>Anchor maturity</td><td>~10 min deep, canonical (reachability-checked)</td></tr>
   <tr><td>Supply rule</td><td>Turnstile: pool = Σ coinbase − Σ fees ≥ 0</td></tr>
-  <tr><td>Initial reward</td><td>60 $firecash/block (60 $firecash/s at 1 BPS)</td></tr>
+  <tr><td>Initial reward</td><td>60 ZKAS/block (60 ZKAS/s at 1 BPS)</td></tr>
   <tr><td>Halving</td><td>Every 3 months (smooth decay from genesis)</td></tr>
-  <tr><td>Tail emission</td><td>6 $firecash/block to month 24, then 3 $firecash/block perpetual (≈ 95M $firecash/year); no supply cap</td></tr>
-  <tr><td>Denomination</td><td>1 $firecash = 10⁸ sompi</td></tr>
+  <tr><td>Tail emission</td><td>6 ZKAS/block to month 24, then 3 ZKAS/block perpetual (≈ 95M ZKAS/year); no supply cap</td></tr>
+  <tr><td>Denomination</td><td>1 ZKAS = 10⁸ sompi</td></tr>
   <tr><td>Issuance</td><td>PoW only — no venture allocation</td></tr>
   <tr><td>Launch difficulty</td><td>~50k-block easy start, ~200k-block ramp, then steady state</td></tr>
   <tr><td>Selective disclosure</td><td>Opt-in viewing keys (own history only)</td></tr>
   <tr><td>Ticker</td><td>FC</td></tr>
 </table>
 
-<p class="small muted" style="margin-top:26px">This whitepaper describes the FireCash protocol. Sections marked <em>(roadmap)</em> describe planned work; all other mechanisms are specified and, in the reference implementation, built. Parameters may be finalized at spec freeze prior to mainnet. Nothing herein is investment advice.</p>
+<p class="small muted" style="margin-top:26px">This whitepaper describes the ZKas protocol. Sections marked <em>(roadmap)</em> describe planned work; all other mechanisms are specified and, in the reference implementation, built. Parameters may be finalized at spec freeze prior to mainnet. Nothing herein is investment advice.</p>
 
 </div>
 </body>
