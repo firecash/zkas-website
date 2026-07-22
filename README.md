@@ -1,11 +1,3 @@
-# This repository has moved 🔀
+# zkas-website
 
-**FireCash is now ZKas.** This repository was renamed.
-
-## ➡️ New location: https://github.com/firecash/zkas-website
-
-Update your git remote:
-
-```sh
-git remote set-url origin https://github.com/firecash/zkas-website.git
-```
+Marketing + services site for **ZKas** (zkas.info). Static HTML.
