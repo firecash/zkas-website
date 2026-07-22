@@ -261,12 +261,12 @@
   <tr><td>Reward after first halving (month 3)</td><td>30 ZKAS/block</td></tr>
   <tr><td>Halving interval</td><td>3 months</td></tr>
   <tr><td>Tail — first step</td><td>6 ZKAS/block (≈ month 10 through month 24; ≈ 189M ZKAS/year)</td></tr>
-  <tr><td>Tail — perpetual floor</td><td>3 ZKAS/block (from month 24 forever; ≈ 95M ZKAS/year)</td></tr>
+  <tr><td>Tail — perpetual floor</td><td>0.6 ZKAS/block (from month 24 forever; ≈ 18.9M ZKAS/year)</td></tr>
   <tr><td>Supply cap</td><td>None — perpetual tail</td></tr>
   <tr><td>Smallest unit</td><td>1 sompi = 10⁻⁸ ZKAS</td></tr>
 </table>
 <h3>11.2 Halving schedule</h3>
-<p>The schedule is front-loaded: a fast three-month halving distributes most coins in the first year, after which the reward is caught by the tail and issuance slows sharply. The curve halves 60&nbsp;→&nbsp;30&nbsp;→&nbsp;15&nbsp;→&nbsp;7.5&nbsp;ZKAS over the first four quarters, crossing the <strong>6&nbsp;ZKAS</strong> first-step floor around month&nbsp;10; that floor holds through month&nbsp;24, then steps down once to the perpetual <strong>3&nbsp;ZKAS</strong> floor. The figures below are computed from the on-chain per-block subsidy schedule.</p>
+<p>The schedule is front-loaded: a fast three-month halving distributes most coins in the first year, after which the reward is caught by the tail and issuance slows sharply. The curve halves 60&nbsp;→&nbsp;30&nbsp;→&nbsp;15&nbsp;→&nbsp;7.5&nbsp;ZKAS over the first four quarters, crossing the <strong>6&nbsp;ZKAS</strong> first-step floor around month&nbsp;10; that floor holds through month&nbsp;24, then steps down once to the perpetual <strong>0.6&nbsp;ZKAS</strong> floor. The figures below are computed from the on-chain per-block subsidy schedule.</p>
 <table>
   <tr><th>Milestone</th><th>Reward / block</th><th>Cumulative supply (ZKAS)</th></tr>
   <tr><td>Genesis</td><td>60 ZKAS</td><td>0</td></tr>
@@ -274,11 +274,11 @@
   <tr><td>End of month 6</td><td>15 ZKAS</td><td>≈ 512,000,000</td></tr>
   <tr><td>≈ month 10 (tail first step begins)</td><td>6 ZKAS</td><td>≈ 615,000,000</td></tr>
   <tr><td>End of month 12</td><td>6 ZKAS</td><td>≈ 647,000,000</td></tr>
-  <tr><td>End of month 24 (tail steps down)</td><td>3 ZKAS</td><td>≈ 836,000,000</td></tr>
-  <tr><td>End of month 36</td><td>3 ZKAS</td><td>≈ 931,000,000</td></tr>
-  <tr><td>Each year thereafter</td><td>3 ZKAS</td><td>+ ≈ 95,000,000 / year</td></tr>
+  <tr><td>End of month 24 (tail steps down)</td><td>0.6 ZKAS</td><td>≈ 836,000,000</td></tr>
+  <tr><td>End of month 36</td><td>0.6 ZKAS</td><td>≈ 855,000,000</td></tr>
+  <tr><td>Each year thereafter</td><td>0.6 ZKAS</td><td>+ ≈ 18,900,000 / year</td></tr>
 </table>
-<p>The per-block reward tracks the shape of Kaspa's emission table, divided by the block rate so per-second issuance is rate-invariant, with two ZKas-specific transforms: every value is scaled by 3/22 (setting a per-second rate of 60&nbsp;ZKAS/s versus Kaspa's unscaled base), and the table is traversed four times faster so a full halving takes three months rather than a year. At the live one-block-per-second rate this yields 60&nbsp;ZKAS/block. Once the curve decays below the tail it is replaced by a fixed floor — 6&nbsp;ZKAS/block through month&nbsp;24, then 3&nbsp;ZKAS/block forever — giving the two-step perpetual tail. Because the schedule is defined per second and divided by the block rate, per-second issuance is rate-invariant and there is no over-issuance.</p>
+<p>The per-block reward tracks the shape of Kaspa's emission table, divided by the block rate so per-second issuance is rate-invariant, with two ZKas-specific transforms: every value is scaled by 3/22 (setting a per-second rate of 60&nbsp;ZKAS/s versus Kaspa's unscaled base), and the table is traversed four times faster so a full halving takes three months rather than a year. At the live one-block-per-second rate this yields 60&nbsp;ZKAS/block. Once the curve decays below the tail it is replaced by a fixed floor — 6&nbsp;ZKAS/block through month&nbsp;24, then 0.6&nbsp;ZKAS/block forever — giving the two-step perpetual tail. Because the schedule is defined per second and divided by the block rate, per-second issuance is rate-invariant and there is no over-issuance.</p>
 <div class="note">Because there is no transparent pool, circulating supply is not something an observer can sum from the ledger; it is instead pinned by the turnstile accounting (§8), which every node computes identically from the public coinbase schedule and the perpetual tail.</div>
 
 <!-- ============ 12 ============ -->
@@ -356,7 +356,7 @@
   <tr><td>Supply rule</td><td>Turnstile: pool = Σ coinbase − Σ fees ≥ 0</td></tr>
   <tr><td>Initial reward</td><td>60 ZKAS/block (60 ZKAS/s at 1 BPS)</td></tr>
   <tr><td>Halving</td><td>Every 3 months (smooth decay from genesis)</td></tr>
-  <tr><td>Tail emission</td><td>6 ZKAS/block to month 24, then 3 ZKAS/block perpetual (≈ 95M ZKAS/year); no supply cap</td></tr>
+  <tr><td>Tail emission</td><td>6 ZKAS/block to month 24, then 0.6 ZKAS/block perpetual (≈ 18.9M ZKAS/year, ≈ 2.2% at onset decaying toward ~1%); no supply cap</td></tr>
   <tr><td>Denomination</td><td>1 ZKAS = 10⁸ sompi</td></tr>
   <tr><td>Issuance</td><td>PoW only — no venture allocation</td></tr>
   <tr><td>Launch difficulty</td><td>~50k-block easy start, ~200k-block ramp, then steady state</td></tr>
