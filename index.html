@@ -141,6 +141,10 @@
     table { font-size: 12px; }
     th { padding-bottom: 10px; }
     td { padding-top: 10px; padding-bottom: 10px; }
+    .comparison-table { table-layout: fixed; }
+    .comparison-table th:first-child, .comparison-table td:first-child { width: 19%; }
+    .comparison-table th, .comparison-table td { padding-right: 18px; }
+    .comparison-table th:last-child, .comparison-table td:last-child { padding-right: 0; }
     .step { border-radius: 2px; background: rgba(24,216,189,.035); }
     .foot { border-top-color: var(--line); }
     .rail::-webkit-scrollbar, .panel::-webkit-scrollbar { width: 14px; }
@@ -250,6 +254,21 @@
               <tr><td>Proof system</td><td>Orchard + Halo 2</td><td>Validity without revealing value.</td></tr>
             </tbody>
           </table>
+        </article>
+
+        <article class="card wide">
+          <div class="card-head"><h3>Comparison</h3></div>
+          <div class="tblwrap">
+            <table class="comparison-table">
+              <thead><tr><th>Network</th><th>Privacy</th><th>Speed</th><th>Consensus / mining</th></tr></thead>
+              <tbody>
+                <tr><td class="good">ZKas</td><td>Mandatory</td><td>1-second target</td><td>GHOSTDAG · kHeavyHash · Kaspa merged mining</td></tr>
+                <tr><td>Kaspa</td><td>Transparent</td><td>Fast BlockDAG</td><td>GHOSTDAG · kHeavyHash</td></tr>
+                <tr><td>Zcash</td><td>Optional shielded pool</td><td>~75-second target</td><td>Proof of work · Equihash</td></tr>
+                <tr><td>Monero</td><td>Mandatory</td><td>~2-minute target</td><td>Proof of work · RandomX</td></tr>
+              </tbody>
+            </table>
+          </div>
         </article>
 
         <article class="card wide">
