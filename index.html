@@ -332,23 +332,17 @@
       pairs.forEach(function (pair) { pair.scroller.addEventListener('scroll', function () { sync(pair); }, { passive: true }); });
       var rail = document.querySelector('.rail');
       var panel = document.querySelector('.panel');
+      function chainDown(source, target, event) {
+        if (event.deltaY <= 0) return;
+        var sourceAtBottom = source.scrollTop + source.clientHeight >= source.scrollHeight - 1;
+        var targetRange = target.scrollHeight - target.clientHeight;
+        if (!sourceAtBottom || target.scrollTop >= targetRange) return;
+        target.scrollTop = Math.min(target.scrollTop + event.deltaY, targetRange);
+        event.preventDefault();
+      }
       if (rail && panel) {
-        panel.addEventListener('wheel', function (event) {
-          var atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 1;
-          var leftHasRoom = rail.scrollTop + rail.clientHeight < rail.scrollHeight - 1;
-          if (event.deltaY > 0 && atBottom && leftHasRoom) {
-            rail.scrollTop = Math.min(rail.scrollTop + event.deltaY, rail.scrollHeight - rail.clientHeight);
-            event.preventDefault();
-          }
-        }, { passive: false });
-        rail.addEventListener('wheel', function (event) {
-          var atBottom = rail.scrollTop + rail.clientHeight >= rail.scrollHeight - 1;
-          var rightHasRoom = panel.scrollTop + panel.clientHeight < panel.scrollHeight - 1;
-          if (event.deltaY > 0 && atBottom && rightHasRoom) {
-            panel.scrollTop = Math.min(panel.scrollTop + event.deltaY, panel.scrollHeight - panel.clientHeight);
-            event.preventDefault();
-          }
-        }, { passive: false });
+        panel.addEventListener('wheel', function (event) { chainDown(panel, rail, event); }, { passive: false });
+        rail.addEventListener('wheel', function (event) { chainDown(rail, panel, event); }, { passive: false });
       }
       window.addEventListener('resize', syncAll);
       syncAll();
