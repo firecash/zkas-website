@@ -330,6 +330,18 @@
       }
       function syncAll() { pairs.forEach(sync); }
       pairs.forEach(function (pair) { pair.scroller.addEventListener('scroll', function () { sync(pair); }, { passive: true }); });
+      var rail = document.querySelector('.rail');
+      var panel = document.querySelector('.panel');
+      if (rail && panel) {
+        panel.addEventListener('wheel', function (event) {
+          var atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 1;
+          var leftHasRoom = rail.scrollTop + rail.clientHeight < rail.scrollHeight - 1;
+          if (event.deltaY > 0 && atBottom && leftHasRoom) {
+            rail.scrollTop = Math.min(rail.scrollTop + event.deltaY, rail.scrollHeight - rail.clientHeight);
+            event.preventDefault();
+          }
+        }, { passive: false });
+      }
       window.addEventListener('resize', syncAll);
       syncAll();
     }());
