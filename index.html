@@ -154,11 +154,10 @@
     @media (min-width: 861px) {
       html, body { height: 100%; overflow: hidden; }
       .layout { height: calc(100vh - 62px); padding-bottom: 0; overflow: visible; }
-      .rail, .panel { overflow-y: scroll; scrollbar-width: auto; scrollbar-color: var(--mint) rgba(24,216,189,.08); scrollbar-gutter: stable; }
-      .rail::-webkit-scrollbar, .panel::-webkit-scrollbar { width: 14px; height: 14px; }
-      .rail::-webkit-scrollbar-track, .panel::-webkit-scrollbar-track { background: rgba(24,216,189,.08); border-left: 1px solid rgba(24,216,189,.18); }
-      .rail::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 8px; background: var(--mint); background-clip: padding-box; }
-      .visible-scrollbar { display: none !important; }
+      .rail, .panel { overflow-y: auto; scrollbar-width: none; }
+      .rail::-webkit-scrollbar, .panel::-webkit-scrollbar { width: 0; height: 0; }
+      .visible-scrollbar { position: fixed; z-index: 20; display: block; width: 8px; border: 1px solid rgba(24,216,189,.35); border-radius: 8px; background: rgba(24,216,189,.08); pointer-events: none; }
+      .visible-scrollbar i { position: absolute; left: 1px; right: 1px; top: 0; height: 32px; min-height: 18px; border-radius: 6px; background: var(--mint); box-shadow: 0 0 10px rgba(24,216,189,.7); }
       .rail { position: relative; transform: translateY(-32px); height: calc(100% + 42px); padding-top: 8px; padding-bottom: 48px; }
       .panel { height: calc(100% + 34px); padding-bottom: 48px; }
       .foot { display: none; }
@@ -307,5 +306,34 @@
   <footer class="foot">
     <span>© 2026 ZKas · open-source, permissionless proof of work</span>
   </footer>
+  <script>
+    (function () {
+      var desktop = window.matchMedia('(min-width: 861px)');
+      var pairs = Array.prototype.map.call(document.querySelectorAll('.rail, .panel'), function (scroller) {
+        return { scroller: scroller, track: scroller.querySelector('.visible-scrollbar') };
+      }).filter(function (pair) { return pair.track; });
+      function sync(pair) {
+        if (!desktop.matches) { pair.track.style.display = 'none'; return; }
+        var rect = pair.scroller.getBoundingClientRect();
+        var top = rect.top + 10;
+        var height = Math.max(40, rect.height - 20);
+        var range = pair.scroller.scrollHeight - pair.scroller.clientHeight;
+        var thumb = pair.track.querySelector('i');
+        var thumbHeight = range > 0 ? Math.max(18, height * pair.scroller.clientHeight / pair.scroller.scrollHeight) : height;
+        pair.track.style.display = 'block';
+        pair.track.style.left = (rect.right - 12) + 'px';
+        pair.track.style.top = top + 'px';
+        pair.track.style.right = 'auto';
+        pair.track.style.bottom = 'auto';
+        pair.track.style.height = height + 'px';
+        thumb.style.height = thumbHeight + 'px';
+        thumb.style.top = range > 0 ? ((pair.scroller.scrollTop / range) * (height - thumbHeight)) + 'px' : '0px';
+      }
+      function syncAll() { pairs.forEach(sync); }
+      pairs.forEach(function (pair) { pair.scroller.addEventListener('scroll', function () { sync(pair); }, { passive: true }); });
+      window.addEventListener('resize', syncAll);
+      syncAll();
+    }());
+  </script>
 </body>
 </html>
