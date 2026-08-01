@@ -115,7 +115,7 @@
     body { background-color: #07100e; background-image: linear-gradient(rgba(24,216,189,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(24,216,189,.028) 1px, transparent 1px), radial-gradient(900px 560px at 70% -180px, rgba(24,216,189,.16), transparent 72%); background-size: 48px 48px, 48px 48px, auto; }
     .layout { grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 10px; padding-top: 42px; }
     .rail, .panel { border: 0; border-radius: 0; background: transparent; }
-    .rail { padding: 24px 24px 26px; border: 1px solid rgba(24,216,189,.28); box-shadow: 0 0 0 1px rgba(24,216,189,.05), 0 0 28px rgba(24,216,189,.08); }
+    .rail { margin-top: -18px; padding: 24px 24px 26px; border: 1px solid rgba(24,216,189,.28); box-shadow: 0 0 0 1px rgba(24,216,189,.05), 0 0 28px rgba(24,216,189,.08); }
     .panel { position: relative; margin-top: -34px; padding: 0 28px 0 22px; border-left: 1px solid var(--line); }
     .rail h1 { font-size: clamp(46px, 5vw, 72px); max-width: none; }
     .security { border-radius: 2px; border-left: 2px solid var(--mint); border-top: 0; border-right: 0; border-bottom: 0; background: rgba(24,216,189,.055); }
@@ -163,7 +163,7 @@
     }
     @media (max-width: 860px) {
       .layout { grid-template-columns: 1fr; }
-      .rail { position: static; }
+      .rail { position: static; margin-top: 0; }
       .panel { margin-top: 0; padding-left: 0; padding-right: 0; border-left: 0; }
       .panel.hero { padding-left: 0; padding-right: 0; }
       .rail h1 { max-width: none; }
