@@ -153,16 +153,16 @@
     .visible-scrollbar { display: none; }
     @media (min-width: 861px) {
       html, body { height: 100%; overflow: hidden; }
-      .layout { height: calc(100vh - 62px); padding-bottom: 0; overflow: hidden; }
+      .layout { height: calc(100vh - 62px); padding-bottom: 0; overflow: visible; }
       .rail, .panel { overflow-y: auto; scrollbar-width: auto; scrollbar-color: var(--mint) rgba(24,216,189,.05); }
       .visible-scrollbar { display: none !important; }
-      .rail { position: relative; height: calc(100% + 42px); padding-top: 8px; padding-bottom: 48px; }
+      .rail { position: relative; transform: translateY(-32px); height: calc(100% + 42px); padding-top: 8px; padding-bottom: 48px; }
       .panel { height: calc(100% + 34px); padding-bottom: 48px; }
       .foot { display: none; }
     }
     @media (max-width: 860px) {
       .layout { grid-template-columns: 1fr; }
-      .rail { position: static; margin-top: 0; }
+      .rail { position: static; transform: none; margin-top: 0; }
       .panel { margin-top: 0; padding-left: 0; padding-right: 0; border-left: 0; }
       .panel.hero { padding-left: 0; padding-right: 0; }
       .rail h1 { max-width: none; }
