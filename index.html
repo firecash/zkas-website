@@ -116,7 +116,7 @@
     .layout { grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 20px; padding-top: 42px; }
     .rail, .panel { border: 0; border-radius: 0; background: transparent; }
     .rail { padding: 24px 24px 26px; border: 1px solid rgba(24,216,189,.28); box-shadow: 0 0 0 1px rgba(24,216,189,.05), 0 0 28px rgba(24,216,189,.08); }
-    .panel { padding: 0 28px 0 22px; border-left: 1px solid var(--line); }
+    .panel { margin-top: -18px; padding: 0 28px 0 22px; border-left: 1px solid var(--line); }
     .rail h1 { font-size: clamp(46px, 5vw, 72px); max-width: none; }
     .security { border-radius: 2px; border-left: 2px solid var(--mint); border-top: 0; border-right: 0; border-bottom: 0; background: rgba(24,216,189,.055); }
     .rail-section { border-top-color: var(--line); }
@@ -157,7 +157,7 @@
     @media (max-width: 860px) {
       .layout { grid-template-columns: 1fr; }
       .rail { position: static; }
-      .panel { padding-left: 0; padding-right: 0; border-left: 0; }
+      .panel { margin-top: 0; padding-left: 0; padding-right: 0; border-left: 0; }
       .panel.hero { padding-left: 0; padding-right: 0; }
       .rail h1 { max-width: none; }
       .rail-links { grid-template-columns: repeat(2, 1fr); gap: 2px 8px; }
