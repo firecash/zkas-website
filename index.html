@@ -116,7 +116,7 @@
     .layout { grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 34px; padding-top: 42px; }
     .rail, .panel { border: 0; border-radius: 0; background: transparent; }
     .rail { padding: 24px 24px 26px; border: 1px solid rgba(24,216,189,.28); box-shadow: 0 0 0 1px rgba(24,216,189,.05), 0 0 28px rgba(24,216,189,.08); }
-    .panel { padding: 0 0 0 34px; border-left: 1px solid var(--line); }
+    .panel { padding: 0 28px 0 34px; border-left: 1px solid var(--line); }
     .rail h1 { font-size: clamp(46px, 5vw, 72px); max-width: none; }
     .security { border-radius: 2px; border-left: 2px solid var(--mint); border-top: 0; border-right: 0; border-bottom: 0; background: rgba(24,216,189,.055); }
     .rail-section { border-top-color: var(--line); }
@@ -132,7 +132,7 @@
     .stat { border: 0; border-right: 1px solid var(--line); border-radius: 0; background: transparent; padding: 15px 15px 15px 0; }
     .stat + .stat { padding-left: 15px; }
     .stat:last-child { border-right: 0; }
-    .workspace { gap: 0 34px; margin-top: 0; }
+    .workspace { gap: 0 34px; margin-top: 0; padding-right: 8px; }
     .card { padding: 27px 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: transparent; }
     .card.wide { grid-column: 1 / -1; }
     .card h3 { font-size: 18px; }
@@ -155,7 +155,7 @@
     @media (max-width: 860px) {
       .layout { grid-template-columns: 1fr; }
       .rail { position: static; }
-      .panel { padding-left: 0; border-left: 0; }
+      .panel { padding-left: 0; padding-right: 0; border-left: 0; }
       .rail h1 { max-width: none; }
       .rail-links { grid-template-columns: repeat(2, 1fr); gap: 2px 8px; }
     }
@@ -235,7 +235,7 @@
 
       <div class="workspace">
         <article class="card wide">
-          <div class="card-head"><h3>ZKas at a glance</h3><span>Network + economics</span></div>
+          <div class="card-head"><h3>ZKas specs</h3></div>
           <table>
             <thead><tr><th>Property</th><th>ZKas</th><th>Meaning</th></tr></thead>
             <tbody>
@@ -250,7 +250,7 @@
         </article>
 
         <article class="card wide">
-          <div class="card-head"><h3>Tokenomics</h3><span>Reward schedule</span></div>
+          <div class="card-head"><h3>Tokenomics</h3></div>
           <p class="card-note">60 ZKAS is created per launch block: 57 to the miner and 3 to development. The reward halves on the three-month schedule before reaching the 0.6 ZKAS tail.</p>
           <div class="split">
             <svg class="chart" viewBox="0 0 620 190" role="img" aria-label="ZKAS reward declines from 60 to a 0.6 tail">
@@ -272,7 +272,7 @@
         </article>
 
         <article class="card wide">
-          <div class="card-head"><h3>How it works</h3><span>Simple model</span></div>
+          <div class="card-head"><h3>How it works</h3></div>
           <div class="steps">
             <div class="step"><b>01</b><h4>Shielded value</h4><p>Orchard notes hide amounts, senders and recipients.</p></div>
             <div class="step"><b>02</b><h4>Proof-of-work</h4><p>GHOSTDAG orders blocks while kHeavyHash secures the network.</p></div>
