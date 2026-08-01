@@ -115,7 +115,7 @@
     body { background-color: #07100e; background-image: linear-gradient(rgba(24,216,189,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(24,216,189,.028) 1px, transparent 1px), radial-gradient(900px 560px at 70% -180px, rgba(24,216,189,.16), transparent 72%); background-size: 48px 48px, 48px 48px, auto; }
     .layout { grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 10px; padding-top: 42px; }
     .rail, .panel { border: 0; border-radius: 0; background: transparent; }
-    .rail { margin-top: -42px; padding: 24px 24px 26px; border: 1px solid rgba(24,216,189,.28); box-shadow: 0 0 0 1px rgba(24,216,189,.05), 0 0 28px rgba(24,216,189,.08); }
+    .rail { margin-top: -74px; padding: 24px 24px 26px; border: 1px solid rgba(24,216,189,.28); box-shadow: 0 0 0 1px rgba(24,216,189,.05), 0 0 28px rgba(24,216,189,.08); }
     .panel { position: relative; margin-top: -34px; padding: 0 28px 0 22px; border-left: 1px solid var(--line); }
     .rail h1 { font-size: clamp(46px, 5vw, 72px); max-width: none; }
     .security { border-radius: 2px; border-left: 2px solid var(--mint); border-top: 0; border-right: 0; border-bottom: 0; background: rgba(24,216,189,.055); }
@@ -158,7 +158,7 @@
       .rail::-webkit-scrollbar, .panel::-webkit-scrollbar { width: 0; height: 0; }
       .visible-scrollbar { position: fixed; z-index: 20; display: block; width: 8px; border: 1px solid rgba(24,216,189,.35); border-radius: 8px; background: rgba(24,216,189,.08); pointer-events: none; }
       .visible-scrollbar i { position: absolute; left: 1px; right: 1px; top: 0; height: 32px; min-height: 18px; border-radius: 6px; background: var(--mint); box-shadow: 0 0 10px rgba(24,216,189,.7); }
-      .rail { position: relative; transform: translateY(-32px); height: calc(100% + 42px); padding-top: 8px; padding-bottom: 48px; }
+      .rail { position: relative; transform: none; height: calc(100% + 42px); padding-top: 8px; padding-bottom: 48px; }
       .panel { height: calc(100% + 34px); padding-bottom: 48px; }
       .foot { display: none; }
     }
