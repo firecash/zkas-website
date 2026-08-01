@@ -158,7 +158,7 @@
       .rail::-webkit-scrollbar, .panel::-webkit-scrollbar { width: 0; height: 0; }
       .visible-scrollbar { position: fixed; z-index: 20; display: block; width: 8px; border: 1px solid rgba(24,216,189,.35); border-radius: 8px; background: rgba(24,216,189,.08); pointer-events: none; }
       .visible-scrollbar i { position: absolute; left: 1px; right: 1px; top: 0; height: 32px; min-height: 18px; border-radius: 6px; background: var(--mint); box-shadow: 0 0 10px rgba(24,216,189,.7); }
-      .rail { position: relative; transform: none; height: calc(100% + 42px); padding-top: 8px; padding-bottom: 48px; }
+      .rail { position: relative; transform: none; height: calc(100% + 42px); padding-top: 8px; padding-bottom: 96px; }
       .panel { height: calc(100% + 34px); padding-bottom: 48px; }
       .foot { display: none; }
     }
@@ -338,6 +338,14 @@
           var leftHasRoom = rail.scrollTop + rail.clientHeight < rail.scrollHeight - 1;
           if (event.deltaY > 0 && atBottom && leftHasRoom) {
             rail.scrollTop = Math.min(rail.scrollTop + event.deltaY, rail.scrollHeight - rail.clientHeight);
+            event.preventDefault();
+          }
+        }, { passive: false });
+        rail.addEventListener('wheel', function (event) {
+          var atBottom = rail.scrollTop + rail.clientHeight >= rail.scrollHeight - 1;
+          var rightHasRoom = panel.scrollTop + panel.clientHeight < panel.scrollHeight - 1;
+          if (event.deltaY > 0 && atBottom && rightHasRoom) {
+            panel.scrollTop = Math.min(panel.scrollTop + event.deltaY, panel.scrollHeight - panel.clientHeight);
             event.preventDefault();
           }
         }, { passive: false });
