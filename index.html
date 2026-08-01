@@ -306,5 +306,21 @@
   <footer class="foot">
     <span>© 2026 ZKas · open-source, permissionless proof of work</span>
   </footer>
+  <script>
+    document.querySelectorAll('.rail, .panel').forEach(function (scroller) {
+      var thumb = scroller.querySelector('.visible-scrollbar i');
+      if (!thumb) return;
+      function syncThumb() {
+        var range = scroller.scrollHeight - scroller.clientHeight;
+        var track = scroller.clientHeight - 20;
+        var thumbSize = range > 0 ? Math.max(32, track * scroller.clientHeight / scroller.scrollHeight) : track;
+        thumb.style.height = thumbSize + 'px';
+        thumb.style.top = range > 0 ? ((scroller.scrollTop / range) * (track - thumbSize)) + 'px' : '0px';
+      }
+      scroller.addEventListener('scroll', syncThumb, { passive: true });
+      window.addEventListener('resize', syncThumb);
+      syncThumb();
+    });
+  </script>
 </body>
 </html>
