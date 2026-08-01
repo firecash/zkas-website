@@ -1,341 +1,263 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ZKas — what if Kaspa was anonymous?</title>
-<meta name="description" content="Meet ZKas (ZKAS) — an anonymous-by-default proof-of-work BlockDAG. Kaspa's speed, anonymous by construction." />
-<link rel="icon" href="/favicon.ico" sizes="any" /><link rel="icon" type="image/png" href="/logo-192.png" />
-<link rel="apple-touch-icon" href="/logo-180.png" />
-<meta property="og:title" content="ZKas — what if Kaspa was anonymous?" />
-<meta property="og:image" content="/logo.png" />
-<style>
-  :root{
-    /* Dark theme — matches the ZKas explorer / wallet / pool palette. */
-    --ink:#f6f6f8;
-    --mut:#a0a0b0;
-    --fant:#70707e;
-    --line:#1d2a27;
-    --line2:#2a3b37;
-    --ember:#17d6be;
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono","DejaVu Sans Mono",monospace;
-  }
-  *{box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-  body{
-    margin:0;background:#0a100e;color:var(--ink);
-    font-family:var(--mono);font-size:15px;line-height:1.6;
-    -webkit-font-smoothing:antialiased;
-    /* subtle ember light-source wash on a dark field — no motion */
-    background-image:
-      radial-gradient(70% 42% at 50% -4%, rgba(255,107,53,.08), rgba(11,11,15,0) 72%),
-      radial-gradient(38% 30% at 88% 6%, rgba(255,134,89,.05), rgba(11,11,15,0) 70%);
-    background-repeat:no-repeat;
-  }
-  .wrap{max-width:940px;margin:0 auto;padding:0 28px}
-  a{color:inherit;text-decoration:none}
-  .label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--fant)}
-
-  /* top bar */
-  header{border-bottom:1px solid var(--line);background:rgba(11,11,15,.72);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20}
-  .bar{display:flex;align-items:center;justify-content:space-between;height:60px}
-  .wordmark{display:inline-flex;align-items:center;font-weight:700;letter-spacing:.06em;font-size:14px}
-  .wordmark b{color:var(--ink)}
-  /* logo slots — drop /logo.svg (or /logo.png) into the web root to fill them.
-     On error the element removes itself, so nothing broken shows until uploaded. */
-  .logo{height:26px;width:26px;margin-right:10px;display:block}
-  .hero-logo{height:132px;width:132px;margin:0 auto 24px;display:block}
-  nav{display:flex;gap:24px}
-  nav a{font-size:12.5px;color:var(--mut)}
-  nav a:hover{color:var(--ink)}
-  @media(max-width:620px){nav{display:none}}
-
-  /* hero — centered, spacious */
-  .hero{text-align:center;padding:66px 0 56px}
-  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);
-        border-radius:999px;padding:6px 14px;font-size:11px;letter-spacing:.14em;
-        text-transform:uppercase;color:var(--mut)}
-  .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--ember);box-shadow:0 0 8px var(--ember)}
-  h1{font-weight:700;letter-spacing:-.03em;line-height:1.04;
-     font-size:clamp(34px,7vw,64px);margin:20px auto 0;max-width:16ch}
-  .tagline{margin:14px auto 0;font-weight:700;letter-spacing:-.01em;line-height:1.15;
-           font-size:clamp(18px,3vw,25px);color:var(--ink)}
-  .hero .sub{margin:16px auto 0;font-size:16.5px;color:var(--mut);max-width:60ch}
-  .cta{margin-top:32px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-  .btn{border:1px solid var(--ember);background:var(--ember);border-radius:8px;padding:11px 20px;font-size:12.5px;
-       letter-spacing:.04em;text-transform:uppercase;color:#1a1206;font-weight:700}
-  .btn:hover{filter:brightness(1.08)}
-  .btn.ghost{border-color:var(--line2);background:transparent;color:var(--ink);font-weight:400}
-  .btn.ghost:hover{border-color:var(--ink);background:transparent;color:var(--ink)}
-  .ticker{margin-top:40px;display:flex;gap:10px 26px;justify-content:center;flex-wrap:wrap;
-          font-size:12px;color:var(--fant);letter-spacing:.02em}
-  .ticker b{color:var(--ink);font-weight:700}
-
-  /* section scaffold */
-  section{padding:60px 0;border-top:1px solid var(--line)}
-  .sec-head{text-align:center;margin-bottom:34px}
-  .sec-head .label{display:block;margin-bottom:11px}
-  .sec-head h2{font-weight:700;letter-spacing:-.02em;font-size:clamp(22px,3.6vw,30px);margin:0;line-height:1.15}
-  .sec-head p{margin:12px auto 0;color:var(--mut);max-width:56ch}
-
-  /* design grid — hairlines, no boxes */
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:0 48px}
-  @media(max-width:620px){.grid{grid-template-columns:1fr;gap:0}}
-  .item{border-top:1px solid var(--line);padding:22px 0}
-  .item .n{font-size:11px;letter-spacing:.18em;color:var(--fant)}
-  .item h3{font-weight:700;font-size:15px;margin:10px 0 6px}
-  .item p{margin:0;color:var(--mut);font-size:14px}
-
-  /* table */
-  .tblwrap{overflow-x:auto}
-  table{border-collapse:collapse;width:100%;font-size:13.5px}
-  thead th{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
-           text-align:left;font-weight:700;padding:12px 18px 12px 0;white-space:nowrap}
-  tbody td{border-bottom:1px solid var(--line);padding:12px 18px 12px 0;vertical-align:top}
-  tbody tr:last-child td{border-bottom:1px solid var(--ink)}
-  .fc-row td{font-weight:700}
-  caption{caption-side:bottom;text-align:left;color:var(--fant);font-size:12px;margin-top:14px;line-height:1.6}
-
-  /* emission figures */
-  .figs{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin:4px 0 28px;text-align:center}
-  @media(max-width:620px){.figs{grid-template-columns:repeat(2,1fr);gap:28px 24px}}
-  .fig .k{font-size:26px;font-weight:700;letter-spacing:-.02em}
-  .fig .v{margin-top:6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fant)}
-  .prose{max-width:60ch;margin:0 auto;text-align:center;color:var(--mut)}
-
-  /* emission chart (inline SVG, monochrome to match) */
-  .chart{max-width:600px;margin:0 auto}
-  .chart svg{width:100%;height:auto;display:block;font-family:var(--mono)}
-  .chart .axis{fill:var(--fant);font-size:11px}
-  .chart .yl{fill:var(--mut);font-size:11px}
-  .chart .anno{fill:var(--ink);font-size:11.5px;font-weight:700}
-  .chart .cap{margin:16px auto 0;text-align:center;color:var(--fant);font-size:12px;line-height:1.6;max-width:58ch}
-  .chart .cap b{color:var(--ink);font-weight:700}
-
-  /* roadmap */
-  .road{max-width:640px;margin:0 auto;list-style:none;padding:0}
-  .road li{display:grid;grid-template-columns:96px 1fr;gap:24px;padding:20px 0;border-top:1px solid var(--line)}
-  .road li:first-child{border-top:none}
-  .road .ph{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--fant);padding-top:3px}
-  .road h3{font-weight:700;font-size:15px;margin:0 0 6px}
-  .road p{margin:0;color:var(--mut);font-size:14px}
-  @media(max-width:620px){.road li{grid-template-columns:1fr;gap:8px}}
-
-  /* community */
-  .community{text-align:center}
-  .socials{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
-  .social{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line2);
-          border-radius:8px;padding:12px 18px;font-size:13px;color:var(--ink)}
-  .social:hover{border-color:var(--ink)}
-  .social svg{width:15px;height:15px;fill:currentColor;display:block}
-
-  footer{border-top:1px solid var(--ink);padding:30px 0 64px}
-  .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--mut)}
-  .foot .fsoc a{color:var(--mut);margin-left:16px}
-  .foot .fsoc a:hover{color:var(--ink)}
-  .disc{margin-top:18px;font-size:11.5px;color:var(--fant);max-width:74ch;line-height:1.7}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ZKas — private payments at Kaspa speed</title>
+  <meta name="description" content="ZKas is a shielded proof-of-work BlockDAG based on Kaspa and Zcash technology, secured by Kaspa merged hashrate.">
+  <link rel="icon" type="image/png" href="/logo-192.png">
+  <link rel="apple-touch-icon" href="/logo-180.png">
+  <meta property="og:title" content="ZKas — private payments at Kaspa speed">
+  <meta property="og:description" content="A shielded proof-of-work privacy layer secured by Kaspa merged hashrate.">
+  <meta property="og:image" content="/logo.png">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07100e;
+      --panel: #0c1815;
+      --panel-2: #10211c;
+      --line: #203a32;
+      --line-soft: #173028;
+      --ink: #f1f8f5;
+      --muted: #91aaa0;
+      --faint: #61776e;
+      --mint: #18d8bd;
+      --mint-soft: rgba(24,216,189,.11);
+      --blue: #8eafff;
+      --amber: #f1ba70;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--ink); background: var(--bg);
+      font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(900px 500px at 72% -180px, rgba(24,216,189,.14), transparent 72%);
+    }
+    a { color: inherit; text-decoration: none; }
+    .topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--line-soft); background: rgba(7,16,14,.86); backdrop-filter: blur(16px); }
+    .topbar-inner { width: min(1320px, calc(100% - 40px)); height: 62px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; }
+    .brand img { width: 28px; height: 28px; border-radius: 8px; }
+    .brand-mark { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; color: var(--mint); font: 700 15px var(--mono); }
+    .top-links { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: 12px; }
+    .top-links a:hover { color: var(--ink); }
+    .top-links .service-link { padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); }
+    .top-links .service-link:hover { border-color: var(--mint); background: var(--mint-soft); }
+    .layout { width: min(1320px, calc(100% - 40px)); margin: 0 auto; padding: 24px 0 56px; display: grid; grid-template-columns: minmax(230px, 1fr) minmax(0, 2fr); gap: 18px; align-items: start; }
+    .rail, .panel { border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(145deg, rgba(16,33,28,.92), rgba(9,21,17,.94)); }
+    .rail { position: sticky; top: 86px; padding: 22px; }
+    .eyebrow { color: var(--faint); font: 10px var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+    .rail h1 { margin: 14px 0 10px; max-width: 9ch; font-size: clamp(28px, 3vw, 39px); line-height: 1.02; letter-spacing: -.055em; }
+    .rail-lede { margin: 0; color: var(--muted); font-size: 14px; }
+    .security { margin: 20px 0 22px; padding: 13px; border: 1px solid rgba(24,216,189,.28); border-radius: 11px; background: var(--mint-soft); }
+    .security strong { display: block; color: var(--mint); font-size: 13px; }
+    .security span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+    .rail-section { padding-top: 16px; border-top: 1px solid var(--line-soft); }
+    .rail-section + .rail-section { margin-top: 17px; }
+    .rail-section h2 { margin: 0 0 8px; color: var(--faint); font: 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+    .rail-links { display: grid; gap: 2px; }
+    .rail-links a { display: flex; align-items: center; justify-content: space-between; padding: 8px 9px; border-radius: 8px; color: var(--muted); font-size: 13px; }
+    .rail-links a:hover { color: var(--ink); background: rgba(24,216,189,.07); }
+    .rail-links a span { color: var(--mint); font: 16px var(--mono); }
+    .hero { padding: 24px; }
+    .hero-head { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
+    .hero h2 { margin: 8px 0 7px; font-size: clamp(24px, 3.2vw, 38px); line-height: 1.05; letter-spacing: -.045em; }
+    .hero p { max-width: 67ch; margin: 0; color: var(--muted); }
+    .live { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+    .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 8px var(--mint); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 13px; border: 1px solid var(--mint); border-radius: 8px; background: var(--mint); color: #06130f; font-size: 12px; font-weight: 750; }
+    .button:hover { filter: brightness(1.08); }
+    .button.secondary { border-color: var(--line); background: transparent; color: var(--ink); font-weight: 500; }
+    .button.secondary:hover { border-color: var(--line-strong, var(--mint)); background: var(--mint-soft); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 22px; }
+    .stat { padding: 12px; border: 1px solid var(--line-soft); border-radius: 10px; background: rgba(5,15,12,.42); }
+    .stat strong { display: block; font-size: 19px; letter-spacing: -.03em; }
+    .stat span { display: block; margin-top: 3px; color: var(--faint); font: 10px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+    .workspace { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+    .card { padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: rgba(12,24,21,.72); }
+    .card.wide { grid-column: 1 / -1; }
+    .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+    .card h3 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
+    .card-head span { color: var(--faint); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .1em; }
+    .card-note { margin: -5px 0 14px; color: var(--muted); font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { padding: 0 10px 9px 0; border-bottom: 1px solid var(--line-strong, var(--line)); color: var(--faint); text-align: left; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+    td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line-soft); vertical-align: top; color: var(--muted); }
+    td:first-child { color: var(--ink); font-weight: 650; }
+    tr:last-child td { border-bottom: 0; }
+    .good { color: var(--mint); }
+    .chart { width: 100%; height: auto; display: block; }
+    .chart text { font-family: var(--mono); }
+    .chart .axis { fill: var(--faint); font-size: 10px; }
+    .chart .gridline { stroke: var(--line-soft); stroke-width: 1; }
+    .chart .line { fill: none; stroke: var(--mint); stroke-width: 3; stroke-linejoin: round; }
+    .chart .area { fill: url(#area); }
+    .chart .point { fill: var(--mint); stroke: var(--panel); stroke-width: 2; }
+    .split { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(180px, .9fr); gap: 18px; align-items: center; }
+    .legend { display: grid; gap: 8px; }
+    .legend-row { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line-soft); color: var(--muted); font-size: 12px; }
+    .legend-row b { color: var(--ink); }
+    .dot-label { display: inline-flex; align-items: center; gap: 7px; }
+    .dot-label::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--mint); }
+    .dot-label.dev::before { background: var(--amber); }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .step { padding: 12px; border: 1px solid var(--line-soft); border-radius: 10px; }
+    .step b { color: var(--mint); font: 11px var(--mono); }
+    .step h4 { margin: 7px 0 4px; font-size: 13px; }
+    .step p { margin: 0; color: var(--muted); font-size: 12px; }
+    .foot { width: min(1320px, calc(100% - 40px)); margin: 0 auto; padding: 18px 0 36px; border-top: 1px solid var(--line-soft); color: var(--faint); font: 11px var(--mono); display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    .foot a { color: var(--muted); }
+    .foot a:hover { color: var(--ink); }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      .rail { position: static; }
+      .rail h1 { max-width: none; }
+      .rail-links { grid-template-columns: repeat(2, 1fr); gap: 2px 8px; }
+    }
+    @media (max-width: 620px) {
+      .topbar-inner, .layout, .foot { width: min(100% - 24px, 1320px); }
+      .top-links a:not(.service-link) { display: none; }
+      .hero-head { display: block; }
+      .live { margin-top: 14px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .workspace, .split { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .rail-links { grid-template-columns: 1fr; }
+      .card.wide { grid-column: auto; }
+    }
+  </style>
 </head>
 <body>
-
-<header>
-  <div class="wrap bar">
-    <a class="wordmark" href="#top"><img class="logo" src="/logo.png" alt="" onerror="this.remove()" /><b><span style="color:var(--ember)">Z</span>Kas</b></a>
-    <nav>
-      <a href="#overview">Overview</a>
-      <a href="#design">Design</a>
-      <a href="#comparison">Comparison</a>
-      <a href="#roadmap">Roadmap</a>
-      <a href="https://wallet.zkas.info" target="_blank" rel="noopener">Wallet</a>
-      <a href="http://mining-pool.zkas.info/" target="_blank" rel="noopener">Pool</a>
-      <a href="#community">Community</a>
-    </nav>
-  </div>
-</header>
-
-<div class="wrap hero" id="top">
-  <img class="hero-logo" src="/logo.png" alt="ZKas" onerror="this.remove()" />
-  <span class="pill"><span class="dot"></span> Launch date 26th of July 2026 · ZKAS</span>
-  <h1>Meet ZKas.</h1>
-  <p class="tagline">What if Kaspa was anonymous?</p>
-  <p class="sub">
-    ZKas is a fork of Kaspa that makes value anonymous by default — the same
-    proof-of-work BlockDAG, running at one block per second, with every amount,
-    sender, and recipient hidden by construction.
-  </p>
-  <div class="cta">
-    <a class="btn" href="https://wallet.zkas.info" target="_blank" rel="noopener">Open wallet</a>
-    <a class="btn ghost" href="http://mining-pool.zkas.info/" target="_blank" rel="noopener">Start mining</a>
-    <a class="btn ghost" href="/whitepaper.html" target="_blank" rel="noopener">Whitepaper</a>
-  </div>
-  <div class="ticker">
-    <span><b>1s</b> block time</span>
-    <span><b>Orchard</b> · Halo 2</span>
-    <span><b>3-month</b> halving</span>
-    <span><b>0.6 ZKAS</b> perpetual tail</span>
-    <span><b>No VC</b> · kHeavyHash PoW</span>
-  </div>
-</div>
-
-<section id="overview">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="label">01 — Overview</span>
-      <h2>Kaspa speed, without the transparency.</h2>
-      <p>Kaspa proved proof-of-work can confirm blocks in a fraction of a second — but its ledger is fully public. ZKas keeps the speed and changes the default.</p>
-    </div>
-    <div class="prose">
-      <p>All value lives in a shielded pool. The only public quantity is the fee a
-      spender chooses to expose to the miner, so privacy is a property of the whole
-      network rather than of the few who opt in.</p>
-    </div>
-  </div>
-</section>
-
-<section id="design">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="label">02 — Design</span>
-      <h2>Four decisions.</h2>
-    </div>
-    <div class="grid">
-      <div class="item"><div class="n">01</div><h3>Shielded by default</h3>
-        <p>Every coinbase reward and transfer commits to an Orchard note-commitment tree. Balances are zero-knowledge notes, not cleartext outputs.</p></div>
-      <div class="item"><div class="n">02</div><h3>BlockDAG consensus</h3>
-        <p>GHOSTDAG at one block per second. The DAG keeps proof-of-work security intact under a parallel block rate.</p></div>
-      <div class="item"><div class="n">03</div><h3>Zero-knowledge validation</h3>
-        <p>Transactions verify with succinct Halo&nbsp;2 proofs — no trusted setup. Value conservation is checked without revealing amounts.</p></div>
-      <div class="item"><div class="n">04</div><h3>Fair proof-of-work launch</h3>
-        <p>No venture capital. ZKas uses kHeavyHash — the same proof-of-work as Kaspa — so it can be merge-mined with Kaspa's hashrate; low opening difficulty lets ordinary hardware mine from block one, then ramps to steady state.</p></div>
-    </div>
-  </div>
-</section>
-
-<section id="comparison">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="label">03 — Comparison</span>
-      <h2>Speed and privacy, side by side.</h2>
-    </div>
-    <div class="tblwrap">
-      <table>
-        <thead>
-          <tr><th>Network</th><th>Block time</th><th>Privacy model</th><th>Private by default</th><th>Mining</th></tr>
-        </thead>
-        <tbody>
-          <tr class="fc-row"><td>ZKas</td><td>1 s</td><td>Orchard · Halo 2</td><td>By default</td><td>kHeavyHash · merge-mineable</td></tr>
-          <tr><td>Kaspa</td><td>0.1 s</td><td>Transparent</td><td>No</td><td>kHeavyHash · ASIC</td></tr>
-          <tr><td>Zcash</td><td>75 s</td><td>Orchard · Halo 2</td><td>Optional</td><td>Equihash · ASIC</td></tr>
-          <tr><td>Monero</td><td>120 s</td><td>Ring signatures · RingCT</td><td>By default</td><td>RandomX · CPU</td></tr>
-        </tbody>
-        <caption>Nominal block time, privacy model, and proof-of-work algorithm. ZKas inherits Kaspa's fast BlockDAG — its transparent parent — but shields every transaction by default, where Kaspa's ledger is fully public and Zcash's privacy is opt-in. It shares Kaspa's kHeavyHash proof-of-work — so it can be merge-mined alongside Kaspa — and at one-second blocks settles ~75× faster than Zcash, ~120× faster than Monero.</caption>
-      </table>
-    </div>
-  </div>
-</section>
-
-<section id="emission">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="label">04 — Emission</span>
-      <h2>Mined from block one. No VC.</h2>
-    </div>
-    <div class="figs">
-      <div class="fig"><div class="k">57 ZKAS</div><div class="v">Miner reward at block 1</div></div>
-      <div class="fig"><div class="k">3 months</div><div class="v">Halving</div></div>
-      <div class="fig"><div class="k">0.6 ZKAS</div><div class="v">Perpetual tail / block</div></div>
-      <div class="fig"><div class="k">0%</div><div class="v">VC allocation</div></div>
-    </div>
-    <div class="chart">
-      <svg viewBox="0 0 760 300" role="img" aria-label="Per-block reward in ZKAS over five years" style="width:100%;height:auto;display:block">
-<defs><linearGradient id="egrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#17d6be" stop-opacity="0.28"/><stop offset="100%" stop-color="#17d6be" stop-opacity="0.02"/></linearGradient></defs>
-<line x1="56" x2="734" y1="266.0" y2="266.0" stroke="#23232c" stroke-width="1"/><text x="48" y="270.0" text-anchor="end" font-size="13" fill="#70707e">0</text><line x1="56" x2="734" y1="205.0" y2="205.0" stroke="#23232c" stroke-width="1"/><text x="48" y="209.0" text-anchor="end" font-size="13" fill="#70707e">16</text><line x1="56" x2="734" y1="144.0" y2="144.0" stroke="#23232c" stroke-width="1"/><text x="48" y="148.0" text-anchor="end" font-size="13" fill="#70707e">32</text><line x1="56" x2="734" y1="83.0" y2="83.0" stroke="#23232c" stroke-width="1"/><text x="48" y="87.0" text-anchor="end" font-size="13" fill="#70707e">48</text><line x1="56" x2="734" y1="22.0" y2="22.0" stroke="#23232c" stroke-width="1"/><text x="48" y="26.0" text-anchor="end" font-size="13" fill="#70707e">64</text><text x="56.0" y="290" text-anchor="middle" font-size="13" fill="#70707e">launch</text><text x="191.6" y="290" text-anchor="middle" font-size="13" fill="#70707e">yr 1</text><text x="327.2" y="290" text-anchor="middle" font-size="13" fill="#70707e">yr 2</text><text x="462.8" y="290" text-anchor="middle" font-size="13" fill="#70707e">yr 3</text><text x="598.4" y="290" text-anchor="middle" font-size="13" fill="#70707e">yr 4</text><text x="734.0" y="290" text-anchor="middle" font-size="13" fill="#70707e">yr 5</text>
-<path d="M56.0,37.2 L67.3,84.4 L78.6,121.9 L89.9,151.6 L101.2,175.2 L112.5,193.9 L123.8,208.8 L135.1,220.6 L146.4,230.0 L157.7,237.4 L169.0,243.1 L180.3,243.1 L191.6,243.1 L202.9,243.1 L214.2,243.1 L225.5,243.1 L236.8,243.1 L248.1,243.1 L259.4,243.1 L270.7,243.1 L282.0,243.1 L293.3,243.1 L304.6,243.1 L315.9,243.1 L327.2,263.7 L338.5,263.7 L349.8,263.7 L361.1,263.7 L372.4,263.7 L383.7,263.7 L395.0,263.7 L406.3,263.7 L417.6,263.7 L428.9,263.7 L440.2,263.7 L451.5,263.7 L462.8,263.7 L474.1,263.7 L485.4,263.7 L496.7,263.7 L508.0,263.7 L519.3,263.7 L530.6,263.7 L541.9,263.7 L553.2,263.7 L564.5,263.7 L575.8,263.7 L587.1,263.7 L598.4,263.7 L609.7,263.7 L621.0,263.7 L632.3,263.7 L643.6,263.7 L654.9,263.7 L666.2,263.7 L677.5,263.7 L688.8,263.7 L700.1,263.7 L711.4,263.7 L722.7,263.7 L734.0,263.7 L734.0,266.0 L56.0,266.0 Z" fill="url(#egrad)"/>
-<path d="M56.0,37.2 L67.3,84.4 L78.6,121.9 L89.9,151.6 L101.2,175.2 L112.5,193.9 L123.8,208.8 L135.1,220.6 L146.4,230.0 L157.7,237.4 L169.0,243.1 L180.3,243.1 L191.6,243.1 L202.9,243.1 L214.2,243.1 L225.5,243.1 L236.8,243.1 L248.1,243.1 L259.4,243.1 L270.7,243.1 L282.0,243.1 L293.3,243.1 L304.6,243.1 L315.9,243.1 L327.2,263.7 L338.5,263.7 L349.8,263.7 L361.1,263.7 L372.4,263.7 L383.7,263.7 L395.0,263.7 L406.3,263.7 L417.6,263.7 L428.9,263.7 L440.2,263.7 L451.5,263.7 L462.8,263.7 L474.1,263.7 L485.4,263.7 L496.7,263.7 L508.0,263.7 L519.3,263.7 L530.6,263.7 L541.9,263.7 L553.2,263.7 L564.5,263.7 L575.8,263.7 L587.1,263.7 L598.4,263.7 L609.7,263.7 L621.0,263.7 L632.3,263.7 L643.6,263.7 L654.9,263.7 L666.2,263.7 L677.5,263.7 L688.8,263.7 L700.1,263.7 L711.4,263.7 L722.7,263.7 L734.0,263.7" fill="none" stroke="#17d6be" stroke-width="2.5" stroke-linejoin="round"/>
-<circle cx="56.0" cy="37.2" r="3.5" fill="#17d6be" stroke="#0a100e" stroke-width="1.5"/><text x="56.0" y="27.2" text-anchor="start" font-size="13" font-weight="600" fill="#f6f6f8">60 at launch</text><circle cx="169.0" cy="243.1" r="3.5" fill="#17d6be" stroke="#0a100e" stroke-width="1.5"/><text x="169.0" y="231.1" text-anchor="middle" font-size="13" font-weight="600" fill="#f6f6f8">6 tail</text><circle cx="395.0" cy="263.7" r="3.5" fill="#17d6be" stroke="#0a100e" stroke-width="1.5"/><text x="395.0" y="253.7" text-anchor="start" font-size="13" font-weight="600" fill="#f6f6f8">0.6 forever</text>
-</svg>
-      <p class="cap">Gross issuance per block. It <b>halves every 3 months</b> from 60 ZKAS, crossing a <b>6 ZKAS/block tail</b> around month 10; that floor holds until month 24, then steps down once to a <b>perpetual 0.6 ZKAS/block tail</b> (~18.9M ZKAS/year, ~2.2% at onset decaying toward ~1%). Miners receive <b>95%</b> of each reward (57 ZKAS at launch); 5% is allocated to development.</p>
-    </div>
-
-    <div class="chart" style="margin-top:24px">
-      <svg viewBox="0 0 760 300" role="img" aria-label="Cumulative coins in circulation in billions of ZKAS over five years" style="width:100%;height:auto;display:block">
-<defs><linearGradient id="sgrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#17d6be" stop-opacity="0.28"/><stop offset="100%" stop-color="#17d6be" stop-opacity="0.02"/></linearGradient></defs>
-<line x1="56" x2="734" y1="266.0" y2="266.0" stroke="#23232c" stroke-width="1"/><text x="48" y="270.0" text-anchor="end" font-size="13" fill="#70707e">0.00B</text><line x1="56" x2="734" y1="205.0" y2="205.0" stroke="#23232c" stroke-width="1"/><text x="48" y="209.0" text-anchor="end" font-size="13" fill="#70707e">0.24B</text><line x1="56" x2="734" y1="144.0" y2="144.0" stroke="#23232c" stroke-width="1"/><text x="48" y="148.0" text-anchor="end" font-size="13" fill="#70707e">0.48B</text><line x1="56" x2="734" y1="83.0" y2="83.0" stroke="#23232c" stroke-width="1"/><text x="48" y="87.0" text-anchor="end" font-size="13" fill="#70707e">0.72B</text><line x1="56" x2="734" y1="22.0" y2="22.0" stroke="#23232c" stroke-width="1"/><text x="48" y="26.0" text-anchor="end" font-size="13" fill="#70707e">0.96B</text><text x="56.0" y="290" text-anchor="middle" font-size="13" fill="#70707e">launch</text><text x="191.6" y="290" text-anchor="middle" font-size="13" fill="#70707e">yr 1</text><text x="327.2" y="290" text-anchor="middle" font-size="13" fill="#70707e">yr 2</text><text x="462.8" y="290" text-anchor="middle" font-size="13" fill="#70707e">yr 3</text><text x="598.4" y="290" text-anchor="middle" font-size="13" fill="#70707e">yr 4</text><text x="734.0" y="290" text-anchor="middle" font-size="13" fill="#70707e">yr 5</text>
-<path d="M56.0,266.0 L67.3,230.0 L78.6,201.5 L89.9,178.8 L101.2,160.8 L112.5,146.5 L123.8,135.2 L135.1,126.2 L146.4,119.1 L157.7,113.4 L169.0,108.9 L180.3,104.9 L191.6,100.9 L202.9,96.8 L214.2,92.8 L225.5,88.8 L236.8,84.8 L248.1,80.8 L259.4,76.8 L270.7,72.8 L282.0,68.8 L293.3,64.7 L304.6,60.7 L315.9,56.7 L327.2,54.5 L338.5,54.1 L349.8,53.7 L361.1,53.3 L372.4,52.9 L383.7,52.5 L395.0,52.1 L406.3,51.7 L417.6,51.3 L428.9,50.9 L440.2,50.5 L451.5,50.1 L462.8,49.7 L474.1,49.3 L485.4,48.9 L496.7,48.5 L508.0,48.1 L519.3,47.7 L530.6,47.3 L541.9,46.9 L553.2,46.5 L564.5,46.1 L575.8,45.7 L587.1,45.3 L598.4,44.9 L609.7,44.5 L621.0,44.1 L632.3,43.7 L643.6,43.3 L654.9,42.9 L666.2,42.5 L677.5,42.1 L688.8,41.7 L700.1,41.3 L711.4,40.9 L722.7,40.5 L734.0,40.1 L734.0,266.0 L56.0,266.0 Z" fill="url(#sgrad)"/>
-<path d="M56.0,266.0 L67.3,230.0 L78.6,201.5 L89.9,178.8 L101.2,160.8 L112.5,146.5 L123.8,135.2 L135.1,126.2 L146.4,119.1 L157.7,113.4 L169.0,108.9 L180.3,104.9 L191.6,100.9 L202.9,96.8 L214.2,92.8 L225.5,88.8 L236.8,84.8 L248.1,80.8 L259.4,76.8 L270.7,72.8 L282.0,68.8 L293.3,64.7 L304.6,60.7 L315.9,56.7 L327.2,54.5 L338.5,54.1 L349.8,53.7 L361.1,53.3 L372.4,52.9 L383.7,52.5 L395.0,52.1 L406.3,51.7 L417.6,51.3 L428.9,50.9 L440.2,50.5 L451.5,50.1 L462.8,49.7 L474.1,49.3 L485.4,48.9 L496.7,48.5 L508.0,48.1 L519.3,47.7 L530.6,47.3 L541.9,46.9 L553.2,46.5 L564.5,46.1 L575.8,45.7 L587.1,45.3 L598.4,44.9 L609.7,44.5 L621.0,44.1 L632.3,43.7 L643.6,43.3 L654.9,42.9 L666.2,42.5 L677.5,42.1 L688.8,41.7 L700.1,41.3 L711.4,40.9 L722.7,40.5 L734.0,40.1" fill="none" stroke="#17d6be" stroke-width="2.5" stroke-linejoin="round"/>
-<circle cx="191.6" cy="100.9" r="3.5" fill="#17d6be" stroke="#0a100e" stroke-width="1.5"/><text x="191.6" y="90.9" text-anchor="start" font-size="13" font-weight="600" fill="#f6f6f8">~0.65B · yr 1</text><circle cx="327.2" cy="54.5" r="3.5" fill="#17d6be" stroke="#0a100e" stroke-width="1.5"/><text x="327.2" y="44.5" text-anchor="start" font-size="13" font-weight="600" fill="#f6f6f8">~0.83B · yr 2</text>
-</svg>
-      <p class="cap"><b>Coins in circulation.</b> ~<b>0.65B by year 1</b>, ~<b>0.83B by year 2</b>, then a low, near-linear tail (~18.9M ZKAS/year). Every coin is minted into the shielded pool. <b>No fixed supply cap.</b></p>
-    </div>
-  </div>
-</section>
-
-<section id="roadmap">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="label">05 — Roadmap</span>
-      <h2>Where it goes.</h2>
-    </div>
-    <ul class="road">
-      <li><div class="ph">Stage 1</div><div><h3>Shielded mainnet</h3>
-        <p>Fair proof-of-work launch. Shielded-by-default coinbase and payments on a one-block-per-second GHOSTDAG BlockDAG.</p></div></li>
-      <li><div class="ph">Stage 2</div><div><h3>Full-chain membership proofs (FCMP)</h3>
-        <p>Adopt the next-generation privacy primitive advanced by Monero — membership against every note ever created, not a fixed ring.</p></div></li>
-      <li><div class="ph">Stage 3</div><div><h3>Private smart contracts</h3>
-        <p>Programmable value that stays confidential — contracts executing over shielded state, so applications inherit the base layer's privacy.</p></div></li>
-    </ul>
-  </div>
-</section>
-
-<section id="community">
-  <div class="wrap community">
-    <div class="sec-head">
-      <span class="label">06 — Community</span>
-      <h2>Run a node. Join the network.</h2>
-      <p>ZKas is open, permissionless, and mined by anyone. Come build it.</p>
-    </div>
-    <div class="socials">
-      <a class="social" href="https://github.com/firecash/zkas-rusty" rel="noopener" target="_blank" aria-label="GitHub">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.7.41.35.78 1.05.78 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
-        GitHub
-      </a>
-      <a class="social" href="https://x.com/ZKas_X" rel="noopener" target="_blank" aria-label="X">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"/></svg>
-        X
-      </a>
-      <a class="social" href="https://discord.gg/jysMS4XNFT" rel="noopener" target="_blank" aria-label="Discord">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.369A19.79 19.79 0 0 0 15.885 3c-.2.356-.43.835-.588 1.216a18.27 18.27 0 0 0-5.594 0A12.6 12.6 0 0 0 9.11 3 19.74 19.74 0 0 0 4.677 4.37C1.9 8.49 1.145 12.5 1.522 16.456A19.9 19.9 0 0 0 7.6 19.51c.492-.67.93-1.382 1.307-2.13-.72-.27-1.41-.605-2.06-1 .173-.127.342-.26.505-.396 3.98 1.86 8.28 1.86 12.21 0 .166.14.335.27.505.397-.65.394-1.34.73-2.06 1 .377.748.815 1.46 1.307 2.13a19.86 19.86 0 0 0 6.08-3.055c.443-4.585-.756-8.56-3.18-12.087ZM8.02 14.02c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.41 2.15-2.41s2.17 1.09 2.15 2.41c0 1.33-.95 2.41-2.15 2.41Zm7.96 0c-1.18 0-2.15-1.08-2.15-2.41 0-1.33.95-2.41 2.15-2.41s2.17 1.09 2.15 2.41c0 1.33-.94 2.41-2.15 2.41Z"/></svg>
-        Discord
-      </a>
-      <a class="social" href="/whitepaper.html" rel="noopener" target="_blank" aria-label="Whitepaper">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm8 1.5V8h4.5L14 3.5ZM8 12h8v1.5H8V12Zm0 3.5h8V17H8v-1.5ZM8 8.5h4V10H8V8.5Z"/></svg>
-        Whitepaper
-      </a>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap">
-    <div class="foot">
-      <span>© 2026 ZKas · zkas.info</span>
-      <span class="fsoc">
-        <a href="https://wallet.zkas.info" target="_blank" rel="noopener">Wallet</a>
-        <a href="http://mining-pool.zkas.info/" target="_blank" rel="noopener">Pool</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/"><img src="/logo-192.png" alt="ZKas"><span><span style="color:var(--mint)">Z</span>Kas</span></a>
+      <nav class="top-links" aria-label="Main navigation">
         <a href="https://explorer.zkas.info" target="_blank" rel="noopener">Explorer</a>
-        <a href="https://github.com/firecash" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://x.com/ZKas_X" target="_blank" rel="noopener">X</a>
-        <a href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">Discord</a>
-      </span>
+        <a href="https://services.zkas.info" target="_blank" rel="noopener">Services</a>
+        <a class="service-link" href="https://services.zkas.info/earn/" target="_blank" rel="noopener">Find a service ↗</a>
+      </nav>
     </div>
-    <p class="disc">
-      Open-source software, provided without warranty. Nothing herein is financial
-      advice or an offer of any security. Proof-of-work mining and private-transaction
-      cryptography carry technical and regulatory risk. Verify the source and run your
-      own node.
-    </p>
-  </div>
-</footer>
+  </header>
 
+  <main class="layout">
+    <aside class="rail">
+      <div class="eyebrow">ZKAS · privacy layer</div>
+      <h1>Private payments at Kaspa speed.</h1>
+      <p class="rail-lede">ZKas combines Kaspa-style proof-of-work BlockDAG performance with Zcash-style shielded value.</p>
+      <div class="security"><strong>Shielded by default</strong><span>Secured by Kaspa merged kHeavyHash hashrate.</span></div>
+
+      <div class="rail-section">
+        <h2>Use ZKAS</h2>
+        <div class="rail-links">
+          <a href="https://wallet.zkas.info" target="_blank" rel="noopener">Web Wallet <span>↗</span></a>
+          <a href="https://github.com/firecash/zkas-wallet/releases" target="_blank" rel="noopener">Light Wallet app <span>↗</span></a>
+          <a href="https://github.com/firecash/zkas-rusty#wallet" target="_blank" rel="noopener">CLI &amp; Self-hosted <span>↗</span></a>
+          <a href="https://services.zkas.info/earn/" target="_blank" rel="noopener">Mining Pools <span>↗</span></a>
+          <a href="https://explorer.zkas.info" target="_blank" rel="noopener">BlockDAG Explorer <span>↗</span></a>
+        </div>
+      </div>
+      <div class="rail-section">
+        <h2>Learn &amp; build</h2>
+        <div class="rail-links">
+          <a href="/whitepaper.html">Whitepaper <span>↗</span></a>
+          <a href="https://github.com/firecash/zkas-rusty" target="_blank" rel="noopener">GitHub <span>↗</span></a>
+          <a href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">Community <span>↗</span></a>
+          <a href="https://x.com/ZKas_X" target="_blank" rel="noopener">X updates <span>↗</span></a>
+        </div>
+      </div>
+    </aside>
+
+    <section class="panel hero" aria-labelledby="headline">
+      <div class="hero-head">
+        <div>
+          <div class="eyebrow">A shielded proof-of-work network</div>
+          <h2 id="headline">Kaspa performance.<br>Private value.</h2>
+          <p>Every ZKAS payment hides the sender, recipient and amount with Orchard zero-knowledge proofs. Consensus remains open, proof-of-work secured and merge-mineable with Kaspa.</p>
+        </div>
+        <span class="live">Mainnet</span>
+      </div>
+      <div class="actions">
+        <a class="button" href="https://wallet.zkas.info" target="_blank" rel="noopener">Open web wallet</a>
+        <a class="button secondary" href="https://services.zkas.info/earn/" target="_blank" rel="noopener">Choose a mining pool</a>
+        <a class="button secondary" href="/whitepaper.html">Read the whitepaper</a>
+      </div>
+      <div class="stats" aria-label="ZKas key specifications">
+        <div class="stat"><strong>1 s</strong><span>Block time</span></div>
+        <div class="stat"><strong>Shielded</strong><span>Default privacy</span></div>
+        <div class="stat"><strong>kHeavyHash</strong><span>Kaspa merge-mining</span></div>
+        <div class="stat"><strong>57 / 60</strong><span>Miner / gross launch reward</span></div>
+      </div>
+
+      <div class="workspace">
+        <article class="card">
+          <div class="card-head"><h3>Network comparison</h3><span>At a glance</span></div>
+          <table>
+            <thead><tr><th></th><th>ZKas</th><th>Kaspa</th><th>Zcash</th></tr></thead>
+            <tbody>
+              <tr><td>Privacy</td><td class="good">Shielded by default</td><td>Transparent</td><td>Optional shielded pool</td></tr>
+              <tr><td>Consensus</td><td>GHOSTDAG BlockDAG</td><td>GHOSTDAG BlockDAG</td><td>Proof of work</td></tr>
+              <tr><td>Mining</td><td>kHeavyHash + merge-mining</td><td>kHeavyHash</td><td>Equihash</td></tr>
+              <tr><td>Target block time</td><td>1 second</td><td>Fast BlockDAG</td><td>~75 seconds</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="card">
+          <div class="card-head"><h3>Network specs</h3><span>Protocol</span></div>
+          <table>
+            <tbody>
+              <tr><td>Privacy system</td><td>Orchard + Halo 2</td></tr>
+              <tr><td>Public consensus</td><td>GHOSTDAG BlockDAG</td></tr>
+              <tr><td>Security</td><td>kHeavyHash proof of work</td></tr>
+              <tr><td>Launch reward</td><td>60 gross · 57 miner</td></tr>
+              <tr><td>Development fund</td><td>5% of each block</td></tr>
+              <tr><td>Halving</td><td>Every 3 months</td></tr>
+              <tr><td>Tail emission</td><td>0.6 ZKAS per block</td></tr>
+              <tr><td>Supply</td><td>No fixed cap</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="card wide">
+          <div class="card-head"><h3>Tokenomics</h3><span>Reward schedule</span></div>
+          <p class="card-note">60 ZKAS is created per launch block: 57 to the miner and 3 to development. The reward halves on the three-month schedule before reaching the 0.6 ZKAS tail.</p>
+          <div class="split">
+            <svg class="chart" viewBox="0 0 620 190" role="img" aria-label="ZKAS reward declines from 60 to a 0.6 tail">
+              <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#18d8bd" stop-opacity=".28"/><stop offset="1" stop-color="#18d8bd" stop-opacity=".01"/></linearGradient></defs>
+              <line class="gridline" x1="42" y1="24" x2="600" y2="24"/><line class="gridline" x1="42" y1="88" x2="600" y2="88"/><line class="gridline" x1="42" y1="152" x2="600" y2="152"/>
+              <text class="axis" x="35" y="28" text-anchor="end">60</text><text class="axis" x="35" y="92" text-anchor="end">30</text><text class="axis" x="35" y="156" text-anchor="end">0</text>
+              <path class="area" d="M42 24 L110 72 L178 108 L246 128 L314 140 L382 147 L450 151 L520 152 L600 152 L600 152 L42 152Z"/>
+              <path class="line" d="M42 24 L110 72 L178 108 L246 128 L314 140 L382 147 L450 151 L520 152 L600 152"/>
+              <circle class="point" cx="42" cy="24" r="4"/><circle class="point" cx="600" cy="152" r="4"/>
+              <text class="axis" x="42" y="178">Launch</text><text class="axis" x="246" y="178" text-anchor="middle">3–12 months</text><text class="axis" x="600" y="178" text-anchor="end">0.6 tail</text>
+            </svg>
+            <div class="legend">
+              <div class="legend-row"><span class="dot-label">Miner</span><b>95% · 57 ZKAS</b></div>
+              <div class="legend-row"><span class="dot-label dev">Development</span><b>5% · 3 ZKAS</b></div>
+              <div class="legend-row"><span>Halving</span><b>3 months</b></div>
+              <div class="legend-row"><span>Tail</span><b>0.6 / block</b></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card wide">
+          <div class="card-head"><h3>How it works</h3><span>Simple model</span></div>
+          <div class="steps">
+            <div class="step"><b>01</b><h4>Shielded value</h4><p>Orchard notes hide amounts, senders and recipients.</p></div>
+            <div class="step"><b>02</b><h4>Proof-of-work</h4><p>GHOSTDAG orders blocks while kHeavyHash secures the network.</p></div>
+            <div class="step"><b>03</b><h4>Shared security</h4><p>Kaspa miners can merge-mine ZKAS without changing their work.</p></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>© 2026 ZKas · open-source, permissionless proof of work</span>
+    <span><a href="https://services.zkas.info">Services</a> · <a href="https://explorer.zkas.info">Explorer</a> · <a href="https://github.com/firecash/zkas-rusty">GitHub</a> · <a href="https://discord.gg/jysMS4XNFT">Discord</a></span>
+  </footer>
 </body>
 </html>
