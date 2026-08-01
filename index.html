@@ -143,7 +143,11 @@
     td { padding-top: 10px; padding-bottom: 10px; }
     .step { border-radius: 2px; background: rgba(24,216,189,.035); }
     .foot { border-top-color: var(--line); }
-    .scroll-hint { margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--faint); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .scroll-cue { position: sticky; top: -1px; z-index: 3; display: block; margin: -24px -24px 20px; padding: 8px 24px; border-bottom: 1px solid rgba(24,216,189,.28); background: rgba(7,16,14,.94); color: var(--mint); font: 800 10px var(--mono); letter-spacing: .18em; text-align: right; }
+    .panel > .scroll-cue { margin: 0 -28px 20px -40px; padding-left: 40px; }
+    .rail::-webkit-scrollbar, .panel::-webkit-scrollbar { width: 11px; }
+    .rail::-webkit-scrollbar-track, .panel::-webkit-scrollbar-track { background: rgba(24,216,189,.05); }
+    .rail::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 8px; background: var(--mint); background-clip: padding-box; }
     @media (min-width: 861px) {
       html, body { height: 100%; overflow: hidden; }
       .layout { height: calc(100vh - 62px); overflow: hidden; }
@@ -157,6 +161,7 @@
       .rail { position: static; }
       .panel { padding-left: 0; padding-right: 0; border-left: 0; }
       .panel.hero { padding-left: 0; padding-right: 0; }
+      .panel > .scroll-cue { margin: 0 0 20px; padding-left: 0; }
       .rail h1 { max-width: none; }
       .rail-links { grid-template-columns: repeat(2, 1fr); gap: 2px 8px; }
     }
@@ -215,14 +220,15 @@
           <a href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">Discord <span>↗</span></a>
         </div>
       </div>
-      <div class="scroll-hint">Scroll rail ↓</div>
+      <div class="scroll-cue">SCROLL ↓</div>
     </aside>
 
     <section class="panel hero" aria-labelledby="headline">
+      <div class="scroll-cue">SCROLL ↓</div>
       <div class="hero-head">
         <div>
           <h2 id="headline">Fastest privacy L1</h2>
-          <p>ZKas combines Kaspa’s BlockDAG and kHeavyHash with Zcash’s shielded transaction technology. Target block time: 1 second.</p>
+          <p>ZKas combines Kaspa’s BlockDAG and kHeavyHash with Zcash’s shielded transaction technology.</p>
         </div>
         <span class="live">Mainnet · launched 26 July 2026</span>
       </div>
@@ -243,8 +249,6 @@
               <tr><td>Speed</td><td>1-second target</td><td>Fast BlockDAG settlement.</td></tr>
               <tr><td>Security</td><td>Kaspa merged mining</td><td>kHeavyHash work secures both networks.</td></tr>
               <tr><td>Proof system</td><td>Orchard + Halo 2</td><td>Validity without revealing value.</td></tr>
-              <tr><td>Development fund</td><td>5% per block</td><td>95% remains with miners.</td></tr>
-              <tr><td>Emission</td><td>3-month halving</td><td>Reaches a 0.6 ZKAS tail.</td></tr>
             </tbody>
           </table>
         </article>
