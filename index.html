@@ -143,15 +143,13 @@
     td { padding-top: 10px; padding-bottom: 10px; }
     .step { border-radius: 2px; background: rgba(24,216,189,.035); }
     .foot { border-top-color: var(--line); }
-    .scroll-cue { position: sticky; top: -1px; z-index: 3; display: block; margin: -24px -24px 20px; padding: 8px 24px; border-bottom: 1px solid rgba(24,216,189,.28); background: rgba(7,16,14,.94); color: var(--mint); font: 800 10px var(--mono); letter-spacing: .18em; text-align: right; }
-    .panel > .scroll-cue { margin: 0 -28px 20px -40px; padding-left: 40px; }
-    .rail::-webkit-scrollbar, .panel::-webkit-scrollbar { width: 11px; }
+    .rail::-webkit-scrollbar, .panel::-webkit-scrollbar { width: 14px; }
     .rail::-webkit-scrollbar-track, .panel::-webkit-scrollbar-track { background: rgba(24,216,189,.05); }
-    .rail::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 8px; background: var(--mint); background-clip: padding-box; }
+    .rail::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 8px; background: var(--mint); background-clip: padding-box; min-height: 44px; }
     @media (min-width: 861px) {
       html, body { height: 100%; overflow: hidden; }
       .layout { height: calc(100vh - 62px); overflow: hidden; }
-      .rail, .panel { height: 100%; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong, var(--line)) transparent; }
+      .rail, .panel { height: 100%; overflow-y: scroll; scrollbar-width: auto; scrollbar-color: var(--mint) rgba(24,216,189,.05); }
       .rail { padding-bottom: 48px; }
       .panel { padding-bottom: 48px; }
       .foot { display: none; }
@@ -161,7 +159,6 @@
       .rail { position: static; }
       .panel { padding-left: 0; padding-right: 0; border-left: 0; }
       .panel.hero { padding-left: 0; padding-right: 0; }
-      .panel > .scroll-cue { margin: 0 0 20px; padding-left: 0; }
       .rail h1 { max-width: none; }
       .rail-links { grid-template-columns: repeat(2, 1fr); gap: 2px 8px; }
     }
@@ -220,11 +217,9 @@
           <a href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">Discord <span>↗</span></a>
         </div>
       </div>
-      <div class="scroll-cue">SCROLL ↓</div>
     </aside>
 
     <section class="panel hero" aria-labelledby="headline">
-      <div class="scroll-cue">SCROLL ↓</div>
       <div class="hero-head">
         <div>
           <h2 id="headline">Fastest privacy L1</h2>
@@ -267,10 +262,9 @@
               <text class="axis" x="42" y="178">Launch</text><text class="axis" x="246" y="178" text-anchor="middle">3–12 months</text><text class="axis" x="600" y="178" text-anchor="end">0.6 tail</text>
             </svg>
             <div class="legend">
-              <div class="legend-row"><span class="dot-label">Miner</span><b>95% · 57 ZKAS</b></div>
-              <div class="legend-row"><span class="dot-label dev">Development</span><b>5% · 3 ZKAS</b></div>
-              <div class="legend-row"><span>Halving</span><b>3 months</b></div>
-              <div class="legend-row"><span>Tail</span><b>0.6 / block</b></div>
+              <div class="legend-row"><span class="dot-label">Miner share</span><b>95% per block</b></div>
+              <div class="legend-row"><span class="dot-label dev">Development fund</span><b>5% per block</b></div>
+              <div class="legend-row"><span>Emission</span><b>3-month halving → 0.6 tail</b></div>
             </div>
           </div>
         </article>
