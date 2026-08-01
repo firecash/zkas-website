@@ -111,9 +111,52 @@
     .foot { width: min(1320px, calc(100% - 40px)); margin: 0 auto; padding: 18px 0 36px; border-top: 1px solid var(--line-soft); color: var(--faint); font: 11px var(--mono); display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
     .foot a { color: var(--muted); }
     .foot a:hover { color: var(--ink); }
+    /* Editorial protocol layout: fewer boxes, stronger hierarchy. */
+    body { background-color: #07100e; background-image: linear-gradient(rgba(24,216,189,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(24,216,189,.028) 1px, transparent 1px), radial-gradient(900px 560px at 70% -180px, rgba(24,216,189,.16), transparent 72%); background-size: 48px 48px, 48px 48px, auto; }
+    .layout { grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 34px; padding-top: 42px; }
+    .rail, .panel { border: 0; border-radius: 0; background: transparent; }
+    .rail { padding: 0 26px 0 0; }
+    .panel { padding: 0 0 0 34px; border-left: 1px solid var(--line); }
+    .rail h1 { font-size: clamp(35px, 4vw, 54px); max-width: 8ch; }
+    .security { border-radius: 2px; border-left: 2px solid var(--mint); border-top: 0; border-right: 0; border-bottom: 0; background: rgba(24,216,189,.055); }
+    .rail-section { border-top-color: var(--line); }
+    .rail-links a { border-radius: 2px; padding-left: 0; border-bottom: 1px solid transparent; }
+    .rail-links a:hover { padding-left: 8px; background: transparent; border-bottom-color: var(--line); }
+    .hero { padding: 0 0 29px; border-bottom: 1px solid var(--line); }
+    .hero-head { min-height: 275px; align-items: center; }
+    .hero h2 { font-size: clamp(40px, 5.6vw, 76px); max-width: 8ch; letter-spacing: -.07em; }
+    .hero p { max-width: 56ch; font-size: 15px; }
+    .live { position: absolute; top: 93px; right: 0; }
+    .hero-head { position: relative; }
+    .hero-art { position: relative; width: 215px; height: 215px; margin-right: 35px; flex: 0 0 215px; display: grid; place-items: center; }
+    .hero-art::before, .hero-art::after { content: ""; position: absolute; border: 1px solid rgba(24,216,189,.28); border-radius: 50%; }
+    .hero-art::before { inset: 7px; box-shadow: 0 0 70px rgba(24,216,189,.11), inset 0 0 40px rgba(24,216,189,.06); }
+    .hero-art::after { inset: 38px; border-color: rgba(24,216,189,.48); }
+    .hero-art-core { position: relative; z-index: 1; width: 78px; height: 78px; display: grid; place-items: center; border: 1px solid var(--mint); border-radius: 50%; color: var(--mint); font: 700 26px var(--mono); background: #091714; box-shadow: 0 0 45px rgba(24,216,189,.22); }
+    .hero-art-label { position: absolute; color: var(--faint); font: 9px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .hero-art-label.top { top: -1px; }
+    .hero-art-label.bottom { bottom: -1px; }
+    .hero-art-label.left { left: -19px; top: 50%; transform: rotate(-90deg); }
+    .hero-art-label.right { right: -19px; top: 50%; transform: rotate(90deg); }
+    .stats { grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .stat { border: 0; border-right: 1px solid var(--line); border-radius: 0; background: transparent; padding: 15px 15px 15px 0; }
+    .stat + .stat { padding-left: 15px; }
+    .stat:last-child { border-right: 0; }
+    .workspace { gap: 0 34px; margin-top: 0; }
+    .card { padding: 27px 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: transparent; }
+    .card.wide { grid-column: 1 / -1; }
+    .card h3 { font-size: 18px; }
+    .card-head { margin-bottom: 16px; }
+    .card-note { max-width: 70ch; }
+    table { font-size: 12px; }
+    th { padding-bottom: 10px; }
+    td { padding-top: 10px; padding-bottom: 10px; }
+    .step { border-radius: 2px; background: rgba(24,216,189,.035); }
+    .foot { border-top-color: var(--line); }
     @media (max-width: 860px) {
       .layout { grid-template-columns: 1fr; }
       .rail { position: static; }
+      .panel { padding-left: 0; border-left: 0; }
       .rail h1 { max-width: none; }
       .rail-links { grid-template-columns: repeat(2, 1fr); gap: 2px 8px; }
     }
@@ -121,6 +164,8 @@
       .topbar-inner, .layout, .foot { width: min(100% - 24px, 1320px); }
       .top-links a:not(.service-link) { display: none; }
       .hero-head { display: block; }
+      .hero-art { width: 180px; height: 180px; margin: 28px auto 20px; }
+      .live { position: static; margin-top: 14px; }
       .live { margin-top: 14px; }
       .stats { grid-template-columns: repeat(2, 1fr); }
       .workspace, .split { grid-template-columns: 1fr; }
@@ -176,6 +221,13 @@
           <div class="eyebrow">A shielded proof-of-work network</div>
           <h2 id="headline">Kaspa performance.<br>Private value.</h2>
           <p>Every ZKAS payment hides the sender, recipient and amount with Orchard zero-knowledge proofs. Consensus remains open, proof-of-work secured and merge-mineable with Kaspa.</p>
+        </div>
+        <div class="hero-art" aria-label="ZKAS shielded security graphic">
+          <span class="hero-art-label top">Orchard</span>
+          <span class="hero-art-label right">Halo 2</span>
+          <span class="hero-art-label bottom">1 second</span>
+          <span class="hero-art-label left">kHeavyHash</span>
+          <span class="hero-art-core">Z</span>
         </div>
         <span class="live">Mainnet</span>
       </div>
