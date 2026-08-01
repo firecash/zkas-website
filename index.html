@@ -117,27 +117,23 @@
     .rail, .panel { border: 0; border-radius: 0; background: transparent; }
     .rail { padding: 0 26px 0 0; }
     .panel { padding: 0 0 0 34px; border-left: 1px solid var(--line); }
-    .rail h1 { font-size: clamp(35px, 4vw, 54px); max-width: 8ch; }
+    .rail h1 { font-size: clamp(46px, 5vw, 72px); max-width: none; }
     .security { border-radius: 2px; border-left: 2px solid var(--mint); border-top: 0; border-right: 0; border-bottom: 0; background: rgba(24,216,189,.055); }
     .rail-section { border-top-color: var(--line); }
     .rail-links a { border-radius: 2px; padding-left: 0; border-bottom: 1px solid transparent; }
     .rail-links a:hover { padding-left: 8px; background: transparent; border-bottom-color: var(--line); }
     .hero { padding: 0 0 29px; border-bottom: 1px solid var(--line); }
     .hero-head { min-height: 275px; align-items: center; }
-    .hero h2 { font-size: clamp(40px, 5.6vw, 76px); max-width: 8ch; letter-spacing: -.07em; }
+    .hero h2 { font-size: clamp(40px, 5.6vw, 76px); max-width: 10ch; letter-spacing: -.07em; }
     .hero p { max-width: 56ch; font-size: 15px; }
-    .live { position: absolute; top: 93px; right: 0; }
+    .live { position: absolute; top: 0; right: 0; }
     .hero-head { position: relative; }
     .hero-art { position: relative; width: 215px; height: 215px; margin-right: 35px; flex: 0 0 215px; display: grid; place-items: center; }
     .hero-art::before, .hero-art::after { content: ""; position: absolute; border: 1px solid rgba(24,216,189,.28); border-radius: 50%; }
     .hero-art::before { inset: 7px; box-shadow: 0 0 70px rgba(24,216,189,.11), inset 0 0 40px rgba(24,216,189,.06); }
     .hero-art::after { inset: 38px; border-color: rgba(24,216,189,.48); }
     .hero-art-core { position: relative; z-index: 1; width: 78px; height: 78px; display: grid; place-items: center; border: 1px solid var(--mint); border-radius: 50%; color: var(--mint); font: 700 26px var(--mono); background: #091714; box-shadow: 0 0 45px rgba(24,216,189,.22); }
-    .hero-art-label { position: absolute; color: var(--faint); font: 9px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
-    .hero-art-label.top { top: -1px; }
-    .hero-art-label.bottom { bottom: -1px; }
-    .hero-art-label.left { left: -19px; top: 50%; transform: rotate(-90deg); }
-    .hero-art-label.right { right: -19px; top: 50%; transform: rotate(90deg); }
+    .hero-art-caption { position: absolute; bottom: -27px; white-space: nowrap; color: var(--faint); font: 9px var(--mono); letter-spacing: .11em; text-transform: uppercase; }
     .stats { grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
     .stat { border: 0; border-right: 1px solid var(--line); border-radius: 0; background: transparent; padding: 15px 15px 15px 0; }
     .stat + .stat { padding-left: 15px; }
@@ -153,6 +149,14 @@
     td { padding-top: 10px; padding-bottom: 10px; }
     .step { border-radius: 2px; background: rgba(24,216,189,.035); }
     .foot { border-top-color: var(--line); }
+    @media (min-width: 861px) {
+      html, body { height: 100%; overflow: hidden; }
+      .layout { height: calc(100vh - 62px); overflow: hidden; }
+      .rail, .panel { height: 100%; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong, var(--line)) transparent; }
+      .rail { padding-bottom: 48px; }
+      .panel { padding-bottom: 48px; }
+      .foot { display: none; }
+    }
     @media (max-width: 860px) {
       .layout { grid-template-columns: 1fr; }
       .rail { position: static; }
@@ -164,7 +168,7 @@
       .topbar-inner, .layout, .foot { width: min(100% - 24px, 1320px); }
       .top-links a:not(.service-link) { display: none; }
       .hero-head { display: block; }
-      .hero-art { width: 180px; height: 180px; margin: 28px auto 20px; }
+      .hero-art { width: 180px; height: 180px; margin: 28px auto 40px; }
       .live { position: static; margin-top: 14px; }
       .live { margin-top: 14px; }
       .stats { grid-template-columns: repeat(2, 1fr); }
@@ -197,9 +201,9 @@
       <div class="rail-section">
         <h2>Use ZKAS</h2>
         <div class="rail-links">
-          <a href="https://wallet.zkas.info" target="_blank" rel="noopener">Web Wallet <span>↗</span></a>
           <a href="https://github.com/firecash/zkas-wallet/releases" target="_blank" rel="noopener">Light Wallet app <span>↗</span></a>
           <a href="https://github.com/firecash/zkas-rusty#wallet" target="_blank" rel="noopener">CLI &amp; Self-hosted <span>↗</span></a>
+          <a href="https://wallet.zkas.info" target="_blank" rel="noopener">Web Wallet <span>↗</span></a>
           <a href="https://services.zkas.info/earn/" target="_blank" rel="noopener">Mining Pools <span>↗</span></a>
           <a href="https://explorer.zkas.info" target="_blank" rel="noopener">BlockDAG Explorer <span>↗</span></a>
         </div>
