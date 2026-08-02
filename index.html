@@ -10,6 +10,14 @@
   <meta property="og:title" content="ZKas — private by default, one-second speed">
   <meta property="og:description" content="A shielded proof-of-work privacy layer secured by Kaspa merged hashrate.">
   <meta property="og:image" content="/logo.png">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('zkas-theme');
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
+      } catch (_) {}
+    }());
+  </script>
   <style>
     :root {
       color-scheme: dark;
@@ -45,6 +53,9 @@
     .top-links a:hover { color: var(--ink); }
     .top-links .service-link { padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); }
     .top-links .service-link:hover { border-color: var(--mint); background: var(--mint-soft); }
+    .theme-toggle { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: transparent; font: 11px var(--mono); cursor: pointer; }
+    .theme-toggle:hover { color: var(--ink); border-color: var(--mint); background: var(--mint-soft); }
+    .theme-toggle .theme-icon { color: var(--mint); font-size: 14px; line-height: 1; }
     .layout { width: min(1320px, calc(100% - 40px)); margin: 0 auto; padding: 24px 0 56px; display: grid; grid-template-columns: minmax(230px, 1fr) minmax(0, 2fr); gap: 18px; align-items: start; }
     .rail, .panel { border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(145deg, rgba(16,33,28,.92), rgba(9,21,17,.94)); }
     .rail { position: sticky; top: 86px; padding: 22px; }
@@ -151,6 +162,24 @@
     .rail::-webkit-scrollbar-track, .panel::-webkit-scrollbar-track { background: rgba(24,216,189,.05); }
     .rail::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 8px; background: var(--mint); background-clip: padding-box; min-height: 44px; }
     .visible-scrollbar { display: none; }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg: #eef1f0;
+      --panel: #f8faf9;
+      --panel-2: #e3e9e7;
+      --line: #c8d4d0;
+      --line-soft: #dbe3e0;
+      --ink: #17231f;
+      --muted: #4d625a;
+      --faint: #6d8179;
+      --mint: #087f72;
+      --mint-soft: rgba(8,127,114,.09);
+      --blue: #3f5eaa;
+      --amber: #9a681f;
+    }
+    html[data-theme="light"] body { background-color: var(--bg); background-image: linear-gradient(rgba(8,127,114,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(8,127,114,.045) 1px, transparent 1px), radial-gradient(900px 560px at 70% -180px, rgba(8,127,114,.10), transparent 72%); }
+    html[data-theme="light"] .topbar { background: rgba(238,241,240,.90); }
+    html[data-theme="light"] .security { border-color: rgba(8,127,114,.25); }
     @media (min-width: 861px) {
       html, body { height: 100%; overflow: hidden; }
       .layout { height: calc(100vh - 62px); padding-bottom: 0; overflow: visible; }
@@ -188,6 +217,7 @@
     <div class="topbar-inner">
       <a class="brand" href="/"><img src="/logo-192.png" alt="ZKas"><span><span style="color:var(--mint)">Z</span>Kas</span></a>
       <nav class="top-links" aria-label="Main navigation">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false"><span class="theme-icon" aria-hidden="true">☼</span><span class="theme-label">Day mode</span></button>
       </nav>
     </div>
   </header>
@@ -305,6 +335,27 @@
   <footer class="foot">
     <span>© 2026 ZKas · open-source, permissionless proof of work</span>
   </footer>
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var button = document.getElementById('themeToggle');
+      if (button) {
+        function updateThemeButton() {
+          var light = root.dataset.theme === 'light';
+          button.setAttribute('aria-pressed', String(light));
+          button.querySelector('.theme-icon').textContent = light ? '☾' : '☼';
+          button.querySelector('.theme-label').textContent = light ? 'Night mode' : 'Day mode';
+        }
+        button.addEventListener('click', function () {
+          var next = root.dataset.theme === 'light' ? 'dark' : 'light';
+          root.dataset.theme = next;
+          try { localStorage.setItem('zkas-theme', next); } catch (_) {}
+          updateThemeButton();
+        });
+        updateThemeButton();
+      }
+    }());
+  </script>
   <script>
     (function () {
       var desktop = window.matchMedia('(min-width: 861px)');
