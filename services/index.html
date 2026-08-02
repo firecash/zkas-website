@@ -13,6 +13,14 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://services.zkas.info/">
   <meta property="og:image" content="https://zkas.info/logo.png">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('zkas-theme');
+        document.documentElement.dataset.theme = saved === 'dark' ? 'dark' : 'light';
+      } catch (_) { document.documentElement.dataset.theme = 'light'; }
+    }());
+  </script>
   <style>
     :root {
       color-scheme: dark;
@@ -65,6 +73,9 @@
     .toplinks { display: flex; align-items: center; gap: 22px; }
     .toplinks a { color: var(--muted); font-size: 13px; text-decoration: none; }
     .toplinks a:hover { color: var(--ink); }
+    .theme-toggle { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border: 1px solid var(--mint); border-radius: 8px; color: var(--ink); background: var(--mint-soft); box-shadow: 0 0 14px rgba(23,214,190,.12); font: 700 11px var(--mono); cursor: pointer; }
+    .theme-toggle:hover { background: rgba(23,214,190,.20); box-shadow: 0 0 18px rgba(23,214,190,.24); }
+    .theme-toggle .theme-icon { color: var(--mint); font-size: 17px; line-height: 1; }
     .directory { padding: 30px 0 85px; }
     .directory-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
     .directory-head h1 { margin: 0; font-size: 32px; line-height: 1.1; letter-spacing: -.04em; }
@@ -132,6 +143,28 @@
     .footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
     .footer-links a { color: var(--muted); text-decoration: none; }
     .footer-links a:hover { color: var(--ink); }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg: #eef1f0;
+      --surface: #f8faf9;
+      --surface-2: #e3e9e7;
+      --line: #c8d4d0;
+      --line-strong: #9db1a9;
+      --ink: #17231f;
+      --muted: #4d625a;
+      --faint: #6d8179;
+      --mint: #087f72;
+      --mint-soft: rgba(8,127,114,.09);
+      --amber: #9a681f;
+      --amber-soft: rgba(154,104,31,.10);
+      --blue: #3f5eaa;
+    }
+    html[data-theme="light"] body { background: radial-gradient(900px 500px at 75% -120px, rgba(8,127,114,.10), transparent 70%), radial-gradient(650px 400px at -180px 48%, rgba(8,127,114,.045), transparent 70%), var(--bg); }
+    html[data-theme="light"] .topbar { background: rgba(238,241,240,.90); border-bottom-color: var(--line); }
+    html[data-theme="light"] .search, html[data-theme="light"] .filter { background: rgba(248,250,249,.92); }
+    html[data-theme="light"] .card { background: linear-gradient(150deg, #f8faf9, #e8efec); }
+    html[data-theme="light"] .card:hover { background: linear-gradient(150deg, #ffffff, #e8efec); }
+    html[data-theme="light"] .service-icon { background: #e8efec; }
     @media (max-width: 900px) {
       .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .controls { grid-template-columns: 1fr; }
@@ -161,6 +194,7 @@
       <nav class="toplinks" aria-label="Primary navigation">
         <a href="#directory">Directory</a>
         <a href="https://zkas.info" target="_blank" rel="noopener">About ZKas ↗</a>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false"><span class="theme-icon" aria-hidden="true">☼</span><span class="theme-label">Day mode</span></button>
       </nav>
     </div>
   </header>
@@ -298,6 +332,26 @@
     </div>
   </footer>
 
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const button = document.getElementById('themeToggle');
+      if (!button) return;
+      const update = () => {
+        const light = root.dataset.theme === 'light';
+        button.setAttribute('aria-pressed', String(light));
+        button.querySelector('.theme-icon').textContent = light ? '☾' : '☼';
+        button.querySelector('.theme-label').textContent = light ? 'Night mode' : 'Day mode';
+      };
+      button.addEventListener('click', () => {
+        const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+        root.dataset.theme = next;
+        try { localStorage.setItem('zkas-theme', next); } catch (_) {}
+        update();
+      });
+      update();
+    })();
+  </script>
   <script>
     (() => {
       const search = document.getElementById('search');
