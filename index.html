@@ -162,6 +162,10 @@
     .rail::-webkit-scrollbar-track, .panel::-webkit-scrollbar-track { background: rgba(24,216,189,.05); }
     .rail::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 8px; background: var(--mint); background-clip: padding-box; min-height: 44px; }
     .visible-scrollbar { display: none; }
+    .mesh-bg { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; color: var(--mint); opacity: .075; }
+    .mesh-bg path { fill: none; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
+    .mesh-bg circle { fill: currentColor; }
+    body > :not(.mesh-bg) { position: relative; z-index: 1; }
     html[data-theme="light"] {
       color-scheme: light;
       --bg: #eef1f0;
@@ -180,6 +184,7 @@
     html[data-theme="light"] body { background-color: var(--bg); background-image: linear-gradient(rgba(8,127,114,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(8,127,114,.045) 1px, transparent 1px), radial-gradient(900px 560px at 70% -180px, rgba(8,127,114,.10), transparent 72%); }
     html[data-theme="light"] .topbar { background: rgba(238,241,240,.90); }
     html[data-theme="light"] .security { border-color: rgba(8,127,114,.25); }
+    html[data-theme="light"] .mesh-bg { opacity: .055; }
     @media (min-width: 861px) {
       html, body { height: 100%; overflow: hidden; }
       .layout { height: calc(100vh - 62px); padding-bottom: 0; overflow: visible; }
@@ -192,6 +197,7 @@
       .foot { display: none; }
     }
     @media (max-width: 860px) {
+      .mesh-bg { opacity: .045; }
       .layout { grid-template-columns: 1fr; }
       .rail { position: static; transform: none; margin-top: 0; }
       .panel { margin-top: 0; padding-left: 0; padding-right: 0; border-left: 0; }
@@ -213,6 +219,20 @@
   </style>
 </head>
 <body>
+  <svg class="mesh-bg" viewBox="0 0 1200 800" preserveAspectRatio="none" aria-hidden="true">
+    <g>
+      <path d="M64 148 248 92 408 184 586 116 764 218 942 132 1138 246"/>
+      <path d="M64 148 156 344 328 286 408 184 516 388 694 326 764 218 906 402 1138 246"/>
+      <path d="M156 344 92 622 286 694 516 388 604 628 906 402 1082 632"/>
+      <path d="M328 286 286 694M694 326 604 628M942 132 906 402"/>
+      <circle cx="64" cy="148" r="3"/><circle cx="248" cy="92" r="2.5"/><circle cx="408" cy="184" r="3"/>
+      <circle cx="586" cy="116" r="2.5"/><circle cx="764" cy="218" r="3"/><circle cx="942" cy="132" r="2.5"/>
+      <circle cx="1138" cy="246" r="3"/><circle cx="156" cy="344" r="2.5"/><circle cx="328" cy="286" r="3"/>
+      <circle cx="516" cy="388" r="3"/><circle cx="694" cy="326" r="2.5"/><circle cx="906" cy="402" r="3"/>
+      <circle cx="92" cy="622" r="2.5"/><circle cx="286" cy="694" r="3"/><circle cx="604" cy="628" r="2.5"/>
+      <circle cx="1082" cy="632" r="3"/>
+    </g>
+  </svg>
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="/"><img src="/logo-192.png" alt="ZKas"><span><span style="color:var(--mint)">Z</span>Kas</span></a>
