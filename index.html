@@ -162,9 +162,9 @@
     .rail::-webkit-scrollbar-track, .panel::-webkit-scrollbar-track { background: rgba(24,216,189,.05); }
     .rail::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 8px; background: var(--mint); background-clip: padding-box; min-height: 44px; }
     .visible-scrollbar { display: none; }
-    .mesh-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; min-height: 100vh; pointer-events: none; color: var(--mint); opacity: .12; }
-    .mesh-bg path { fill: none; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
-    .mesh-bg circle { fill: currentColor; }
+    .mesh-bg { display: none; }
+    .rail::before, .panel::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .055; background-image: radial-gradient(circle at 18% 18%, var(--mint) 0 2px, transparent 2.5px), radial-gradient(circle at 58% 31%, var(--mint) 0 1.5px, transparent 2px), radial-gradient(circle at 84% 68%, var(--mint) 0 2px, transparent 2.5px), linear-gradient(28deg, transparent 49.8%, var(--mint) 50%, transparent 50.2%), linear-gradient(148deg, transparent 49.8%, var(--mint) 50%, transparent 50.2%); background-size: 430px 360px, 430px 360px, 430px 360px, 430px 360px, 430px 360px; background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+    .rail > *, .panel > * { position: relative; z-index: 1; }
     body > :not(.mesh-bg) { position: relative; z-index: 1; }
     html[data-theme="light"] {
       color-scheme: light;
@@ -184,7 +184,7 @@
     html[data-theme="light"] body { background-color: var(--bg); background-image: linear-gradient(rgba(8,127,114,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(8,127,114,.045) 1px, transparent 1px), radial-gradient(900px 560px at 70% -180px, rgba(8,127,114,.10), transparent 72%); }
     html[data-theme="light"] .topbar { background: rgba(238,241,240,.90); }
     html[data-theme="light"] .security { border-color: rgba(8,127,114,.25); }
-    html[data-theme="light"] .mesh-bg { opacity: .09; }
+    html[data-theme="light"] .rail::before, html[data-theme="light"] .panel::before { opacity: .045; }
     @media (min-width: 861px) {
       html, body { height: 100%; overflow: hidden; }
       .layout { height: calc(100vh - 62px); padding-bottom: 0; overflow: visible; }
@@ -197,9 +197,9 @@
       .foot { display: none; }
     }
     @media (max-width: 860px) {
-      .mesh-bg { opacity: .065; }
+      .rail::before, .panel::before { opacity: .035; }
       .layout { grid-template-columns: 1fr; }
-      .rail { position: static; transform: none; margin-top: 0; }
+      .rail { position: relative; transform: none; margin-top: 0; }
       .panel { margin-top: 0; padding-left: 0; padding-right: 0; border-left: 0; }
       .panel.hero { padding-left: 0; padding-right: 0; }
       .rail h1 { max-width: none; }
