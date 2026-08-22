@@ -252,12 +252,12 @@
 
 <!-- ============ 11 ============ -->
 <h2 id="s11">11 · Monetary policy &amp; emission</h2>
-<p>Issuance is <strong>proof-of-work only</strong>, with no venture or investor allocation. Rewards enter the mandatory shielded pool as coinbase notes (§8.3), so even newly issued coins are private after a single hop.</p>
+<p>Issuance is <strong>proof-of-work only</strong>, with no venture or investor allocation. Each gross coinbase reward allocates <strong>95% to the miner</strong> and <strong>5% to ongoing development</strong>. Rewards enter the mandatory shielded pool as coinbase notes (§8.3), so even newly issued coins are private after a single hop.</p>
 <h3>11.1 Key figures</h3>
-<p>The block reward begins at <strong>60&nbsp;ZKAS per block</strong> (60&nbsp;ZKAS per second at one block per second) and follows a smooth decay that <strong>halves every three months</strong> from genesis. The curve does not fall to zero: it is caught by a <strong>two-step perpetual tail</strong>. The decay crosses <strong>6&nbsp;ZKAS per block</strong> around month&nbsp;10, and that floor is paid through <strong>month&nbsp;24</strong>; the reward then steps down once to <strong>3&nbsp;ZKAS per block</strong> and stays there permanently. The final 3&nbsp;ZKAS/block tail — roughly <strong>95&nbsp;million&nbsp;ZKAS per year</strong> — funds proof-of-work security indefinitely rather than leaving miners to rely on fees alone. There is therefore no fixed supply cap; issuance is steeply disinflationary early and settles onto a low constant floor in the long run.</p>
+<p>Gross issuance begins at <strong>60&nbsp;ZKAS per block</strong> (60&nbsp;ZKAS per second at one block per second), of which the miner receives <strong>57&nbsp;ZKAS</strong> after the 5% development allocation. It follows a smooth decay that <strong>halves every three months</strong> from genesis. The curve does not fall to zero: it is caught by a <strong>two-step perpetual tail</strong>. The decay crosses a gross <strong>6&nbsp;ZKAS per block</strong> around month&nbsp;10, and that floor is paid through <strong>month&nbsp;24</strong>; it then steps down to a perpetual gross <strong>0.6&nbsp;ZKAS per block</strong>. There is therefore no fixed supply cap.</p>
 <table>
   <tr><th>Quantity</th><th>Value</th></tr>
-  <tr><td>Initial block reward</td><td>60 ZKAS/block (60 ZKAS/s)</td></tr>
+  <tr><td>Initial miner reward</td><td>57 ZKAS/block (95% of 60 ZKAS gross issuance)</td></tr>
   <tr><td>Reward after first halving (month 3)</td><td>30 ZKAS/block</td></tr>
   <tr><td>Halving interval</td><td>3 months</td></tr>
   <tr><td>Tail — first step</td><td>6 ZKAS/block (≈ month 10 through month 24; ≈ 189M ZKAS/year)</td></tr>
@@ -307,21 +307,8 @@
 
 <!-- ============ 15 ============ -->
 <!-- ============ 15 ============ -->
-<h2 id="s15">15 · Roadmap &amp; next steps</h2>
-<h3>Stage 1 — Shielded mainnet</h3>
-<p>A proof-of-work launch on a one-block-per-second GHOSTDAG BlockDAG with shielded-by-default coinbase and payments, the turnstile invariant enforced from block one, matured reorg-safe anchors, native kHeavyHash mining, and batched/parallel verification. This is the foundation the rest builds on.</p>
-<h3>Stage 2 — Full-chain membership proofs (FCMP)</h3>
-<p>Migrate the membership argument from per-anchor Orchard trees toward FCMP++ / Curve Trees, so a spend's anonymity set becomes the <em>entire</em> transaction history rather than a single anchor's note set. The membership/tree module is deliberately kept behind an interface so this is an upgrade, not a rewrite — and the resulting tree structure is an even cleaner fit for the DAG.</p>
-<h3>Stage 3 — Private smart contracts</h3>
-<p>Extend the shielded model from payments to programmable state: confidential contracts whose logic executes and whose state transitions verify in zero knowledge, so that programmability does not reintroduce the transparency it was built to avoid. This is the long-horizon direction — private computation on a fast BlockDAG.</p>
-<h4>Cross-cutting engineering</h4>
-<ul>
-  <li><strong>Recursive aggregation / IVC</strong> — one proof per chain block, then one for the whole history; the core scalability unlock (§9).</li>
-  <li><strong>Light-wallet infrastructure</strong> — indexer, compact filters, oblivious sync, delegated and GPU-assisted proving.</li>
-  <li><strong>Audit &amp; formal verification</strong> — independent review of the circuit, a public high-block-rate testnet soak, and a real bug bounty before final launch.</li>
-  <li><strong>Multi-node network</strong> — seeders and shielded-state sync for pruned and fast-bootstrapping nodes.</li>
-  <li><strong>Merged mining</strong> — full deployment of auxiliary-proof propagation and merged-mining pool tooling, so ZKas can be secured alongside Kaspa at zero marginal cost (the auxiliary-proof verifier is already built and tested).</li>
-</ul>
+<h2 id="s15">15 &middot; Roadmap &amp; next steps</h2>
+<div class="note">This section is being revised and will be updated soon.</div>
 
 <!-- ============ 17 ============ -->
 <h2 id="s16">16 · Conclusion</h2>
@@ -354,11 +341,11 @@
   <tr><td>Transfer types</td><td>Shielded only; coinbase is the sole public value event</td></tr>
   <tr><td>Anchor maturity</td><td>~10 min deep, canonical (reachability-checked)</td></tr>
   <tr><td>Supply rule</td><td>Turnstile: pool = Σ coinbase − Σ fees ≥ 0</td></tr>
-  <tr><td>Initial reward</td><td>60 ZKAS/block (60 ZKAS/s at 1 BPS)</td></tr>
+  <tr><td>Initial miner reward</td><td>57 ZKAS/block (95% of 60 ZKAS gross issuance at 1 BPS)</td></tr>
   <tr><td>Halving</td><td>Every 3 months (smooth decay from genesis)</td></tr>
   <tr><td>Tail emission</td><td>6 ZKAS/block to month 24, then 0.6 ZKAS/block perpetual (≈ 18.9M ZKAS/year, ≈ 2.2% at onset decaying toward ~1%); no supply cap</td></tr>
   <tr><td>Denomination</td><td>1 ZKAS = 10⁸ sompi</td></tr>
-  <tr><td>Issuance</td><td>PoW only — no venture allocation</td></tr>
+  <tr><td>Issuance allocation</td><td>95% miner reward, 5% development; no venture allocation</td></tr>
   <tr><td>Launch difficulty</td><td>~50k-block easy start, ~200k-block ramp, then steady state</td></tr>
   <tr><td>Selective disclosure</td><td>Opt-in viewing keys (own history only)</td></tr>
   <tr><td>Ticker</td><td>FC</td></tr>
