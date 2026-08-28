@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZKas — OTC Desk Reserves</title>
+<meta name="description" content="Fees collected by the ZKas OTC desk, updated live.">
+<style>
+  :root{
+    --bg:#0a0f0d; --card:#101614; --line:#1d2a26;
+    --mint:#18d8bd; --text:#e6f2ef; --dim:#7d938d; --amber:#f1ba70;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:48px 20px; background:var(--bg); color:var(--text);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  .wrap{max-width:760px; margin:0 auto}
+  h1{font-size:28px; margin:0 0 6px; letter-spacing:-.02em}
+  .sub{color:var(--dim); margin:0 0 36px; font-size:15px}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  .card{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:22px 24px;
+  }
+  .label{color:var(--dim); font-size:13px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px}
+  .amount{font-size:30px; font-weight:600; letter-spacing:-.02em; word-break:break-all}
+  .unit{font-size:15px; color:var(--mint); margin-left:6px; font-weight:500}
+  .usd{color:var(--dim); font-size:15px; margin-top:6px}
+  .total{margin-top:16px; border-color:#24443c}
+  .total .amount{color:var(--mint)}
+  .meta{
+    margin-top:28px; padding-top:20px; border-top:1px solid var(--line);
+    color:var(--dim); font-size:14px;
+  }
+  .meta div{margin-bottom:6px}
+  .err{color:var(--amber)}
+  a{color:var(--mint)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>OTC Desk Reserves</h1>
+  <p class="sub">Fees collected by the ZKas OTC desk. A 3% fee is charged on withdrawals; depositing and trading are free.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">ZKAS collected</div>
+      <div class="amount" id="zkas">—<span class="unit">ZKAS</span></div>
+      <div class="usd" id="zkas-usd">&nbsp;</div>
+    </div>
+    <div class="card">
+      <div class="label">KAS collected</div>
+      <div class="amount" id="kas">—<span class="unit">KAS</span></div>
+      <div class="usd" id="kas-usd">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="card total">
+    <div class="label">Combined value</div>
+    <div class="amount" id="total">—</div>
+    <div class="usd">ZKAS valued at the desk's best bid — what it would actually fetch if sold.</div>
+  </div>
+
+  <div class="meta">
+    <div id="paid">&nbsp;</div>
+    <div id="rates">&nbsp;</div>
+    <div id="asof">Loading…</div>
+  </div>
+</div>
+
+<script>
+// The desk runs on a different host, so this reads its public endpoint directly.
+// Aggregate figures only — no balances, no identities.
+var SOURCE = 'https://mining-pool.zkas.info/api/otc/reserves';
+
+function set(id, html) { document.getElementById(id).innerHTML = html; }
+
+function render(d) {
+  set('zkas', Number(d.fees.ZKAS.amount).toLocaleString(undefined, {maximumFractionDigits: 2}) +
+      '<span class="unit">ZKAS</span>');
+  set('kas', Number(d.fees.KAS.amount).toLocaleString(undefined, {maximumFractionDigits: 2}) +
+      '<span class="unit">KAS</span>');
+  set('zkas-usd', d.fees.ZKAS.usd ? '≈ ' + d.fees.ZKAS.usd : '&nbsp;');
+  set('kas-usd', d.fees.KAS.usd ? '≈ ' + d.fees.KAS.usd : '&nbsp;');
+  set('total', d.totalUsd ? '≈ ' + d.totalUsd : '—');
+  set('paid', 'From ' + d.withdrawalsPaid.toLocaleString() + ' withdrawals paid, at a ' + d.feePercent + '% fee.');
+  if (d.rates && d.rates.kasUsd) {
+    set('rates', '1 KAS ≈ $' + d.rates.kasUsd.toFixed(6) +
+        ' · 1 ZKAS ≈ ' + d.rates.zkasKas.toFixed(8) + ' KAS');
+  }
+  set('asof', 'Updated ' + new Date(d.asOf).toLocaleString() + ' · refreshes every 30s');
+}
+
+function load() {
+  fetch(SOURCE, { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(render)
+    .catch(function (e) {
+      // Say the figures are unavailable rather than leaving stale ones looking live.
+      set('asof', '<span class="err">Could not reach the desk (' + e.message + '). Retrying…</span>');
+    });
+}
+
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Editor / timestamped backups — never publish
+*.bak
+*.bak-*
+*~
+.DS_Store
+
+# Local secrets, if any ever land here
+.env
+.env.*
+*.key

@@ -28,6 +28,10 @@
   li{margin:0 0 5px; text-align:justify}
   a{color:var(--accent); text-decoration:none}
   code,.mono{font-family:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace; font-size:.86em}
+  pre{font-family:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace; font-size:.8em; line-height:1.5;
+      white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-all;
+      background:rgba(127,127,127,.09); border:1px solid rgba(127,127,127,.22); border-radius:6px;
+      padding:.7em .9em; margin:1em 0; max-width:100%; overflow-x:auto}
   .eq{background:var(--code); border:1px solid var(--line); border-radius:6px; padding:10px 14px; margin:12px 0;
       font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.9em; overflow-x:auto; text-align:center}
   .muted{color:var(--mut)}
@@ -91,7 +95,7 @@
 
   <div class="abstract">
     <h4>Abstract</h4>
-    <p class="small">Existing private ledgers pay for confidentiality with latency: Zcash settles in ~75&nbsp;s, Monero in ~120&nbsp;s, and both inherit a single-chain throughput ceiling. ZKas is built to avoid that tradeoff. It forks the rusty-kaspa engine — GHOSTDAG ordering over a directed acyclic graph of blocks at one block per second — and replaces the transparent UTXO value layer with a mandatory Orchard shielded pool proven in Halo&nbsp;2 (no trusted setup, Pasta curve cycle). The one genuinely novel piece of engineering is keeping Orchard's two order-sensitive global structures — the append-only nullifier set and the depth-32 note-commitment tree — consistent across a graph whose blocks are produced in parallel and ordered <em>after the fact</em>. ZKas solves this with a three-tier commitment tree whose global layer is advanced strictly in GHOSTDAG accepted order inside the virtual processor, so every honest node computes an identical nullifier set and an identical anchor. Because there is no transparent ledger to cross-check, supply integrity is enforced directly as consensus: a <em>turnstile invariant</em> requires the shielded pool to equal cumulative coinbase minus cumulative fees, backed per transaction by the homomorphic binding signature that already proves each bundle balances. Spends prove against a matured, reorg-safe anchor rather than the volatile tip. Issuance is proof-of-work only — with no venture allocation — mined with kHeavyHash, the same proof-of-work as Kaspa, which lets ZKas be merge-mined with Kaspa's hashrate; it launches at a low-difficulty target and follows a three-month halving. This paper specifies the consensus integration, the anti-inflation model, the verification-scaling path, the monetary policy, and the roadmap toward full-chain membership proofs and private programmability.</p>
+    <p class="small">Existing private ledgers pay for confidentiality with latency: Zcash settles in ~75&nbsp;s, Monero in ~120&nbsp;s, and both inherit a single-chain throughput ceiling. ZKas is built to avoid that tradeoff. It forks the rusty-kaspa engine — GHOSTDAG ordering over a directed acyclic graph of blocks at one block per second — and replaces the transparent UTXO value layer with a mandatory Orchard shielded pool proven in Halo&nbsp;2 (no trusted setup, Pasta curve cycle). The one genuinely novel piece of engineering is keeping Orchard's two order-sensitive global structures — the append-only nullifier set and the depth-32 note-commitment tree — consistent across a graph whose blocks are produced in parallel and ordered <em>after the fact</em>. ZKas solves this with a three-tier commitment tree whose global layer is advanced strictly in GHOSTDAG accepted order inside the virtual processor, so every honest node computes an identical nullifier set and an identical anchor. Because there is no transparent ledger to cross-check, supply integrity is enforced directly as consensus: a <em>turnstile invariant</em> requires the shielded pool to equal cumulative coinbase minus cumulative fees, backed per transaction by the homomorphic binding signature that already proves each bundle balances. Spends prove against a matured, reorg-safe anchor rather than the volatile tip. Issuance is proof-of-work only — with no venture allocation — mined with kHeavyHash, the same proof-of-work as Kaspa, which lets ZKas be merge-mined with Kaspa's hashrate; it launched with no premine and no easy-difficulty window, at a target calibrated to real merged-mining hashrate, and follows a three-month halving. This paper specifies the consensus integration, the anti-inflation model, the verification-scaling path, the monetary policy, and the roadmap toward full-chain membership proofs and private programmability.</p>
   </div>
 
   <div class="meta">
@@ -150,7 +154,7 @@
   <li><strong>Confidential by construction.</strong> No transparent transfer type. Amounts, senders, and recipients are hidden for every payment; the sole public quantity is the fee a spender chooses to expose to the miner.</li>
   <li><strong>Fast.</strong> One block per second, roughly one-second settlement — privacy without surrendering throughput.</li>
   <li><strong>Sound money.</strong> No inflation bug can silently counterfeit. A supply violation halts the chain rather than debasing it.</li>
-  <li><strong>Fair.</strong> Proof-of-work issuance with no venture allocation; CPU/GPU-mineable from block one at the low-difficulty launch, and merge-mineable with Kaspa.</li>
+  <li><strong>Fair.</strong> Proof-of-work issuance with no premine and no venture allocation; the genesis coinbase is provably unspendable, and the chain was mined against a real difficulty target from block one (§11.1).</li>
   <li><strong>Upgradable privacy.</strong> A membership argument that can migrate to full-chain proofs later.</li>
 </ul>
 <h4>Adversary &amp; assumptions</h4>
@@ -242,18 +246,29 @@
 <h2 id="s10">10 · Proof-of-work: kHeavyHash &amp; merged mining</h2>
 <p>ZKas secures block production with <strong>kHeavyHash</strong> — byte-for-byte the same proof-of-work as its parent chain, Kaspa. This is a deliberate design choice, not an incidental inheritance: sharing Kaspa's algorithm makes ZKas <em>merge-mineable</em> with Kaspa, so one hashing effort can secure both chains at once. For a young network, security borrowed from an established chain — at zero marginal cost to that chain's miners — is a stronger and more honest bootstrap than an isolated hashrate that must be grown from scratch. For a shielded chain the decisive protection against a chain reorg is finality, not raw hashrate (§7): spends prove only against a matured, canonical anchor, so merged mining is a security <em>amplifier</em> on top of that guarantee rather than the sole line of defense.</p>
 <p>Under merged mining ZKas is the <em>auxiliary</em> chain and Kaspa the parent: a miner embeds a 32-byte commitment to its ZKas block in the parent coinbase, mines Kaspa normally, and any solution clearing ZKas's own target yields a valid ZKas block — proven by the parent header plus a Merkle path to that commitment. ZKas sets its <em>own</em> difficulty and is never slaved to Kaspa's; because that target is typically far easier, the great majority of hashes that fail Kaspa's target still secure ZKas. Blocks are admitted by <strong>dual acceptance</strong> — valid if they carry either a native kHeavyHash header <em>or</em> a valid auxiliary proof — so liveness never depends on merged-mining participation: native mining is always the backbone, and merged mining augments security as it is adopted.</p>
-<div class="note">Status: native kHeavyHash mining is implemented and live, and the auxiliary-proof verifier is implemented and tested. Full merged-mining deployment — carrying the auxiliary proof through block propagation and the merged-mining pool tooling — is on the roadmap (§15).</div>
-<p>The launch difficulty follows a three-phase schedule so that ordinary hardware can mine from block one without leaving the chain permanently easy to attack:</p>
-<ul>
-  <li><strong>Low-difficulty start</strong> — the first ~50,000 blocks (~1.4&nbsp;h) are pinned to a very easy genesis target, so a bootstrap fleet of CPUs/GPUs can mine immediately.</li>
-  <li><strong>Ramp</strong> — over the next ~200,000 blocks the difficulty ceiling tightens geometrically toward real network difficulty; the standard difficulty-adjustment algorithm takes over the moment the ceiling drops below actual difficulty, so there is no post-launch cliff.</li>
-  <li><strong>Steady state</strong> — from roughly blue score 250,000 (~7&nbsp;h in) onward, difficulty is governed entirely by the block-rate target.</li>
-</ul>
+<div class="note">Status: <strong>merged mining is live in production.</strong> Native kHeavyHash mining, the auxiliary-proof verifier, auxiliary-proof propagation and the merged-mining pool tooling are all deployed, and merged mining has been active since genesis rather than gated behind a later fork. On a recent sample of mainnet headers, <strong>73%</strong> carried an auxiliary proof — that is, the large majority of ZKas blocks are already being secured by hashrate simultaneously mining Kaspa. Dual acceptance means the remainder are natively mined, so liveness never depends on merged-mining participation.</div>
+<p>ZKas launched with <strong>no easy-start period and no difficulty ramp</strong>. Genesis is cut at a real target — compact bits <code>0x1b02d093</code>, calibrated to roughly <strong>50&nbsp;TH/s</strong> at one block per second — and the ordinary difficulty-adjustment algorithm governs the chain from block one. The launch-window pin is disabled outright on mainnet (<code>low_difficulty_start_blocks = 0</code>).</p>
+<p>This is a deliberate consequence of launching merge-mined rather than bootstrapped. A chain that opens at a trivial target is cheap to reorganise for as long as the pin lasts, and no block mined inside that window has meaningful economic finality. Because ZKas is secured from genesis by hashrate already pointed at Kaspa, it never needed the easy window, so it does not have one: every ZKas block, including the first, was mined against a target the network could actually defend.</p>
 
 <!-- ============ 11 ============ -->
 <h2 id="s11">11 · Monetary policy &amp; emission</h2>
 <p>Issuance is <strong>proof-of-work only</strong>, with no venture or investor allocation. Each gross coinbase reward allocates <strong>95% to the miner</strong> and <strong>5% to ongoing development</strong>. Rewards enter the mandatory shielded pool as coinbase notes (§8.3), so even newly issued coins are private after a single hop.</p>
-<h3>11.1 Key figures</h3>
+
+<h3>11.1 Fair launch</h3>
+<p><strong>There was no premine, no presale, no founder allocation and no airdrop.</strong> Every ZKAS in existence was mined, beginning at block one. On a chain whose balances are hidden by construction this claim would ordinarily be unfalsifiable — a shielded premine is invisible — so ZKas does not ask to be believed. It is settled in genesis itself, in two ways that anyone can check without trusting the project.</p>
+
+<p><strong>The genesis coinbase is provably unspendable.</strong> Genesis nominally issues 100,000,000 sompi (1&nbsp;ZKAS), and pays it to a one-byte script consisting solely of <code>OP_FALSE</code>. No witness satisfies that script, so the genesis output can never be spent by anyone, including its authors. The founding block therefore starts the ledger at an effective balance of zero rather than at an allocation. This is verifiable directly from the genesis coinbase payload in <code>consensus/core/src/config/genesis.rs</code>; it needs no viewing key, because it is transparent data.</p>
+
+<p><strong>Genesis is anchored to Bitcoin.</strong> The genesis coinbase carries the tag:</p>
+<pre>zkas-mainnet btc#959713 00000000000000000001ef962f5604c074751cc75671e798d8b71e592a965a1f</pre>
+<p>That is the height and block hash of <strong>Bitcoin block 959,713</strong>. Because a Bitcoin block hash cannot be predicted before that block is mined, embedding it proves ZKas genesis was constructed <em>after</em> that moment in Bitcoin's chain — the same construction Bitcoin used with its own newspaper headline. It rules out a chain quietly mined in private beforehand and published later with a backdated genesis, which is the concrete way a "fair launch" is usually faked. The genesis timestamp is likewise constrained to lie at or after that Bitcoin block.</p>
+
+<p>The launch was <strong>announced publicly on Discord</strong> — <a href="https://discord.com/channels/1521797800952729612/1521798639679438949/1530921585135980575" target="_blank" rel="noopener">the announcement, including the Bitcoin-anchored genesis height, is here</a> — so participants could verify the anchor themselves rather than take the launch time on trust. Mining opened to everyone simultaneously at a real difficulty target (§10), so there was no interval in which insiders could accumulate cheaply against a pinned-easy chain.</p>
+
+<p>Shortly after launch the network was supported by <strong>K1Pool</strong>, which pointed hashrate at ZKas and helped the young chain reach a healthy, well-distributed difficulty quickly. That support is externally visible rather than a claim: a merge-mined ZKas block records which peer first relayed it, and K1Pool appears in that data as one of the chain's early significant producers.</p>
+
+<p>The one continuing allocation is the <strong>5% development share of each coinbase</strong> described below. It is not a premine: it is minted block by block alongside the miner's 95%, it is enforced by consensus rather than by custody of a pre-existing balance, and it is visible in the emission schedule from the outset. Changing either the share or its recipient requires a coordinated binary upgrade, since both are compile-time consensus constants rather than configuration.</p>
+<h3>11.2 Key figures</h3>
 <p>Gross issuance begins at <strong>60&nbsp;ZKAS per block</strong> (60&nbsp;ZKAS per second at one block per second), of which the miner receives <strong>57&nbsp;ZKAS</strong> after the 5% development allocation. It follows a smooth decay that <strong>halves every three months</strong> from genesis. The curve does not fall to zero: it is caught by a <strong>two-step perpetual tail</strong>. The decay crosses a gross <strong>6&nbsp;ZKAS per block</strong> around month&nbsp;10, and that floor is paid through <strong>month&nbsp;24</strong>; it then steps down to a perpetual gross <strong>0.6&nbsp;ZKAS per block</strong>. There is therefore no fixed supply cap.</p>
 <table>
   <tr><th>Quantity</th><th>Value</th></tr>
@@ -265,7 +280,7 @@
   <tr><td>Supply cap</td><td>None — perpetual tail</td></tr>
   <tr><td>Smallest unit</td><td>1 sompi = 10⁻⁸ ZKAS</td></tr>
 </table>
-<h3>11.2 Halving schedule</h3>
+<h3>11.3 Halving schedule</h3>
 <p>The schedule is front-loaded: a fast three-month halving distributes most coins in the first year, after which the reward is caught by the tail and issuance slows sharply. The curve halves 60&nbsp;→&nbsp;30&nbsp;→&nbsp;15&nbsp;→&nbsp;7.5&nbsp;ZKAS over the first four quarters, crossing the <strong>6&nbsp;ZKAS</strong> first-step floor around month&nbsp;10; that floor holds through month&nbsp;24, then steps down once to the perpetual <strong>0.6&nbsp;ZKAS</strong> floor. The figures below are computed from the on-chain per-block subsidy schedule.</p>
 <table>
   <tr><th>Milestone</th><th>Reward / block</th><th>Cumulative supply (ZKAS)</th></tr>
@@ -346,7 +361,9 @@
   <tr><td>Tail emission</td><td>6 ZKAS/block to month 24, then 0.6 ZKAS/block perpetual (≈ 18.9M ZKAS/year, ≈ 2.2% at onset decaying toward ~1%); no supply cap</td></tr>
   <tr><td>Denomination</td><td>1 ZKAS = 10⁸ sompi</td></tr>
   <tr><td>Issuance allocation</td><td>95% miner reward, 5% development; no venture allocation</td></tr>
-  <tr><td>Launch difficulty</td><td>~50k-block easy start, ~200k-block ramp, then steady state</td></tr>
+  <tr><td>Launch difficulty</td><td>Real target from genesis (bits <code>0x1b02d093</code>, ~50 TH/s); no easy start, no ramp</td></tr>
+  <tr><td>Premine</td><td>None — genesis coinbase pays <code>OP_FALSE</code> (unspendable)</td></tr>
+  <tr><td>Genesis anchor</td><td>Bitcoin block 959,713</td></tr>
   <tr><td>Selective disclosure</td><td>Opt-in viewing keys (own history only)</td></tr>
   <tr><td>Ticker</td><td>FC</td></tr>
 </table>

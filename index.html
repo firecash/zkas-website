@@ -18,7 +18,20 @@
       } catch (_) {}
     }());
   </script>
+  <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
   <style>
+    /* Inter, self-hosted. The stack already NAMED Inter but nothing ever loaded it, so
+       every visitor without it installed locally was served system-ui instead — Segoe UI
+       on Windows, Roboto on Android — which is why the type looked generic and differed
+       per machine. Self-hosted rather than Google Fonts on purpose: a third-party font
+       request would hand every visitor's IP to Google, which is indefensible here. */
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('/fonts/inter-var.woff2') format('woff2');
+    }
     :root {
       color-scheme: dark;
       --bg: #07100e;
@@ -41,6 +54,7 @@
     body {
       position: relative; margin: 0; min-height: 100vh; color: var(--ink); background: var(--bg);
       font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased;
+      font-optical-sizing: auto; font-feature-settings: "calt" 1;
       background-image: radial-gradient(900px 500px at 72% -180px, rgba(24,216,189,.14), transparent 72%);
     }
     a { color: inherit; text-decoration: none; }
@@ -74,7 +88,37 @@
     .rail-links a span { color: var(--mint); font: 16px var(--mono); }
     .hero { padding: 24px; }
     .hero-head { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
-    .hero h2 { margin: 8px 0 7px; font-size: clamp(24px, 3.2vw, 38px); line-height: 1.05; letter-spacing: -.045em; }
+    /* The headline shares its row with the ~244px status badge, so it only ever gets
+       about two-thirds of the hero width. `text-wrap: balance` evens the resulting
+       lines instead of leaving one short orphan, and the cap is set so the string
+       lands in two lines at desktop width rather than three. */
+    /* Display type follows the house style set by `.rail h1`: heavy weight, tight
+       tracking, tight leading.
+       The ordinal is set in --mono, the face this site already uses for its technical
+       voice (.live, rail labels, .proof-idx), so "1st" reads as a specification rather
+       than as decoration. The rest of the line is a single weight in a single colour:
+       the two-tone muted/ink headline is the default move on every project in this
+       space, and doing it here would have made the page look like all of them. */
+    /* A lockup, not a sentence. Line one is the claim and line two is the reason it is
+       possible, so the two are separated by SCALE rather than by colour — the muted/ink
+       two-tone headline is the default move in this space and reads as generic. Both
+       lines stay full --ink, which keeps the claim confident; the second line carries
+       the weight of an attribution because it is a third smaller, not because it is
+       greyed out. "DAG" holds full weight inside it, since that is the actual subject. */
+    .hero h2 { margin: 8px 0 7px; font-size: clamp(30px, 4.4vw, 50px); font-weight: 780;
+      line-height: 1.0; letter-spacing: -.052em; color: var(--muted);
+      /* Inter's contextual alternates + tabular-free defaults; `cv11` gives the
+         single-storey 'a', which reads cleaner at display size. */
+      font-feature-settings: "cv11", "ss01", "calt" 1;
+      font-optical-sizing: auto; }
+    /* Claim first, reason under it. The subline is smaller and muted so it reads as
+       support rather than as a second headline competing with the first. */
+    .hero h2 .hl-because { display: block; margin-top: .1em; font-size: .58em;
+      font-weight: 600; letter-spacing: -.025em; color: var(--muted); }
+    .hero h2 .hl-because b { font-weight: 750; }
+    /* Sits below the buttons, so it needs real separation from them — at 14px it read
+       as crowded against the button row rather than as its own block. */
+    .hero p.hero-lede { max-width: 62ch; margin: 32px 0 0; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
     .hero p { max-width: 67ch; margin: 0; color: var(--muted); }
     .live { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
     .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 8px var(--mint); }
@@ -83,6 +127,62 @@
     .button:hover { filter: brightness(1.08); }
     .button.secondary { border-color: var(--line); background: transparent; color: var(--ink); font-weight: 500; }
     .button.secondary:hover { border-color: var(--line-strong, var(--mint)); background: var(--mint-soft); }
+    /* No-premine proof dialog. Neutral by design: the site's own language is thin
+       --line borders on muted surfaces, and the mint is reserved for genuine accents,
+       so this uses no accent colour at all. */
+    button.button { font-family: inherit; cursor: pointer; letter-spacing: inherit; }
+    .proof-cta { font-weight: 500; }
+    .proof-backdrop { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center;
+      padding: 18px; background: rgba(3,8,7,.74); backdrop-filter: blur(5px); }
+    .proof-backdrop.is-open { display: flex; animation: proofFade .16s ease-out; }
+    @keyframes proofFade { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes proofRise { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+    .proof-modal { position: relative; width: min(700px, 100%); max-height: min(86vh, 800px); overflow-y: auto;
+      border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink);
+      box-shadow: 0 24px 70px rgba(0,0,0,.46); animation: proofRise .2s ease-out; }
+    @media (prefers-reduced-motion: reduce) { .proof-backdrop.is-open, .proof-modal { animation: none } }
+    .proof-head { position: sticky; top: 0; z-index: 2; padding: 22px 24px 15px;
+      background: var(--panel); border-bottom: 1px solid var(--line-soft); border-radius: 14px 14px 0 0; }
+    .proof-eyebrow { display: block; margin-bottom: 8px; color: var(--faint);
+      font: 500 9.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .proof-head h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -.02em; line-height: 1.3; }
+    .proof-head p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.55; }
+    .proof-body { padding: 4px 24px 22px; }
+    .proof-lede { margin: 15px 0 2px; font-size: 13px; line-height: 1.62; color: var(--muted); }
+    .proof-item { padding: 15px 0; border-bottom: 1px solid var(--line-soft); }
+    .proof-item:last-of-type { border-bottom: 0; padding-bottom: 4px; }
+    .proof-item h4 { margin: 0 0 6px; font-size: 13.5px; letter-spacing: -.01em; color: var(--ink); }
+    .proof-item h4 .proof-idx { margin-right: 8px; color: var(--faint); font: 500 11px var(--mono); }
+    .proof-item p { margin: 0 0 8px; font-size: 12.8px; line-height: 1.62; color: var(--muted); }
+    .proof-item p:last-child { margin-bottom: 0; }
+    .proof-item strong { color: var(--ink); font-weight: 600; }
+    .mono-block { font-family: var(--mono); font-size: 10.5px; line-height: 1.62;
+      white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-all;
+      background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 8px;
+      padding: 10px 12px; margin: 9px 0; color: var(--ink); }
+    .mono-cap { display: block; margin-bottom: 5px; color: var(--faint); font-size: 9px;
+      letter-spacing: .09em; text-transform: uppercase; }
+    .proof-modal a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px;
+      text-decoration-color: var(--line); }
+    .proof-modal a:hover { text-decoration-color: var(--ink); }
+    .proof-modal .proof-foot a { text-decoration: none; }
+    .proof-close { position: absolute; top: 15px; right: 15px; z-index: 3; width: 28px; height: 28px;
+      display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line);
+      border-radius: 8px; background: var(--panel); color: var(--muted);
+      font-family: inherit; font-size: 16px; line-height: 1; cursor: pointer; }
+    .proof-close:hover { border-color: var(--muted); color: var(--ink); }
+    .proof-foot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 15px;
+      border-top: 1px solid var(--line-soft); }
+    @media (max-width: 640px) {
+      /* Stays CENTRED at every width. An earlier version snapped this to the bottom
+         edge as a mobile sheet; it read as a stray panel stuck to the bottom of the
+         page rather than a dialog, so the centred treatment is used throughout. */
+      .proof-backdrop { padding: 12px; }
+      .proof-modal { max-height: 88vh; }
+      .proof-head { padding: 19px 16px 12px; }
+      .proof-body { padding: 3px 16px 19px; }
+      .proof-foot .button { flex: 1 1 100%; }
+    }
     .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 22px; }
     .stat { padding: 12px; border: 1px solid var(--line-soft); border-radius: 10px; background: rgba(5,15,12,.42); }
     .stat strong { display: block; font-size: 19px; letter-spacing: -.03em; }
@@ -94,6 +194,10 @@
     .card h3 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
     .card-head span { color: var(--faint); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .1em; }
     .card-note { margin: -5px 0 14px; color: var(--muted); font-size: 12px; }
+    .tblwrap { width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--mint) var(--line-soft); }
+    .tblwrap::-webkit-scrollbar { height: 7px; }
+    .tblwrap::-webkit-scrollbar-track { background: var(--line-soft); border-radius: 8px; }
+    .tblwrap::-webkit-scrollbar-thumb { background: var(--mint); border-radius: 8px; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
     th { padding: 0 10px 9px 0; border-bottom: 1px solid var(--line-strong, var(--line)); color: var(--faint); text-align: left; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
     td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line-soft); vertical-align: top; color: var(--muted); }
@@ -135,10 +239,24 @@
     .rail-links a:hover { padding-left: 8px; background: transparent; border-bottom-color: var(--line); }
     .hero { padding: 0 28px 29px 20px; border-bottom: 1px solid var(--line); }
     .hero-head { min-height: 0; align-items: start; }
-    .hero h2 { margin-top: 10px; font-size: clamp(24px, 3vw, 34px); max-width: none; letter-spacing: -.04em; }
+    /* Kept at 34px deliberately. The headline shares its row with the status badge and
+       so has ~560px to work with; measured, it needs <=28px to fall to two lines, which
+       is too weak for a hero. Three BALANCED lines at full size reads better than two
+       small ones, so the size stays and `text-wrap: balance` does the work. */
+    /* Deliberately large: the headline is now two short lines, and at the previous
+       34px cap it read as timid in a hero this wide. */
+    .hero h2 { margin-top: 10px; font-size: clamp(30px, 4vw, 50px); max-width: none; letter-spacing: -.05em; }
     .hero p { max-width: 56ch; font-size: 15px; }
     .live { position: static; margin-top: 4px; }
     .hero-head { position: relative; }
+    /* The badge used to sit in the flex row and take ~264px of an 824px hero, leaving
+       the headline two-thirds of the width and forcing a break mid-claim. Absolute
+       positioning freed the width but then OVERLAPPED the headline. A right float is
+       the correct tool: it reserves space on the first line only, so line one flows
+       around the badge and every line after it gets the full hero width — which is
+       what lets the whole claim sit on one line. */
+    .hero-head { display: block; }
+    .hero-head .live { float: right; margin-left: 20px; }
     .stats { grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
     .stat { border: 0; border-right: 1px solid var(--line); border-radius: 0; background: transparent; padding: 15px 15px 15px 0; }
     .stat + .stat { padding-left: 15px; }
@@ -165,7 +283,11 @@
     .mesh-bg { display: none; }
     .rail::before, .panel::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .055; background-image: radial-gradient(circle at 18% 18%, var(--mint) 0 2px, transparent 2.5px), radial-gradient(circle at 58% 31%, var(--mint) 0 1.5px, transparent 2px), radial-gradient(circle at 84% 68%, var(--mint) 0 2px, transparent 2.5px), linear-gradient(28deg, transparent 49.8%, var(--mint) 50%, transparent 50.2%), linear-gradient(148deg, transparent 49.8%, var(--mint) 50%, transparent 50.2%); background-size: 430px 360px, 430px 360px, 430px 360px, 430px 360px, 430px 360px; background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
     .rail > *, .panel > * { position: relative; z-index: 1; }
-    body > :not(.mesh-bg) { position: relative; z-index: 1; }
+    /* Page sections get a stacking context above the mesh background. The proof dialog
+       is excluded: it is a position:fixed overlay, and this rule's `position: relative`
+       outranks `.proof-backdrop` on specificity (0,1,1 vs 0,1,0), which dropped the
+       dialog back into normal flow and rendered it near the foot of the page. */
+    body > :not(.mesh-bg):not(.proof-backdrop) { position: relative; z-index: 1; }
     html[data-theme="light"] {
       color-scheme: light;
       --bg: #eef1f0;
@@ -199,22 +321,74 @@
     @media (max-width: 860px) {
       .rail::before, .panel::before { opacity: .035; }
       .layout { grid-template-columns: 1fr; }
-      .rail { position: relative; transform: none; margin-top: 0; }
+      /* Cancel the desktop sticky offset as well as sticky positioning. Leaving
+         `top:86px` active with `position:relative` shifts the rail visually but
+         not in grid flow, so the hero begins underneath the last rail links on
+         phones. */
+      .rail { position: relative; top: auto; transform: none; margin-top: 0; }
       .panel { margin-top: 0; padding-left: 0; padding-right: 0; border-left: 0; }
+      .layout, .panel, .card { min-width: 0; }
       .panel.hero { padding-left: 0; padding-right: 0; }
       .rail h1 { max-width: none; }
       .rail-links { grid-template-columns: repeat(2, 1fr); gap: 2px 8px; }
+      .rail { box-shadow: 0 8px 28px rgba(0,0,0,.12); }
     }
     @media (max-width: 620px) {
       .topbar-inner, .layout, .foot { width: min(100% - 24px, 1320px); }
-      .top-links a:not(.service-link) { display: none; }
+      .topbar-inner { height: 56px; gap: 8px; }
+      .top-links { gap: 6px; }
+      .top-links .service-link { padding: 7px 8px; font-size: 11px; }
+      .theme-toggle { padding: 7px 8px; gap: 5px; }
+      .theme-toggle .theme-label { display: none; }
+      .brand { gap: 8px; }
+      .brand img, .brand-mark { width: 26px; height: 26px; }
+      .layout { padding: 16px 0 38px; gap: 14px; }
+      .rail { padding: 18px 16px 20px; border-radius: 14px; }
+      .rail h1 { margin: 4px 0 6px; font-size: 40px; }
+      .rail-lede { font-size: 13px; }
+      .security { margin: 14px 0 16px; padding: 11px; }
+      .security strong { font-size: 12px; }
+      .security span { font-size: 11px; }
+      .rail-section { padding-top: 13px; }
+      .rail-section + .rail-section { margin-top: 13px; }
+      .rail-links { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 6px; }
+      .rail-links a { min-height: 36px; padding: 7px 6px; font-size: 12px; }
+      .panel { padding: 0; }
+      html, body { overflow-x: hidden; }
+      .hero { padding: 4px 0 22px; }
       .hero-head { display: block; }
-      .live { margin-top: 14px; }
-      .stats { grid-template-columns: repeat(2, 1fr); }
+      .hero-head .live { float: none; margin-left: 0; }
+      /* 28px, not 32: measured, "with DAG architecture" is ~378px at 32px and overflows
+         the 366px column, forcing a third line. At 28px it fits and the headline holds
+         two clean lines. */
+      .hero h2 { margin: 0 0 8px; font-size: 28px; line-height: 1.06; letter-spacing: -.045em; }
+      .hero p.hero-lede { margin-top: 26px; font-size: 13px; line-height: 1.5; }
+      .hero p { font-size: 13px; line-height: 1.45; }
+      .live { display: inline-flex; margin-top: 12px; font-size: 9px; }
+      .actions { margin-top: 14px; }
+      .button { min-height: 40px; flex: 1 1 100%; }
+      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; }
+      .stat { padding: 11px 8px 11px 0; }
+      .stat + .stat { padding-left: 8px; }
+      .stat strong { font-size: 15px; white-space: nowrap; }
+      .stat span { font-size: 8px; line-height: 1.25; }
       .workspace, .split { grid-template-columns: 1fr; }
       .steps { grid-template-columns: 1fr; }
-      .rail-links { grid-template-columns: 1fr; }
       .card.wide { grid-column: auto; }
+      .card { padding: 21px 0; }
+      .card h3 { font-size: 16px; }
+      .card-head { margin-bottom: 12px; }
+      table { font-size: 11px; }
+      th { font-size: 9px; }
+      td, th { padding-right: 8px; }
+      .comparison-table { min-width: 590px; table-layout: auto; }
+      .comparison-table th:first-child, .comparison-table td:first-child { width: 86px; }
+      .split { gap: 16px; }
+      .chart { min-height: 150px; }
+      .legend-row { font-size: 11px; }
+      .step { padding: 11px; }
+      .step p { font-size: 11px; }
+      .foot { font-size: 10px; }
     }
   </style>
 </head>
@@ -277,13 +451,14 @@
     <section class="panel hero" aria-labelledby="headline">
       <div class="visible-scrollbar" aria-hidden="true"><i></i></div>
       <div class="hero-head">
-        <div>
-          <h2 id="headline">Fastest privacy L1</h2>
-          <p>ZKas combines Kaspa’s BlockDAG and kHeavyHash with Zcash’s shielded transaction technology.</p>
-        </div>
         <span class="live">Mainnet · launched 26 July 2026</span>
+        <h2 id="headline">Hardcore privacy<span class="hl-because">With <b>DAG</b> architecture</span></h2>
       </div>
-      <div class="actions"><a class="button secondary" href="/whitepaper.html">Read whitepaper</a></div>
+      <div class="actions">
+        <a class="button secondary" href="/whitepaper.html">Read whitepaper</a>
+        <button class="button secondary proof-cta" type="button" id="proofOpen" aria-haspopup="dialog" aria-controls="proofModal">No Premine Proof</button>
+      </div>
+      <p class="hero-lede">ZKas combines Kaspa’s BlockDAG and kHeavyHash with Zcash’s shielded transaction technology.</p>
       <div class="stats" aria-label="ZKas key specifications">
         <div class="stat"><strong>1 s</strong><span>Block time</span></div>
         <div class="stat"><strong>Mandatory</strong><span>Privacy</span></div>
@@ -425,6 +600,96 @@
       window.addEventListener('resize', syncAll);
       syncAll();
     }());
-  </script>
+  
+    // Bound on DOMContentLoaded, NOT immediately: this inline script sits ABOVE the
+    // dialog markup in the document, so at parse time #proofModal does not exist yet
+    // and an eager getElementById would return null and silently bind nothing.
+    (function () {
+      function initProofDialog() {
+      var openBtn = document.getElementById('proofOpen');
+      var modal = document.getElementById('proofModal');
+      if (!openBtn || !modal) return;
+      var closeBtn = document.getElementById('proofClose');
+      var lastFocus = null;
+      function open() {
+        lastFocus = document.activeElement;
+        modal.hidden = false;
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        if (closeBtn) closeBtn.focus();
+      }
+      function close() {
+        modal.classList.remove('is-open');
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+      }
+      openBtn.addEventListener('click', open);
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      // Click the backdrop (but not the panel) to dismiss.
+      modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.hidden) close();
+      });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initProofDialog);
+      } else {
+        initProofDialog();
+      }
+    })();
+</script>
+
+<!-- No-premine proof dialog -->
+<div class="proof-backdrop" id="proofModal" role="dialog" aria-modal="true" aria-labelledby="proofTitle" hidden>
+  <div class="proof-modal">
+    <button class="proof-close" type="button" id="proofClose" aria-label="Close">&times;</button>
+    <div class="proof-head">
+      <span class="proof-eyebrow">Verifiable &mdash; not a claim</span>
+      <h3 id="proofTitle">No premine</h3>
+      <p>No presale, no founder allocation, no airdrop. Every ZKAS in existence was mined, starting at block one.</p>
+    </div>
+    <div class="proof-body">
+      <p class="proof-lede">On a chain where balances are hidden by construction, that would normally be impossible to check &mdash; a shielded premine is invisible. So ZKas doesn&rsquo;t ask to be believed. It is settled in the genesis block itself, in ways anyone can verify without trusting us.</p>
+
+      <div class="proof-item"><div>
+        <h4><span class="proof-idx">01</span>The genesis coinbase is provably unspendable</h4>
+        <p>Genesis nominally issues 1&nbsp;ZKAS and pays it to a one-byte script consisting solely of <strong>OP_FALSE</strong>. No signature or witness can ever satisfy that script, so the genesis output can never be spent &mdash; by anyone, including its authors. The ledger starts at an effective balance of <strong>zero</strong>, not at an allocation.</p>
+        <p>This is transparent data, not shielded &mdash; readable straight from the genesis coinbase payload, with no viewing key.</p>
+      </div></div>
+
+      <div class="proof-item"><div>
+        <h4><span class="proof-idx">02</span>Genesis is anchored to Bitcoin</h4>
+        <p>The genesis coinbase carries this tag:</p>
+        <div class="mono-block"><span class="mono-cap">Genesis coinbase tag</span>zkas-mainnet btc#959713
+00000000000000000001ef962f5604c074751cc75671e798d8b71e592a965a1f</div>
+        <p>That is the height and block hash of <strong>Bitcoin block 959,713</strong>. A Bitcoin block hash cannot be known before that block is mined, so embedding it proves ZKas genesis was built <em>after</em> that moment &mdash; the same construction Bitcoin used with its newspaper headline. It rules out the usual way a &ldquo;fair launch&rdquo; is faked: a chain mined privately in advance, then republished with a backdated genesis.</p>
+      </div></div>
+
+      <div class="proof-item"><div>
+        <h4><span class="proof-idx">03</span>No easy-mining window</h4>
+        <p>ZKas launched with <strong>no low-difficulty start and no difficulty ramp</strong>. Genesis was cut at a real target &mdash; roughly 50&nbsp;TH/s at one block per second &mdash; and ordinary difficulty adjustment governed the chain from block one. There was no interval in which insiders could accumulate cheaply against a deliberately easy chain.</p>
+        <p>Shortly after launch the network was supported by <strong>K1Pool</strong>, which pointed hashrate at ZKas and helped the young chain reach a healthy, well-distributed difficulty quickly.</p>
+      </div></div>
+
+      <div class="proof-item"><div>
+        <h4><span class="proof-idx">04</span>The launch was announced publicly</h4>
+        <p>The launch &mdash; including the Bitcoin-anchored genesis height &mdash; was announced on Discord, so participants could verify the anchor themselves rather than take the launch time on trust. Mining opened to everyone at the same moment.</p>
+      </div></div>
+
+      <div class="proof-item"><div>
+        <h4><span class="proof-idx">&mdash;</span>What about the 5% development share?</h4>
+        <p>That is not a premine. It is minted block by block alongside the miner&rsquo;s 95%, enforced by consensus rather than by holding a pre-existing balance, and visible in the emission schedule from the outset. Changing the share or its recipient requires a coordinated binary upgrade &mdash; both are compile-time consensus constants.</p>
+      </div></div>
+
+      <div class="proof-foot">
+        <a class="button secondary" href="https://discord.com/channels/1521797800952729612/1521798639679438949/1530921585135980575" target="_blank" rel="noopener">Launch announcement <span>&#8599;</span></a>
+        <a class="button secondary" href="/whitepaper.html#s11" target="_blank" rel="noopener">Whitepaper &sect;11.1 <span>&#8599;</span></a>
+        <a class="button secondary" href="https://github.com/firecash/zkas-rusty" target="_blank" rel="noopener">Verify in source <span>&#8599;</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
