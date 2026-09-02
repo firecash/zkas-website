@@ -496,7 +496,7 @@
 
         <article class="card wide">
           <div class="card-head"><h3>Tokenomics</h3></div>
-          <p class="card-note">60 ZKAS is created per launch block: 57 to the miner and 3 to development. The reward halves on the three-month schedule before reaching the 0.6 ZKAS tail.</p>
+          <p class="card-note">60 ZKAS is created per launch block: 57 to the miner and 3 to development. The reward halves every three months &mdash; the schedule is deliberately front-loaded, with most supply minted in the first year &mdash; then settles on a two-step perpetual tail: 6 ZKAS/block from about month 10, stepping down to 0.6 ZKAS/block from month 24, forever. No supply cap; the tail funds security.</p>
           <div class="split">
             <svg class="chart" viewBox="0 0 620 190" role="img" aria-label="ZKAS reward declines from 60 to a 0.6 tail">
               <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#18d8bd" stop-opacity=".28"/><stop offset="1" stop-color="#18d8bd" stop-opacity=".01"/></linearGradient></defs>
@@ -505,12 +505,12 @@
               <path class="area" d="M42 24 L110 72 L178 108 L246 128 L314 140 L382 147 L450 151 L520 152 L600 152 L600 152 L42 152Z"/>
               <path class="line" d="M42 24 L110 72 L178 108 L246 128 L314 140 L382 147 L450 151 L520 152 L600 152"/>
               <circle class="point" cx="42" cy="24" r="4"/><circle class="point" cx="600" cy="152" r="4"/>
-              <text class="axis" x="42" y="178">Launch</text><text class="axis" x="246" y="178" text-anchor="middle">3–12 months</text><text class="axis" x="600" y="178" text-anchor="end">0.6 tail</text>
+              <text class="axis" x="42" y="178">Launch</text><text class="axis" x="246" y="178" text-anchor="middle">3–12 months</text><text class="axis" x="600" y="178" text-anchor="end">6 → 0.6 tail</text>
             </svg>
             <div class="legend">
               <div class="legend-row"><span class="dot-label">Miner share</span><b>95% per block</b></div>
               <div class="legend-row"><span class="dot-label dev">Development fund</span><b>5% per block</b></div>
-              <div class="legend-row"><span>Emission</span><b>3-month halving → 0.6 tail</b></div>
+              <div class="legend-row"><span>Emission</span><b>3-month halving → 6 → 0.6 tail</b></div>
             </div>
           </div>
         </article>
@@ -680,6 +680,12 @@
       <div class="proof-item"><div>
         <h4><span class="proof-idx">&mdash;</span>What about the 5% development share?</h4>
         <p>That is not a premine. It is minted block by block alongside the miner&rsquo;s 95%, enforced by consensus rather than by holding a pre-existing balance, and visible in the emission schedule from the outset. Changing the share or its recipient requires a coordinated binary upgrade &mdash; both are compile-time consensus constants.</p>
+        <p><strong>What is and isn&rsquo;t auditable.</strong> How much the fund has ever received is exactly computable by anyone &mdash; 5% of a public emission schedule. What it has since spent or sold is shielded, like every other wallet on this chain; that is a real trade-off of mandatory privacy, not an oversight. Orchard supports selective disclosure: publishing the fund&rsquo;s viewing key would make it permanently watch-only public without any protocol change.</p>
+      </div></div>
+
+      <div class="proof-item"><div>
+        <h4><span class="proof-idx">&mdash;</span>Status, plainly</h4>
+        <p>Mainnet has been live since late July 2026; earlier public test chains were wound down before this Bitcoin-anchored genesis was cut, and this genesis is final &mdash; no reset is planned. The novel core &mdash; Orchard shielded state kept consistent under GHOSTDAG&rsquo;s parallel, after-the-fact block ordering &mdash; is specified in the whitepaper and covered by the consensus test suite, but has <strong>not yet had an independent external audit</strong>. Every end-user wallet is non-custodial (the seed stays on your device; the daemon gets a viewing key only). Run what you can verify.</p>
       </div></div>
 
       <div class="proof-foot">

@@ -16,10 +16,10 @@
     {
       "id": "web-wallet",
       "name": "Web Wallet",
-      "description": "Browser wallet for everyday ZKAS. Web keys are less protected than local custody.",
+      "description": "Non-custodial browser wallet: the seed is created in your browser and the server cannot spend.",
       "categories": ["store"],
       "status": "Live",
-      "tags": ["Web", "Less secure"],
+      "tags": ["Web", "Non-custodial"],
       "action": "Open web wallet",
       "href": "https://wallet.zkas.info",
       "icon": "wallet"
