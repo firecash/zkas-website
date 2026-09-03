@@ -26,6 +26,10 @@
   .warn{margin-top:14px; border:1px solid rgba(240,121,107,.45); background:var(--card);
     border-radius:12px; padding:12px 16px; font-size:14px}
   .warn b{color:var(--red)}
+  .shot{display:block; max-width:100%; border:1px solid var(--line); border-radius:10px; margin-top:10px}
+  .shot.small{max-width:260px}
+  figure{margin:16px 0 0; }
+  figcaption{color:var(--dim); font-size:13px; margin-top:8px}
   .cta{margin-top:22px}
   .btn{display:inline-block; padding:11px 20px; border-radius:10px; text-decoration:none; font-weight:600; font-size:15px; background:var(--mint); color:#04211c}
 </style>
@@ -39,13 +43,20 @@
   <p class="sub">Trading happens <b>only in the <span style="font-family:ui-monospace,monospace">#otc</span> channel</b> of the ZKas Discord. Beware of scam DMs and fake escrows or look-alike channels &mdash; there are no others.</p>
 
   <div class="steps">
-    <div class="s"><span class="n">1</span><div>Go to the <b>#otc</b> channel in the ZKas Discord and interact with the bot menu</div></div>
+    <div class="s"><span class="n">1</span><div>Go to the <b>#otc</b> channel in the ZKas Discord and interact with the bot menu
+      <img class="shot small" src="otc-channel.png" alt="The #otc channel in the ZKas Discord channel list" width="494" height="132" loading="lazy">
+    </div></div>
     <div class="s"><span class="n">2</span><div><b>My Desk &rarr; Deposit</b> &mdash; choose the coin to deposit<small>to buy ZKAS, deposit KAS &middot; to sell ZKAS, deposit ZKAS</small></div></div>
     <div class="s"><span class="n">3</span><div>Send your coins to the address shown<small>your balance credits automatically after a few confirmations</small></div></div>
     <div class="s"><span class="n">4</span><div><b>Trade</b> &rarr; &#128994; <b>Buy ZKAS</b> or &#128308; <b>Sell ZKAS</b></div></div>
     <div class="s"><span class="n">5</span><div>Pick an offer from the list &mdash; it settles instantly<small>or post your own price and wait &middot; cancel anytime in <b>My Orders</b></small></div></div>
     <div class="s"><span class="n">6</span><div><b>My Desk &rarr; Withdraw</b> &mdash; enter your own wallet address<small>3% fee &middot; need a wallet? <a href="https://services.zkas.info/?filter=store">services.zkas.info</a></small></div></div>
   </div>
+
+  <figure>
+    <img class="shot" src="otc-desk.png" alt="The OTC desk in #otc: live buy orders with prices, and the Trade, My Desk, Trade Log and Chart buttons" width="828" height="810" loading="lazy">
+    <figcaption>The desk in <b>#otc</b>: live offers with prices, and the buttons you&rsquo;ll use &mdash; <b>Trade</b> and <b>My Desk</b>.</figcaption>
+  </figure>
 
   <div class="warn"><b>We never DM you.</b> Only use the address the bot shows <em>you</em> in <b>#otc</b> &mdash; an address in your DMs is a scam.</div>
 
