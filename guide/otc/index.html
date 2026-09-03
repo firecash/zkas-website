@@ -3,123 +3,50 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ZKas — How to use the OTC desk</title>
-<meta name="description" content="A simple guide to buying and selling ZKAS on the OTC desk: deposit, trade, withdraw.">
+<title>ZKas — Buy ZKAS on the OTC desk</title>
+<meta name="description" content="Buy or sell ZKAS on the OTC desk in six steps.">
 <style>
-  :root{
-    --bg:#0a0f0d; --card:#101614; --line:#1d2a26;
-    --mint:#18d8bd; --text:#e6f2ef; --dim:#7d938d; --amber:#f1ba70; --red:#f0796b;
-  }
+  :root{ --bg:#0a0f0d; --card:#101614; --line:#1d2a26; --mint:#18d8bd; --text:#e6f2ef; --dim:#7d938d; --red:#f0796b; }
   *{box-sizing:border-box}
-  body{
-    margin:0; padding:48px 20px 80px; background:var(--bg); color:var(--text);
-    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  }
-  .wrap{max-width:720px; margin:0 auto}
+  body{margin:0; padding:48px 20px 70px; background:var(--bg); color:var(--text);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:560px; margin:0 auto}
   a{color:var(--mint)}
-  .crumb{font-size:13px; color:var(--dim); margin-bottom:26px}
-  .crumb a{color:var(--dim); text-decoration:none}
-  .crumb a:hover{color:var(--mint)}
-  h1{font-size:30px; margin:0 0 8px; letter-spacing:-.02em}
-  .sub{color:var(--dim); margin:0 0 14px; font-size:16px}
-  .facts{display:flex; gap:10px; flex-wrap:wrap; margin:0 0 34px}
-  .fact{font-size:13px; color:var(--text); background:var(--card); border:1px solid var(--line);
-    border-radius:999px; padding:7px 14px}
-  .fact b{color:var(--mint); font-weight:600}
-
-  .step{background:var(--card); border:1px solid var(--line); border-radius:16px;
-    padding:24px 26px; margin-bottom:16px}
-  .step h2{margin:0 0 10px; font-size:19px; display:flex; align-items:baseline; gap:12px}
-  .num{flex:none; color:var(--mint); font-weight:700; font-size:15px; letter-spacing:.04em}
-  .path{display:inline-block; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13.5px;
-    background:#0c1210; border:1px solid var(--line); border-radius:8px; padding:5px 10px; margin:2px 0 10px; color:var(--text)}
-  .path b{color:var(--mint); font-weight:600}
-  .step p{margin:0 0 10px; color:var(--text)}
-  .step p.d{color:var(--dim); font-size:14.5px}
-  .step ul{margin:0 0 10px; padding-left:22px}
-  .step li{margin-bottom:8px}
-  .step li::marker{color:var(--mint)}
-
-  .warn{border-color:rgba(240,121,107,.45)}
-  .warn .num{color:var(--red)}
-  .tip{background:rgba(24,216,189,.06); border:1px solid rgba(24,216,189,.28); border-radius:12px;
-    padding:12px 16px; font-size:14.5px; margin-top:4px}
-  .tip b{color:var(--mint)}
-
-  .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px}
-  @media(max-width:560px){.grid{grid-template-columns:1fr}}
-  .kn{background:#0c1210; border:1px solid var(--line); border-radius:12px; padding:12px 15px; font-size:14px}
-  .kn b{display:block; color:var(--text); margin-bottom:2px}
-  .kn span{color:var(--dim)}
-
-  .cta{margin-top:30px; display:flex; gap:12px; flex-wrap:wrap}
-  .btn{display:inline-block; padding:12px 22px; border-radius:10px; text-decoration:none; font-weight:600; font-size:15px}
-  .btn.p{background:var(--mint); color:#04211c}
-  .btn.s{border:1px solid var(--line); color:var(--text)}
-  .foot{margin-top:40px; padding-top:18px; border-top:1px solid var(--line); color:var(--dim); font-size:13.5px}
+  h1{font-size:26px; margin:0 0 4px; letter-spacing:-.02em}
+  .sub{color:var(--dim); font-size:14.5px; margin:0 0 26px}
+  .steps{background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden}
+  .s{display:flex; gap:16px; padding:16px 20px; border-bottom:1px solid var(--line); align-items:baseline}
+  .s:last-child{border-bottom:0}
+  .n{flex:none; width:22px; height:22px; border-radius:50%; background:rgba(24,216,189,.12);
+     color:var(--mint); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; align-self:flex-start; margin-top:2px}
+  .s div{min-width:0}
+  .s b{color:var(--text)}
+  .s .m{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13.5px; color:var(--mint)}
+  .s small{display:block; color:var(--dim); font-size:13.5px; margin-top:2px}
+  .warn{margin-top:14px; border:1px solid rgba(240,121,107,.45); background:var(--card);
+    border-radius:12px; padding:12px 16px; font-size:14px}
+  .warn b{color:var(--red)}
+  .cta{margin-top:22px}
+  .btn{display:inline-block; padding:11px 20px; border-radius:10px; text-decoration:none; font-weight:600; font-size:15px; background:var(--mint); color:#04211c}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="crumb"><a href="/">zkas.info</a> / guide / otc</div>
+  <h1>Buy or sell ZKAS on the OTC desk</h1>
+  <p class="sub">The desk runs in the ZKas Discord. Deposit and trading are free; withdrawing costs 3%.</p>
 
-  <h1>How to buy or sell ZKAS on the OTC desk</h1>
-  <p class="sub">The desk is a simple marketplace: people post offers to swap <strong>ZKAS &harr; KAS</strong>, and other people take them. Prices are set by users, not by the project. It runs in the ZKas Discord &mdash; everything below happens in the <span style="font-family:ui-monospace,monospace">/otc</span> menu there.</p>
-  <div class="facts">
-    <span class="fact">Deposit: <b>free</b></span>
-    <span class="fact">Trade: <b>free</b></span>
-    <span class="fact">Withdraw: <b>3% fee</b></span>
+  <div class="steps">
+    <div class="s"><span class="n">1</span><div>Open the ZKas Discord and type <span class="m">/otc</span></div></div>
+    <div class="s"><span class="n">2</span><div><b>My Desk &rarr; Deposit</b> &mdash; pick <b>KAS</b> (to buy) or <b>ZKAS</b> (to sell)</div></div>
+    <div class="s"><span class="n">3</span><div>Send your coins to the address shown<small>your balance credits automatically after a few confirmations</small></div></div>
+    <div class="s"><span class="n">4</span><div><b>Trade</b> &rarr; &#128994; <b>Buy ZKAS</b> or &#128308; <b>Sell ZKAS</b></div></div>
+    <div class="s"><span class="n">5</span><div>Pick an offer from the list &mdash; it settles instantly<small>or post your own price and wait &middot; cancel anytime in <b>My Orders</b></small></div></div>
+    <div class="s"><span class="n">6</span><div><b>My Desk &rarr; Withdraw</b> &mdash; enter your own wallet address<small>3% fee &middot; need a wallet? <a href="https://wallet.zkas.info">wallet.zkas.info</a></small></div></div>
   </div>
 
-  <div class="step warn">
-    <h2><span class="num">&#9888;</span>First, the one rule that keeps you safe</h2>
-    <p><strong>We never DM you.</strong> Any deposit address sent to you in a direct message is a scam. Only use the address the <span class="path">/otc</span> menu shows <em>you</em>, inside the server.</p>
-  </div>
+  <div class="warn"><b>We never DM you.</b> Only use the address shown to you inside <span style="font-family:ui-monospace,monospace">/otc</span> &mdash; an address in your DMs is a scam.</div>
 
-  <div class="step">
-    <h2><span class="num">1</span>Put coins on your desk</h2>
-    <div class="path">/otc &rarr; <b>My Desk</b> &rarr; <b>Deposit</b> &rarr; ZKAS or KAS</div>
-    <p>Send your coins to the address shown. Your balance appears by itself after a few confirmations &mdash; usually within a couple of minutes.</p>
-    <p class="d">Buying ZKAS? Deposit KAS. Selling ZKAS? Deposit ZKAS.</p>
-  </div>
-
-  <div class="step">
-    <h2><span class="num">2</span>Trade</h2>
-    <div class="path">/otc &rarr; <b>Trade</b> &rarr; &#128994; Buy ZKAS or &#128308; Sell ZKAS</div>
-    <p>Buying spends the KAS on your desk; selling pays you in KAS. Two ways to do it:</p>
-    <ul>
-      <li><strong>Take an offer</strong> &mdash; pick one from the list. You get exactly the price shown, instantly. <em>Easiest &mdash; start here.</em></li>
-      <li><strong>Post my own offer</strong> &mdash; name your own price and wait for someone to take it. The coins for your offer are set aside from your balance until it fills or you cancel (<strong>My Orders</strong> &rarr; cancel anytime; the coins come straight back).</li>
-    </ul>
-    <div class="tip"><b>What&rsquo;s a fair price?</b> Open <strong>Trade Log</strong> and look at the last few fills before you accept or post anything.</div>
-  </div>
-
-  <div class="step">
-    <h2><span class="num">3</span>Take your coins home</h2>
-    <div class="path">/otc &rarr; <b>My Desk</b> &rarr; <b>Withdraw</b></div>
-    <p>Enter your own wallet address. A <strong>3% fee</strong> is taken from the amount &mdash; the only fee on the desk.</p>
-    <div class="tip"><b>Coins on the desk are held by the desk.</b> When you&rsquo;re done trading, withdraw to your own wallet &mdash; that&rsquo;s where they&rsquo;re truly yours. Need a wallet? <a href="https://wallet.zkas.info">wallet.zkas.info</a>.</div>
-  </div>
-
-  <div class="step">
-    <h2><span class="num">+</span>Good to know</h2>
-    <div class="grid">
-      <div class="kn"><b>Orderbook</b><span>every open offer right now</span></div>
-      <div class="kn"><b>Chart</b><span>recent prices and depth on each side</span></div>
-      <div class="kn"><b>Trade Log</b><span>the latest completed trades</span></div>
-      <div class="kn"><b>My Orders</b><span>cancel anything you posted</span></div>
-      <div class="kn"><b>History</b><span>your deposits and withdrawals</span></div>
-      <div class="kn"><b>Reserves</b><span><a href="/reserves.html">fees collected by the desk, live</a></span></div>
-    </div>
-    <p class="d" style="margin-top:12px">Take your time. Nothing happens until you press a button, and posted offers can always be cancelled.</p>
-  </div>
-
-  <div class="cta">
-    <a class="btn p" href="https://discord.gg/jysMS4XNFT">Open the ZKas Discord &#8599;</a>
-    <a class="btn s" href="https://wallet.zkas.info">Get a wallet &#8599;</a>
-  </div>
-
-  <div class="foot">Prices on the desk are set by its users; the project charges the 3% withdrawal fee and nothing else. ZKAS is a mined, volatile asset &mdash; never trade more than you can afford to lose.</div>
+  <div class="cta"><a class="btn" href="https://discord.gg/jysMS4XNFT">Open the ZKas Discord &#8599;</a></div>
 </div>
 </body>
 </html>
