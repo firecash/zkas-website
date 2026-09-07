@@ -77,19 +77,26 @@
 var SOURCE = 'https://mining-pool.zkas.info/api/otc/reserves';
 
 function set(id, html) { document.getElementById(id).innerHTML = html; }
+// The desk API is ours, but render defensively: any string that comes off the
+// wire is HTML-escaped, and numeric fields are coerced before formatting.
+function esc(v) {
+  return String(v).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
 
 function render(d) {
   set('zkas', Number(d.fees.ZKAS.amount).toLocaleString(undefined, {maximumFractionDigits: 2}) +
       '<span class="unit">ZKAS</span>');
   set('kas', Number(d.fees.KAS.amount).toLocaleString(undefined, {maximumFractionDigits: 2}) +
       '<span class="unit">KAS</span>');
-  set('zkas-usd', d.fees.ZKAS.usd ? '≈ ' + d.fees.ZKAS.usd : '&nbsp;');
-  set('kas-usd', d.fees.KAS.usd ? '≈ ' + d.fees.KAS.usd : '&nbsp;');
-  set('total', d.totalUsd ? '≈ ' + d.totalUsd : '—');
-  set('paid', 'From ' + d.withdrawalsPaid.toLocaleString() + ' withdrawals paid, at a ' + d.feePercent + '% fee.');
+  set('zkas-usd', d.fees.ZKAS.usd ? '≈ ' + esc(d.fees.ZKAS.usd) : '&nbsp;');
+  set('kas-usd', d.fees.KAS.usd ? '≈ ' + esc(d.fees.KAS.usd) : '&nbsp;');
+  set('total', d.totalUsd ? '≈ ' + esc(d.totalUsd) : '—');
+  set('paid', 'From ' + Number(d.withdrawalsPaid).toLocaleString() + ' withdrawals paid, at a ' + Number(d.feePercent) + '% fee.');
   if (d.rates && d.rates.kasUsd) {
-    set('rates', '1 KAS ≈ $' + d.rates.kasUsd.toFixed(6) +
-        ' · 1 ZKAS ≈ ' + d.rates.zkasKas.toFixed(8) + ' KAS');
+    set('rates', '1 KAS ≈ $' + Number(d.rates.kasUsd).toFixed(6) +
+        ' · 1 ZKAS ≈ ' + Number(d.rates.zkasKas).toFixed(8) + ' KAS');
   }
   set('asof', 'Updated ' + new Date(d.asOf).toLocaleString() + ' · refreshes every 30s');
 }
