@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZKas — Brand assets</title>
+<meta name="description" content="ZKas logo, colours and usage guidance. Download the marks for exchanges, explorers and press.">
+<link rel="icon" href="/favicon.ico">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#07100e; --panel:#0c1815; --panel-2:#10211c; --line:#203a32; --line-soft:#173028;
+    --ink:#f1f8f5; --muted:#91aaa0; --faint:#61776e; --mint:#18d8bd; --mint-soft:rgba(24,216,189,.11);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans);
+    background-image:radial-gradient(60rem 40rem at 80% -10%,rgba(24,216,189,.06),transparent 60%);}
+  .wrap{max-width:920px;margin:0 auto;padding:56px 22px 90px}
+  a{color:var(--mint)}
+  .crumb{font-size:13px;color:var(--faint);margin-bottom:26px}
+  .crumb a{color:var(--faint);text-decoration:none} .crumb a:hover{color:var(--mint)}
+  h1{font-size:32px;letter-spacing:-.02em;margin:0 0 6px}
+  .lede{color:var(--muted);margin:0 0 40px;max-width:60ch}
+  h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;
+     margin:44px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line-soft)}
+
+  /* logo showcase */
+  .marks{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.marks{grid-template-columns:1fr}}
+  .mark{border:1px solid var(--line);border-radius:16px;padding:34px;display:flex;align-items:center;
+    justify-content:center;min-height:220px}
+  .mark.dark{background:var(--panel)} .mark.light{background:#f1f8f5}
+  .mark img{width:170px;height:170px}
+  .mark .cap{position:relative}
+  figcaption{color:var(--faint);font-size:12.5px;margin-top:8px;text-align:center}
+
+  /* downloads */
+  .dl{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);
+    color:var(--ink);text-decoration:none;padding:11px 16px;border-radius:11px;font-size:14px;font-weight:500}
+  .btn:hover{border-color:var(--mint);color:var(--mint)}
+  .btn span{color:var(--faint);font:12px var(--mono)}
+
+  /* palette */
+  .pal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:640px){.pal{grid-template-columns:repeat(2,1fr)}}
+  .sw{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .sw .chip{height:78px}
+  .sw .meta{padding:10px 12px;background:var(--panel)}
+  .sw .nm{font-size:13px;font-weight:600}
+  .sw .hex{font:12px var(--mono);color:var(--muted);margin-top:2px;cursor:pointer}
+  .sw .hex:hover{color:var(--mint)}
+
+  /* usage */
+  .use{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
+  @media(max-width:640px){.use{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:var(--panel)}
+  .card h3{margin:0 0 10px;font-size:14px}
+  .card.do h3{color:var(--mint)} .card.dont h3{color:var(--amber,#f1ba70)}
+  .card ul{margin:0;padding-left:18px} .card li{margin-bottom:7px;font-size:14.5px;color:var(--muted)}
+  .card li::marker{color:var(--faint)}
+  .names{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:4px 20px}
+  .names dl{display:grid;grid-template-columns:150px 1fr;gap:2px 18px;margin:16px 0}
+  .names dt{color:var(--muted);font-size:14px} .names dd{margin:0;font-size:14.5px}
+  .names dd b{color:var(--mint)} code{font:13px var(--mono);background:var(--mint-soft);padding:1px 6px;border-radius:5px}
+  .foot{margin-top:52px;padding-top:18px;border-top:1px solid var(--line-soft);color:var(--faint);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb"><a href="/">zkas.info</a> / branding</div>
+  <h1>Brand assets</h1>
+  <p class="lede">The ZKas logo and colours, for exchanges, explorers, wallets and press. The mark and name may be used to reference the project accurately; please don't alter the logo or imply endorsement.</p>
+
+  <h2>Logo</h2>
+  <div class="marks">
+    <figure class="mark dark" style="margin:0"><div class="cap"><img src="/logo.png" alt="ZKas logo on dark background"><figcaption>On dark</figcaption></div></figure>
+    <figure class="mark light" style="margin:0"><div class="cap"><img src="/logo.png" alt="ZKas logo on light background"><figcaption>On light</figcaption></div></figure>
+  </div>
+  <div class="dl" style="margin-top:16px">
+    <a class="btn" href="/logo.png" download>Logo PNG <span>1024px</span></a>
+    <a class="btn" href="/logo-192.png" download>Icon <span>192px</span></a>
+    <a class="btn" href="/logo-180.png" download>Icon <span>180px</span></a>
+    <a class="btn" href="/favicon.ico" download>Favicon <span>.ico</span></a>
+  </div>
+
+  <h2>Colours</h2>
+  <div class="pal">
+    <div class="sw"><div class="chip" style="background:#18d8bd"></div><div class="meta"><div class="nm">Mint</div><div class="hex">#18D8BD</div></div></div>
+    <div class="sw"><div class="chip" style="background:#07100e"></div><div class="meta"><div class="nm">Ink (bg)</div><div class="hex">#07100E</div></div></div>
+    <div class="sw"><div class="chip" style="background:#0c1815"></div><div class="meta"><div class="nm">Panel</div><div class="hex">#0C1815</div></div></div>
+    <div class="sw"><div class="chip" style="background:#f1f8f5"></div><div class="meta"><div class="nm">Paper</div><div class="hex">#F1F8F5</div></div></div>
+  </div>
+
+  <h2>Name &amp; ticker</h2>
+  <div class="names">
+    <dl>
+      <dt>Project name</dt><dd><b>ZKas</b> — capital Z, capital K, lowercase “as”. Not “Zkas”, “ZKAS Protocol”, or “Firecash” (the former name).</dd>
+      <dt>Ticker</dt><dd><b>ZKAS</b> — all caps, for amounts and listings (e.g. <code>100 ZKAS</code>).</dd>
+      <dt>Base unit</dt><dd>1 ZKAS = 100,000,000 sompi.</dd>
+      <dt>Website</dt><dd><a href="https://zkas.info">zkas.info</a></dd>
+    </dl>
+  </div>
+
+  <h2>Usage</h2>
+  <div class="use">
+    <div class="card do"><h3>Please do</h3><ul>
+      <li>Use the supplied logo files as-is.</li>
+      <li>Keep clear space around the mark equal to the “Z” height.</li>
+      <li>Place the mark on a dark or plain background for best contrast.</li>
+      <li>Refer to the coin as <b>ZKas</b> and the ticker as <b>ZKAS</b>.</li>
+    </ul></div>
+    <div class="card dont"><h3>Please don't</h3><ul>
+      <li>Recolour, rotate, stretch or add effects to the logo.</li>
+      <li>Recreate the mark or pair it with another logo as one lockup.</li>
+      <li>Imply partnership or endorsement without written agreement.</li>
+      <li>Use the old “Firecash” name or marks.</li>
+    </ul></div>
+  </div>
+
+  <div class="foot">Questions about brand use: <a href="https://discord.gg/jysMS4XNFT">ZKas Discord</a>. These assets are provided for accurate reference to the ZKas project.</div>
+</div>
+<script>
+  document.querySelectorAll('.hex').forEach(function(el){
+    el.addEventListener('click',function(){ navigator.clipboard && navigator.clipboard.writeText(el.textContent.trim()); el.textContent=el.textContent.trim()+'  ✓'; setTimeout(function(){el.textContent=el.textContent.replace(/\s+✓$/,'');},900); });
+  });
+</script>
+</body>
+</html>
