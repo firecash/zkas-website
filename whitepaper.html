@@ -64,6 +64,22 @@
   .dlbtn svg{width:14px;height:14px;fill:currentColor;display:block}
   .dlhint{position:fixed; top:56px; right:18px; z-index:50; max-width:230px;
     font-family:Georgia,serif; font-size:11.5px; color:var(--mut); text-align:right; line-height:1.45}
+  @media (max-width:640px){
+    body{font-size:15px}
+    .page{padding:28px 18px 56px}
+    .cover{padding:32px 18px 20px}
+    h1{font-size:26px}
+    .sub{font-size:16px}
+    .lead{font-size:15.5px}
+    /* Justify creates ugly rivers of whitespace at phone width — left-align instead */
+    p,li{text-align:left; hyphens:none}
+    .toc{columns:1}
+    /* Wide comparison tables must scroll inside their own box, not widen the page */
+    table{display:block;width:max-content;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    /* The download button floats over the text on a narrow screen — put it in flow */
+    .dlbtn{position:static;margin:0 0 4px 18px;box-shadow:none}
+    .dlhint{display:none}
+  }
   @media print{
     .dlbtn,.dlhint{display:none !important}
     body{font-size:11.5pt}
@@ -365,7 +381,7 @@
   <tr><td>Premine</td><td>None — genesis coinbase pays <code>OP_FALSE</code> (unspendable)</td></tr>
   <tr><td>Genesis anchor</td><td>Bitcoin block 959,713</td></tr>
   <tr><td>Selective disclosure</td><td>Opt-in viewing keys (own history only)</td></tr>
-  <tr><td>Ticker</td><td>FC</td></tr>
+  <tr><td>Ticker</td><td>ZKAS</td></tr>
 </table>
 
 <p class="small muted" style="margin-top:26px">This whitepaper describes the ZKas protocol. Sections marked <em>(roadmap)</em> describe planned work; all other mechanisms are specified and, in the reference implementation, built. Parameters may be finalized at spec freeze prior to mainnet. Nothing herein is investment advice.</p>
