@@ -337,10 +337,9 @@
     @media (max-width: 860px) {
       .rail::before, .panel::before { opacity: .035; }
       .layout { grid-template-columns: 1fr; }
-      /* The rail intro repeats the header brand and hero copy — reclaim that space
-         on phones. Keep the H1 in the DOM (SEO/a11y) but visually collapsed. */
-      .rail > h1 { position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-      .rail > .rail-lede, .rail > .security { display: none; }
+      /* On phones the left rail is redundant with the header brand + hero CTAs, so
+         hide it entirely. It stays in the DOM (display:none) for SEO/crawlers. */
+      .rail { display: none; }
       /* Cancel the desktop sticky offset as well as sticky positioning. Leaving
          `top:86px` active with `position:relative` shifts the rail visually but
          not in grid flow, so the hero begins underneath the last rail links on
