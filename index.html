@@ -123,6 +123,7 @@
     .live { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
     .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 8px var(--mint); }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .steps-cta { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
     .button { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 13px; border: 1px solid var(--mint); border-radius: 8px; background: var(--mint); color: #06130f; font-size: 12px; font-weight: 750; }
     .button:hover { filter: brightness(1.08); }
     .button.secondary { border-color: var(--line); background: transparent; color: var(--ink); font-weight: 500; }
@@ -521,6 +522,11 @@
             <div class="step"><b>01</b><h4>Private by default</h4><p>Amounts, senders and recipients stay hidden.</p></div>
             <div class="step"><b>02</b><h4>One-second blocks</h4><p>Payments settle on a 1-second target.</p></div>
             <div class="step"><b>03</b><h4>Kaspa merged mining</h4><p>The same mining work can secure ZKAS.</p></div>
+          </div>
+          <div class="actions steps-cta">
+            <a class="button" href="https://services.zkas.info/store/" target="_blank" rel="noopener">Get wallet</a>
+            <a class="button secondary" href="/whitepaper.html">Read whitepaper</a>
+            <a class="button secondary" href="https://github.com/firecash/zkas-rusty" target="_blank" rel="noopener">Run a node</a>
           </div>
         </article>
       </div>
