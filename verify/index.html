@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZKas — Verification</title>
+<meta name="description" content="Official ZKas verification page for exchange and aggregator listings (CoinMarketCap, CoinGecko). Hosted on the official ZKas domain.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#07100e; --panel:#0c1815; --panel-2:#10211c; --line:#203a32; --line-soft:#173028;
+    --ink:#f1f8f5; --muted:#91aaa0; --faint:#61776e; --mint:#18d8bd; --mint-soft:rgba(24,216,189,.11);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans);
+    background-image:radial-gradient(60rem 40rem at 80% -10%,rgba(24,216,189,.06),transparent 60%);}
+  .wrap{max-width:820px;margin:0 auto;padding:56px 22px 90px}
+  a{color:var(--mint)}
+  .crumb{font-size:13px;color:var(--faint);margin-bottom:26px}
+  .crumb a{color:var(--faint);text-decoration:none} .crumb a:hover{color:var(--mint)}
+  h1{font-size:32px;letter-spacing:-.02em;margin:0 0 6px}
+  .lede{color:var(--muted);margin:0 0 36px;max-width:62ch}
+  h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;
+     margin:40px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line-soft)}
+  .card{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:22px 24px;margin:14px 0}
+  .card .req{font-weight:700;font-size:18px;margin:0 0 12px}
+  .card p{margin:0 0 10px}
+  .kv{display:grid;grid-template-columns:170px 1fr;gap:8px 18px;font-size:15px}
+  .kv dt{color:var(--faint)} .kv dd{margin:0}
+  code{font-family:var(--mono);font-size:.92em;background:var(--mint-soft);padding:.1em .4em;border-radius:5px}
+  .pending{color:var(--faint);font-style:italic}
+  .links{display:flex;flex-wrap:wrap;gap:10px 18px;font-size:15px;margin-top:4px}
+  .note{color:var(--faint);font-size:13px;margin-top:26px}
+  @media(max-width:560px){.kv{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb"><a href="/">← zkas.info</a></div>
+  <h1>Verification</h1>
+  <p class="lede">This page is hosted on the official ZKas domain (<a href="https://zkas.info">zkas.info</a>) and is
+  maintained by the ZKas team. It confirms our active listing applications so aggregators can verify that the request
+  is legitimate and controlled by the project.</p>
+
+  <h2>Listing applications</h2>
+
+  <div class="card">
+    <p class="req">Request for CMC:</p>
+    <p>ZKas (<code>$ZKAS</code>) confirms our CoinMarketCap listing application.</p>
+    <dl class="kv">
+      <dt>Ticket</dt><dd class="pending">#pending — to be filled</dd>
+      <dt>Dexscan URL</dt><dd>N/A — ZKAS is a native Layer-1 coin, not an on-chain token</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <p class="req">Request for CG:</p>
+    <p>ZKas (<code>$ZKAS</code>) confirms our CoinGecko listing application.</p>
+    <dl class="kv">
+      <dt>Ticket / Request</dt><dd class="pending">#pending — to be filled</dd>
+    </dl>
+  </div>
+
+  <h2>Asset reference</h2>
+  <div class="card">
+    <dl class="kv">
+      <dt>Name</dt><dd>ZKas</dd>
+      <dt>Ticker</dt><dd>ZKAS</dd>
+      <dt>Type</dt><dd>Native Layer-1 coin (Kaspa / rusty-kaspa fork, mandatory Orchard privacy)</dd>
+      <dt>Contract address</dt><dd>None — native coin, no token contract</dd>
+      <dt>Decimals</dt><dd>8 &nbsp;(1 ZKAS = 100,000,000 sompi)</dd>
+      <dt>Max supply</dt><dd>None — perpetual tail emission</dd>
+      <dt>Circulating = Total</dt><dd>No premine, no locked coins, no burns — 100% circulating</dd>
+      <dt>Supply API</dt><dd><a href="https://explorer.zkas.info/api/circulating">explorer.zkas.info/api/circulating</a> (plain number, whole ZKAS)</dd>
+    </dl>
+  </div>
+
+  <h2>Official channels</h2>
+  <div class="card">
+    <div class="links">
+      <a href="https://zkas.info">Website</a>
+      <a href="https://explorer.zkas.info">Explorer</a>
+      <a href="https://github.com/firecash/zkas-rusty">GitHub</a>
+      <a href="https://x.com/ZKas_X">X (@ZKas_X)</a>
+      <a href="https://t.me/zkasofficial">Telegram (@zkasofficial)</a>
+      <a href="https://discord.gg/jysMS4XNFT">Discord</a>
+    </div>
+  </div>
+
+  <p class="note">Any listing request for ZKAS that does not originate from, or is not confirmed on, the channels above
+  should be treated as unverified.</p>
+</div>
+</body>
+</html>
