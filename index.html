@@ -125,6 +125,15 @@
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
     .steps-cta { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
     .steps-social { margin-top: 8px; }
+    .blogpop { position: fixed; right: 18px; bottom: 18px; z-index: 60; max-width: 320px; display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); box-shadow: 0 12px 34px rgba(0,0,0,.38); text-decoration: none; transform: translateY(22px); opacity: 0; transition: opacity .3s ease, transform .3s ease; }
+    .blogpop.show { transform: none; opacity: 1; }
+    .blogpop:hover { border-color: var(--mint); }
+    .blogpop-k { font: 600 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--mint); }
+    .blogpop-t { font-size: 15px; font-weight: 650; line-height: 1.35; padding-right: 16px; }
+    .blogpop-r { font-size: 12.5px; color: var(--muted); }
+    .blogpop-x { position: absolute; top: 7px; right: 9px; border: 0; background: none; color: var(--faint); font-size: 19px; line-height: 1; cursor: pointer; padding: 2px 4px; }
+    .blogpop-x:hover { color: var(--ink); }
+    @media (max-width: 520px) { .blogpop { left: 14px; right: 14px; bottom: 14px; max-width: none; } }
     .steps-cta .button, .steps-social .button { gap: 7px; }
     .b-svg { width: 15px; height: 15px; flex: 0 0 auto; }
     .steps-social .social { flex: 1 1 0; min-height: 34px; font-size: 11.5px; font-weight: 650; }
@@ -302,7 +311,7 @@
        is excluded: it is a position:fixed overlay, and this rule's `position: relative`
        outranks `.proof-backdrop` on specificity (0,1,1 vs 0,1,0), which dropped the
        dialog back into normal flow and rendered it near the foot of the page. */
-    body > :not(.mesh-bg):not(.proof-backdrop) { position: relative; z-index: 1; }
+    body > :not(.mesh-bg):not(.proof-backdrop):not(.blogpop) { position: relative; z-index: 1; }
     html[data-theme="light"] {
       color-scheme: light;
       --bg: #eef1f0;
@@ -565,6 +574,13 @@
     </section>
   </main>
 
+  <a id="blogPop" class="blogpop" href="/blogs" hidden>
+    <button class="blogpop-x" type="button" aria-label="Dismiss">&times;</button>
+    <span class="blogpop-k">Latest from the blog</span>
+    <span class="blogpop-t" id="blogPopTitle"></span>
+    <span class="blogpop-r">Read &rarr;</span>
+  </a>
+
   <footer class="foot">
     <span>© 2026 ZKas · open-source, permissionless proof of work</span>
   </footer>
@@ -735,5 +751,31 @@
   </div>
 </div>
 
+  <script>
+    (function () {
+      var KEY = 'zkas-blog-seen';
+      fetch('/blog/api/latest', { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (!d || !d.post) return;
+          var p = d.post, seen = '';
+          try { seen = localStorage.getItem(KEY) || ''; } catch (e) {}
+          if (seen === p.slug) return;
+          var el = document.getElementById('blogPop');
+          if (!el) return;
+          document.getElementById('blogPopTitle').textContent = p.title;
+          el.setAttribute('href', '/blog/' + p.slug);
+          el.hidden = false;
+          setTimeout(function () { el.classList.add('show'); }, 1200);
+          el.querySelector('.blogpop-x').addEventListener('click', function (ev) {
+            ev.preventDefault(); ev.stopPropagation();
+            try { localStorage.setItem(KEY, p.slug); } catch (e) {}
+            el.classList.remove('show');
+            setTimeout(function () { el.hidden = true; }, 300);
+          });
+        })
+        .catch(function () {});
+    }());
+  </script>
 </body>
 </html>
