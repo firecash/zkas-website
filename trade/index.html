@@ -48,6 +48,8 @@
   .go{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;border-radius:10px;
     background:var(--mint);color:#06130f;font-weight:750;font-size:13.5px}
   html[data-theme="light"] .go:not(.sec){color:#fff}
+  .gorow{display:flex;gap:8px}
+  .gorow .go{flex:1}
   .go.sec{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:600}
   .go.sec:hover{border-color:var(--mint);color:var(--mint);background:var(--mint-soft)}
   .note{margin-top:30px;padding:16px 18px;border:1px solid var(--line);border-left:3px solid var(--mint);border-radius:12px;
@@ -95,7 +97,10 @@
         <div><div class="name">ZKas OTC Desk</div><div class="tag official">Official · Peer-to-peer</div></div>
       </div>
       <p class="desc">The project's own peer-to-peer desk — swap ZKAS against KAS directly, with public reserves and spot pricing.</p>
-      <a class="go sec" href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">Open OTC on Discord →</a>
+      <div class="gorow">
+        <a class="go" href="https://t.me/ZKas_OTC_bot" target="_blank" rel="noopener">Telegram bot →</a>
+        <a class="go sec" href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">Discord</a>
+      </div>
     </article>
 
   </div>
