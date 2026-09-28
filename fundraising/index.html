@@ -38,6 +38,10 @@
   .pct{font:800 16px var(--mono);color:var(--mint)}
   .track{height:18px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);overflow:hidden}
   .fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--mint),#0f9f8b);transition:width .6s ease}
+  .liverow{display:flex;flex-wrap:wrap;gap:7px 12px;align-items:center;margin-top:12px;font:600 12px var(--mono);color:var(--muted)}
+  .liverow .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)}
+  .liverow .b{color:var(--ink)}
+  .liverow .cx{color:var(--faint)}
   .breakdown{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
   .item{border:1px solid var(--line);border-radius:14px;background:var(--panel-2);padding:18px 20px}
   .item .amt{font-size:28px;font-weight:800;letter-spacing:-.01em}
@@ -92,6 +96,7 @@
       <div class="pct" id="pct">0%</div>
     </div>
     <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="liverow" id="liverow"></div>
     <div class="breakdown">
       <div class="item"><div class="amt">$8,000</div><div class="lbl">Listing fee (USDT)</div></div>
       <div class="item"><div class="amt">$2,000</div><div class="lbl">Market making (USDT)</div></div>
@@ -128,10 +133,20 @@
 <footer class="foot">© <span id="yr"></span> ZKas · <a href="/">Home</a> · <a href="/trade">Trade</a> · <a href="/verify">Verification</a></footer>
 <script>
   document.getElementById('yr').textContent=new Date().getFullYear();
-  (function(){var c=document.querySelector('.card[data-goal]');var goal=+c.dataset.goal,raised=+c.dataset.raised;
-   var pct=goal>0?Math.min(100,Math.round(raised/goal*100)):0;
-   document.getElementById('fill').style.width=pct+'%';document.getElementById('pct').textContent=pct+'%';
-   document.getElementById('rlabel').textContent='$'+raised.toLocaleString('en-US')+' raised';})();
+  (function(){
+   var c=document.querySelector('.card[data-goal]'),goal=+c.dataset.goal;
+   var fill=document.getElementById('fill'),pct=document.getElementById('pct'),rlabel=document.getElementById('rlabel'),live=document.getElementById('liverow');
+   function setProgress(usd){var p=goal>0?Math.min(100,Math.round(usd/goal*100)):0;fill.style.width=p+'%';pct.textContent=p+'%';rlabel.textContent='$'+Math.round(usd).toLocaleString('en-US')+' raised';}
+   setProgress(+c.dataset.raised||0);
+   function load(){fetch('/api/fund-balance',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){
+     if(!d||typeof d.usd!=='number')return;
+     setProgress(d.usd);
+     var parts=(d.chains||[]).map(function(x){return '<span>'+x.name+' <span class="b">$'+Math.round(x.usd).toLocaleString()+'</span></span>';});
+     var t=new Date(d.asOf),hh=t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+     live.innerHTML='<span class="dot"></span><span class="b">Live on-chain</span><span class="cx">·</span>'+parts.join('<span class="cx">·</span>')+'<span class="cx">· updated '+hh+'</span>';
+   }).catch(function(){});}
+   load();setInterval(load,90000);
+  })();
   (function(){var btn=document.getElementById('copy');btn.addEventListener('click',function(){
    var a=document.getElementById('addr').textContent.trim();
    navigator.clipboard&&navigator.clipboard.writeText(a).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy';},1500);});});})();
