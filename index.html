@@ -1,781 +1,1292 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ZKas — private by default, one-second speed</title>
-  <meta name="description" content="ZKas combines Kaspa-derived BlockDAG proof of work with Zcash-derived shielded transactions in a private-by-default network.">
-  <link rel="icon" type="image/png" href="/logo-192.png">
-  <link rel="apple-touch-icon" href="/logo-180.png">
-  <meta property="og:title" content="ZKas — private by default, one-second speed">
-  <meta property="og:description" content="A shielded proof-of-work privacy layer secured by Kaspa merged hashrate.">
-  <meta property="og:image" content="/logo.png">
-  <script>
-    (function () {
-      try {
-        var saved = localStorage.getItem('zkas-theme');
-        document.documentElement.dataset.theme = saved === 'dark' ? 'dark' : 'light';
-      } catch (_) {}
-    }());
-  </script>
-  <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
-  <style>
-    /* Inter, self-hosted. The stack already NAMED Inter but nothing ever loaded it, so
-       every visitor without it installed locally was served system-ui instead — Segoe UI
-       on Windows, Roboto on Android — which is why the type looked generic and differed
-       per machine. Self-hosted rather than Google Fonts on purpose: a third-party font
-       request would hand every visitor's IP to Google, which is indefensible here. */
-    @font-face {
-      font-family: 'Inter';
-      font-style: normal;
-      font-weight: 100 900;
-      font-display: swap;
-      src: url('/fonts/inter-var.woff2') format('woff2');
-    }
-    :root {
-      color-scheme: dark;
-      --bg: #07100e;
-      --panel: #0c1815;
-      --panel-2: #10211c;
-      --line: #203a32;
-      --line-soft: #173028;
-      --ink: #f1f8f5;
-      --muted: #91aaa0;
-      --faint: #61776e;
-      --mint: #18d8bd;
-      --mint-soft: rgba(24,216,189,.11);
-      --blue: #8eafff;
-      --amber: #f1ba70;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      position: relative; margin: 0; min-height: 100vh; color: var(--ink); background: var(--bg);
-      font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased;
-      font-optical-sizing: auto; font-feature-settings: "calt" 1;
-      background-image: radial-gradient(900px 500px at 72% -180px, rgba(24,216,189,.14), transparent 72%);
-    }
-    a { color: inherit; text-decoration: none; }
-    .topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--line-soft); background: rgba(7,16,14,.86); backdrop-filter: blur(16px); }
-    .topbar-inner { width: min(1320px, calc(100% - 40px)); height: 62px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-    .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; }
-    .brand img { width: 28px; height: 28px; border-radius: 8px; }
-    .brand-mark { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; color: var(--mint); font: 700 15px var(--mono); }
-    .top-links { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: 12px; }
-    .top-links a:hover { color: var(--ink); }
-    .top-links .service-link { padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); }
-    .top-links .service-link:hover { border-color: var(--mint); background: var(--mint-soft); }
-    .theme-toggle { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border: 1px solid var(--mint); border-radius: 8px; color: var(--ink); background: var(--mint-soft); box-shadow: 0 0 14px rgba(24,216,189,.12); font: 700 11px var(--mono); cursor: pointer; }
-    .theme-toggle:hover { background: rgba(24,216,189,.20); box-shadow: 0 0 18px rgba(24,216,189,.24); }
-    .theme-toggle .theme-icon { color: var(--mint); font-size: 17px; font-weight: 800; line-height: 1; }
-    .layout { width: min(1320px, calc(100% - 40px)); margin: 0 auto; padding: 24px 0 56px; display: grid; grid-template-columns: minmax(230px, 1fr) minmax(0, 2fr); gap: 18px; align-items: start; }
-    .rail, .panel { border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(145deg, rgba(16,33,28,.92), rgba(9,21,17,.94)); }
-    .rail { position: sticky; top: 86px; padding: 22px; }
-    .eyebrow { color: var(--faint); font: 10px var(--mono); letter-spacing: .16em; text-transform: uppercase; }
-    .rail h1 { margin: 14px 0 10px; max-width: 9ch; font-size: clamp(28px, 3vw, 39px); line-height: 1.02; letter-spacing: -.055em; }
-    .rail-lede { margin: 0; color: var(--muted); font-size: 14px; }
-    .security { margin: 20px 0 22px; padding: 13px; border: 1px solid rgba(24,216,189,.28); border-radius: 11px; background: var(--mint-soft); }
-    .security strong { display: block; color: var(--mint); font-size: 13px; }
-    .security span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
-    .rail-section { padding-top: 16px; border-top: 1px solid var(--line-soft); }
-    .rail-section + .rail-section { margin-top: 17px; }
-    .rail-section h2 { margin: 0 0 8px; color: var(--faint); font: 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
-    .rail-links { display: grid; gap: 2px; }
-    .rail-links a { display: flex; align-items: center; justify-content: space-between; padding: 8px 9px; border-radius: 8px; color: var(--muted); font-size: 13px; }
-    .rail-links a:hover { color: var(--ink); background: rgba(24,216,189,.07); }
-    .rail-links a span { color: var(--mint); font: 16px var(--mono); }
-    .hero { padding: 24px; }
-    .hero-head { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
-    /* The headline shares its row with the ~244px status badge, so it only ever gets
-       about two-thirds of the hero width. `text-wrap: balance` evens the resulting
-       lines instead of leaving one short orphan, and the cap is set so the string
-       lands in two lines at desktop width rather than three. */
-    /* Display type follows the house style set by `.rail h1`: heavy weight, tight
-       tracking, tight leading.
-       The ordinal is set in --mono, the face this site already uses for its technical
-       voice (.live, rail labels, .proof-idx), so "1st" reads as a specification rather
-       than as decoration. The rest of the line is a single weight in a single colour:
-       the two-tone muted/ink headline is the default move on every project in this
-       space, and doing it here would have made the page look like all of them. */
-    /* A lockup, not a sentence. Line one is the claim and line two is the reason it is
-       possible, so the two are separated by SCALE rather than by colour — the muted/ink
-       two-tone headline is the default move in this space and reads as generic. Both
-       lines stay full --ink, which keeps the claim confident; the second line carries
-       the weight of an attribution because it is a third smaller, not because it is
-       greyed out. "DAG" holds full weight inside it, since that is the actual subject. */
-    .hero h2 { margin: 8px 0 7px; font-size: clamp(30px, 4.4vw, 50px); font-weight: 780;
-      line-height: 1.0; letter-spacing: -.052em; color: var(--muted);
-      /* Inter's contextual alternates + tabular-free defaults; `cv11` gives the
-         single-storey 'a', which reads cleaner at display size. */
-      font-feature-settings: "cv11", "ss01", "calt" 1;
-      font-optical-sizing: auto; }
-    /* Claim first, reason under it. The subline is smaller and muted so it reads as
-       support rather than as a second headline competing with the first. */
-    .hero h2 .hl-because { display: block; margin-top: .1em; font-size: .58em;
-      font-weight: 600; letter-spacing: -.025em; color: var(--muted); }
-    .hero h2 .hl-because b { font-weight: 750; }
-    /* Sits below the buttons, so it needs real separation from them — at 14px it read
-       as crowded against the button row rather than as its own block. */
-    .hero p.hero-lede { max-width: 62ch; margin: 32px 0 0; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
-    .hero p { max-width: 67ch; margin: 0; color: var(--muted); }
-    .live { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
-    .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 8px var(--mint); }
-    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-    .steps-cta { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
-    .steps-social { margin-top: 8px; }
-    .blogpop { position: fixed; right: 18px; bottom: 18px; z-index: 60; max-width: 320px; display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); box-shadow: 0 12px 34px rgba(0,0,0,.38); text-decoration: none; transform: translateY(22px); opacity: 0; transition: opacity .3s ease, transform .3s ease; }
-    .blogpop.show { transform: none; opacity: 1; }
-    .blogpop:hover { border-color: var(--mint); }
-    .blogpop-k { font: 600 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--mint); }
-    .blogpop-t { font-size: 15px; font-weight: 650; line-height: 1.35; padding-right: 16px; }
-    .blogpop-r { font-size: 12.5px; color: var(--muted); }
-    .blogpop-x { position: absolute; top: 7px; right: 9px; border: 0; background: none; color: var(--faint); font-size: 19px; line-height: 1; cursor: pointer; padding: 2px 4px; }
-    .blogpop-x:hover { color: var(--ink); }
-    @media (max-width: 520px) { .blogpop { left: 14px; right: 14px; bottom: 14px; max-width: none; } }
-    .steps-cta .button, .steps-social .button { gap: 7px; }
-    .b-svg { width: 15px; height: 15px; flex: 0 0 auto; }
-    .steps-social .social { flex: 1 1 0; min-height: 34px; font-size: 11.5px; font-weight: 650; }
-    .steps-social .social .b-svg { width: 14px; height: 14px; }
-    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 13px; border: 1px solid var(--mint); border-radius: 8px; background: var(--mint); color: #06130f; font-size: 12px; font-weight: 750; }
-    .button:hover { filter: brightness(1.08); }
-    .button.secondary { border-color: var(--line); background: transparent; color: var(--ink); font-weight: 500; }
-    .button.secondary:hover { border-color: var(--line-strong, var(--mint)); background: var(--mint-soft); }
-    /* Branded action/social buttons — each in its platform's own colour. */
-    .btn-github { background: #24292f; border-color: #24292f; color: #fff; }
-    .btn-discord { background: #5865f2; border-color: #5865f2; color: #fff; }
-    .btn-x { background: #000; border-color: #000; color: #fff; }
-    .btn-tg { background: #229ed9; border-color: #229ed9; color: #fff; }
-    /* Keep the dark/near-black brand buttons defined against the dark theme's near-black background. */
-    html:not([data-theme="light"]) .btn-x, html:not([data-theme="light"]) .btn-github { border-color: rgba(255,255,255,.24); }
-    /* On the light theme the mint accent is a dark teal, so the filled ZKas button needs light text. */
-    html[data-theme="light"] .btn-wallet { color: #fff; }
-    /* No-premine proof dialog. Neutral by design: the site's own language is thin
-       --line borders on muted surfaces, and the mint is reserved for genuine accents,
-       so this uses no accent colour at all. */
-    button.button { font-family: inherit; cursor: pointer; letter-spacing: inherit; }
-    .proof-cta { font-weight: 500; }
-    .proof-backdrop { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center;
-      padding: 18px; background: rgba(3,8,7,.74); backdrop-filter: blur(5px); }
-    .proof-backdrop.is-open { display: flex; animation: proofFade .16s ease-out; }
-    @keyframes proofFade { from { opacity: 0 } to { opacity: 1 } }
-    @keyframes proofRise { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
-    .proof-modal { position: relative; width: min(700px, 100%); max-height: min(86vh, 800px); overflow-y: auto;
-      border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink);
-      box-shadow: 0 24px 70px rgba(0,0,0,.46); animation: proofRise .2s ease-out; }
-    @media (prefers-reduced-motion: reduce) { .proof-backdrop.is-open, .proof-modal { animation: none } }
-    .proof-head { position: sticky; top: 0; z-index: 2; padding: 22px 24px 15px;
-      background: var(--panel); border-bottom: 1px solid var(--line-soft); border-radius: 14px 14px 0 0; }
-    .proof-eyebrow { display: block; margin-bottom: 8px; color: var(--faint);
-      font: 500 9.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
-    .proof-head h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -.02em; line-height: 1.3; }
-    .proof-head p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.55; }
-    .proof-body { padding: 4px 24px 22px; }
-    .proof-lede { margin: 15px 0 2px; font-size: 13px; line-height: 1.62; color: var(--muted); }
-    .proof-item { padding: 15px 0; border-bottom: 1px solid var(--line-soft); }
-    .proof-item:last-of-type { border-bottom: 0; padding-bottom: 4px; }
-    .proof-item h4 { margin: 0 0 6px; font-size: 13.5px; letter-spacing: -.01em; color: var(--ink); }
-    .proof-item h4 .proof-idx { margin-right: 8px; color: var(--faint); font: 500 11px var(--mono); }
-    .proof-item p { margin: 0 0 8px; font-size: 12.8px; line-height: 1.62; color: var(--muted); }
-    .proof-item p:last-child { margin-bottom: 0; }
-    .proof-item strong { color: var(--ink); font-weight: 600; }
-    .mono-block { font-family: var(--mono); font-size: 10.5px; line-height: 1.62;
-      white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-all;
-      background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 8px;
-      padding: 10px 12px; margin: 9px 0; color: var(--ink); }
-    .mono-cap { display: block; margin-bottom: 5px; color: var(--faint); font-size: 9px;
-      letter-spacing: .09em; text-transform: uppercase; }
-    .proof-modal a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px;
-      text-decoration-color: var(--line); }
-    .proof-modal a:hover { text-decoration-color: var(--ink); }
-    .proof-modal .proof-foot a { text-decoration: none; }
-    .proof-close { position: absolute; top: 15px; right: 15px; z-index: 3; width: 28px; height: 28px;
-      display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line);
-      border-radius: 8px; background: var(--panel); color: var(--muted);
-      font-family: inherit; font-size: 16px; line-height: 1; cursor: pointer; }
-    .proof-close:hover { border-color: var(--muted); color: var(--ink); }
-    .proof-foot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 15px;
-      border-top: 1px solid var(--line-soft); }
-    @media (max-width: 640px) {
-      /* Stays CENTRED at every width. An earlier version snapped this to the bottom
-         edge as a mobile sheet; it read as a stray panel stuck to the bottom of the
-         page rather than a dialog, so the centred treatment is used throughout. */
-      .proof-backdrop { padding: 12px; }
-      .proof-modal { max-height: 88vh; }
-      .proof-head { padding: 19px 16px 12px; }
-      .proof-body { padding: 3px 16px 19px; }
-      .proof-foot .button { flex: 1 1 100%; }
-    }
-    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 22px; }
-    .stat { padding: 12px; border: 1px solid var(--line-soft); border-radius: 10px; background: rgba(5,15,12,.42); }
-    .stat strong { display: block; font-size: 19px; letter-spacing: -.03em; }
-    .stat span { display: block; margin-top: 3px; color: var(--faint); font: 10px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
-    .workspace { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
-    .card { padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: rgba(12,24,21,.72); }
-    .card.wide { grid-column: 1 / -1; }
-    .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
-    .card h3 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
-    .card-head span { color: var(--faint); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .1em; }
-    .card-note { margin: -5px 0 14px; color: var(--muted); font-size: 12px; }
-    .tblwrap { width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--mint) var(--line-soft); }
-    .tblwrap::-webkit-scrollbar { height: 7px; }
-    .tblwrap::-webkit-scrollbar-track { background: var(--line-soft); border-radius: 8px; }
-    .tblwrap::-webkit-scrollbar-thumb { background: var(--mint); border-radius: 8px; }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th { padding: 0 10px 9px 0; border-bottom: 1px solid var(--line-strong, var(--line)); color: var(--faint); text-align: left; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
-    td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line-soft); vertical-align: top; color: var(--muted); }
-    td:first-child { color: var(--ink); font-weight: 650; }
-    tr:last-child td { border-bottom: 0; }
-    .good { color: var(--mint); }
-    .chart { width: 100%; height: auto; display: block; }
-    .chart text { font-family: var(--mono); }
-    .chart .axis { fill: var(--faint); font-size: 10px; }
-    .chart .gridline { stroke: var(--line-soft); stroke-width: 1; }
-    .chart .line { fill: none; stroke: var(--mint); stroke-width: 3; stroke-linejoin: round; }
-    .chart .area { fill: url(#area); }
-    .chart .point { fill: var(--mint); stroke: var(--panel); stroke-width: 2; }
-    .split { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(180px, .9fr); gap: 18px; align-items: center; }
-    .legend { display: grid; gap: 8px; }
-    .legend-row { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line-soft); color: var(--muted); font-size: 12px; }
-    .legend-row b { color: var(--ink); }
-    .dot-label { display: inline-flex; align-items: center; gap: 7px; }
-    .dot-label::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--mint); }
-    .dot-label.dev::before { background: var(--amber); }
-    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .step { padding: 12px; border: 1px solid var(--line-soft); border-radius: 10px; }
-    .step b { color: var(--mint); font: 11px var(--mono); }
-    .step h4 { margin: 7px 0 4px; font-size: 13px; }
-    .step p { margin: 0; color: var(--muted); font-size: 12px; }
-    .foot { width: min(1320px, calc(100% - 40px)); margin: 0 auto; padding: 18px 0 36px; border-top: 1px solid var(--line-soft); color: var(--faint); font: 11px var(--mono); display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
-    .foot a { color: var(--muted); }
-    .foot a:hover { color: var(--ink); }
-    /* Editorial protocol layout: fewer boxes, stronger hierarchy. */
-    body { background-color: #07100e; background-image: linear-gradient(rgba(24,216,189,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(24,216,189,.028) 1px, transparent 1px), radial-gradient(900px 560px at 70% -180px, rgba(24,216,189,.16), transparent 72%); background-size: 48px 48px, 48px 48px, auto; }
-    .layout { grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 10px; padding-top: 42px; }
-    .rail, .panel { border: 0; border-radius: 0; background: transparent; }
-    .rail { margin-top: -74px; padding: 24px 24px 26px; border: 1px solid rgba(24,216,189,.28); box-shadow: 0 0 0 1px rgba(24,216,189,.05), 0 0 28px rgba(24,216,189,.08); }
-    .panel { position: relative; margin-top: -34px; padding: 0 28px 0 22px; border-left: 1px solid var(--line); }
-    .rail h1 { font-size: clamp(46px, 5vw, 72px); max-width: none; }
-    .security { border-radius: 2px; border-left: 2px solid var(--mint); border-top: 0; border-right: 0; border-bottom: 0; background: rgba(24,216,189,.055); }
-    .rail-section { border-top-color: var(--line); }
-    .rail-links a { border-radius: 2px; padding-left: 0; border-bottom: 1px solid transparent; }
-    .rail-links a:hover { padding-left: 8px; background: transparent; border-bottom-color: var(--line); }
-    .hero { padding: 0 28px 29px 20px; border-bottom: 1px solid var(--line); }
-    .hero-head { min-height: 0; align-items: start; }
-    /* Kept at 34px deliberately. The headline shares its row with the status badge and
-       so has ~560px to work with; measured, it needs <=28px to fall to two lines, which
-       is too weak for a hero. Three BALANCED lines at full size reads better than two
-       small ones, so the size stays and `text-wrap: balance` does the work. */
-    /* Deliberately large: the headline is now two short lines, and at the previous
-       34px cap it read as timid in a hero this wide. */
-    .hero h2 { margin-top: 10px; font-size: clamp(30px, 4vw, 50px); max-width: none; letter-spacing: -.05em; }
-    .hero p { max-width: 56ch; font-size: 15px; }
-    .live { position: static; margin-top: 4px; }
-    .hero-head { position: relative; }
-    /* The badge used to sit in the flex row and take ~264px of an 824px hero, leaving
-       the headline two-thirds of the width and forcing a break mid-claim. Absolute
-       positioning freed the width but then OVERLAPPED the headline. A right float is
-       the correct tool: it reserves space on the first line only, so line one flows
-       around the badge and every line after it gets the full hero width — which is
-       what lets the whole claim sit on one line. */
-    .hero-head { display: block; }
-    .hero-head .live { float: right; margin-left: 20px; }
-    .stats { grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-    .stat { border: 0; border-right: 1px solid var(--line); border-radius: 0; background: transparent; padding: 15px 15px 15px 0; }
-    .stat + .stat { padding-left: 15px; }
-    .stat:last-child { border-right: 0; }
-    .workspace { gap: 0 34px; margin-top: 0; padding-right: 8px; }
-    .card { padding: 27px 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: transparent; }
-    .card.wide { grid-column: 1 / -1; }
-    .card h3 { font-size: 18px; }
-    .card-head { margin-bottom: 16px; }
-    .card-note { max-width: 70ch; }
-    table { font-size: 12px; }
-    th { padding-bottom: 10px; }
-    td { padding-top: 10px; padding-bottom: 10px; }
-    .comparison-table { table-layout: fixed; }
-    .comparison-table th:first-child, .comparison-table td:first-child { width: 19%; }
-    .comparison-table th, .comparison-table td { padding-right: 18px; }
-    .comparison-table th:last-child, .comparison-table td:last-child { padding-right: 0; }
-    .step { border-radius: 2px; background: rgba(24,216,189,.035); }
-    .foot { border-top-color: var(--line); }
-    .rail::-webkit-scrollbar, .panel::-webkit-scrollbar { width: 14px; }
-    .rail::-webkit-scrollbar-track, .panel::-webkit-scrollbar-track { background: rgba(24,216,189,.05); }
-    .rail::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 8px; background: var(--mint); background-clip: padding-box; min-height: 44px; }
-    .visible-scrollbar { display: none; }
-    .mesh-bg { display: none; }
-    .rail::before, .panel::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .055; background-image: radial-gradient(circle at 18% 18%, var(--mint) 0 2px, transparent 2.5px), radial-gradient(circle at 58% 31%, var(--mint) 0 1.5px, transparent 2px), radial-gradient(circle at 84% 68%, var(--mint) 0 2px, transparent 2.5px), linear-gradient(28deg, transparent 49.8%, var(--mint) 50%, transparent 50.2%), linear-gradient(148deg, transparent 49.8%, var(--mint) 50%, transparent 50.2%); background-size: 430px 360px, 430px 360px, 430px 360px, 430px 360px, 430px 360px; background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
-    .rail > *, .panel > * { position: relative; z-index: 1; }
-    /* Page sections get a stacking context above the mesh background. The proof dialog
-       is excluded: it is a position:fixed overlay, and this rule's `position: relative`
-       outranks `.proof-backdrop` on specificity (0,1,1 vs 0,1,0), which dropped the
-       dialog back into normal flow and rendered it near the foot of the page. */
-    body > :not(.mesh-bg):not(.proof-backdrop):not(.blogpop) { position: relative; z-index: 1; }
-    html[data-theme="light"] {
-      color-scheme: light;
-      --bg: #eef1f0;
-      --panel: #f8faf9;
-      --panel-2: #e3e9e7;
-      --line: #c8d4d0;
-      --line-soft: #dbe3e0;
-      --ink: #17231f;
-      --muted: #4d625a;
-      --faint: #6d8179;
-      --mint: #087f72;
-      --mint-soft: rgba(8,127,114,.09);
-      --blue: #3f5eaa;
-      --amber: #9a681f;
-    }
-    html[data-theme="light"] body { background-color: var(--bg); background-image: linear-gradient(rgba(8,127,114,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(8,127,114,.045) 1px, transparent 1px), radial-gradient(900px 560px at 70% -180px, rgba(8,127,114,.10), transparent 72%); }
-    html[data-theme="light"] .topbar { background: rgba(238,241,240,.90); }
-    html[data-theme="light"] .security { border-color: rgba(8,127,114,.25); }
-    html[data-theme="light"] .rail::before, html[data-theme="light"] .panel::before { opacity: .045; }
-    @media (min-width: 861px) {
-      html, body { height: 100%; overflow: hidden; }
-      .layout { height: calc(100vh - 62px); padding-bottom: 0; overflow: visible; }
-      .steps-cta .button { flex: 1 1 0; }
-      .rail, .panel { overflow-y: auto; scrollbar-width: none; }
-      .rail::-webkit-scrollbar, .panel::-webkit-scrollbar { width: 0; height: 0; }
-      .visible-scrollbar { position: fixed; z-index: 20; display: block; width: 8px; border: 1px solid rgba(24,216,189,.35); border-radius: 8px; background: rgba(24,216,189,.08); pointer-events: none; }
-      .visible-scrollbar i { position: absolute; left: 1px; right: 1px; top: 0; height: 32px; min-height: 18px; border-radius: 6px; background: var(--mint); box-shadow: 0 0 10px rgba(24,216,189,.7); }
-      .rail { position: relative; transform: none; height: calc(100% + 42px); padding-top: 8px; padding-bottom: 96px; }
-      .panel { height: calc(100% + 34px); padding-bottom: 48px; }
-      .foot { display: none; }
-    }
-    @media (max-width: 860px) {
-      .rail::before, .panel::before { opacity: .035; }
-      .layout { grid-template-columns: 1fr; }
-      /* On phones the left rail is redundant with the header brand + hero CTAs, so
-         hide it entirely. It stays in the DOM (display:none) for SEO/crawlers. */
-      .rail { display: none; }
-      /* Cancel the desktop sticky offset as well as sticky positioning. Leaving
-         `top:86px` active with `position:relative` shifts the rail visually but
-         not in grid flow, so the hero begins underneath the last rail links on
-         phones. */
-      .rail { position: relative; top: auto; transform: none; margin-top: 0; }
-      .panel { margin-top: 0; padding-left: 0; padding-right: 0; border-left: 0; }
-      .layout, .panel, .card { min-width: 0; }
-      .panel.hero { padding-left: 0; padding-right: 0; }
-      .rail h1 { max-width: none; }
-      .rail-links { grid-template-columns: repeat(2, 1fr); gap: 2px 8px; }
-      .rail { box-shadow: 0 8px 28px rgba(0,0,0,.12); }
-    }
-    @media (max-width: 620px) {
-      .topbar-inner, .layout, .foot { width: min(100% - 24px, 1320px); }
-      .topbar-inner { height: 56px; gap: 8px; }
-      .top-links { gap: 6px; }
-      .top-links .service-link { padding: 7px 8px; font-size: 11px; }
-      .theme-toggle { padding: 7px 8px; gap: 5px; }
-      .theme-toggle .theme-label { display: none; }
-      .brand { gap: 8px; }
-      .brand img, .brand-mark { width: 26px; height: 26px; }
-      .layout { padding: 16px 0 38px; gap: 14px; }
-      .rail { padding: 18px 16px 20px; border-radius: 14px; }
-      .rail h1 { margin: 4px 0 6px; font-size: 40px; }
-      .rail-lede { font-size: 13px; }
-      .security { margin: 14px 0 16px; padding: 11px; }
-      .security strong { font-size: 12px; }
-      .security span { font-size: 11px; }
-      .rail-section { padding-top: 13px; }
-      .rail-section + .rail-section { margin-top: 13px; }
-      .rail-links { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 6px; }
-      .rail-links a { min-height: 36px; padding: 7px 6px; font-size: 12px; }
-      .panel { padding: 0; }
-      html, body { overflow-x: hidden; }
-      .hero { padding: 4px 0 22px; }
-      .hero-head { display: block; }
-      .hero-head .live { float: none; margin-left: 0; }
-      /* 28px, not 32: measured, "with DAG architecture" is ~378px at 32px and overflows
-         the 366px column, forcing a third line. At 28px it fits and the headline holds
-         two clean lines. */
-      .hero h2 { margin: 0 0 8px; font-size: 28px; line-height: 1.06; letter-spacing: -.045em; }
-      .hero p.hero-lede { margin-top: 26px; font-size: 13px; line-height: 1.5; }
-      .hero p { font-size: 13px; line-height: 1.45; }
-      .live { display: inline-flex; margin-top: 12px; font-size: 9px; }
-      .actions { margin-top: 14px; }
-      .button { min-height: 40px; flex: 1 1 100%; }
-      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; }
-      .stat { padding: 11px 8px 11px 0; }
-      .stat + .stat { padding-left: 8px; }
-      .stat strong { font-size: 15px; white-space: nowrap; }
-      .stat span { font-size: 8px; line-height: 1.25; }
-      .workspace, .split { grid-template-columns: 1fr; }
-      .steps { grid-template-columns: 1fr; }
-      .card.wide { grid-column: auto; }
-      .card { padding: 21px 0; }
-      .card h3 { font-size: 16px; }
-      .card-head { margin-bottom: 12px; }
-      table { font-size: 11px; }
-      th { font-size: 9px; }
-      td, th { padding-right: 8px; }
-      .comparison-table { min-width: 590px; table-layout: auto; }
-      .comparison-table th:first-child, .comparison-table td:first-child { width: 86px; }
-      .split { gap: 16px; }
-      .chart { min-height: 150px; }
-      .legend-row { font-size: 11px; }
-      .step { padding: 11px; }
-      .step p { font-size: 11px; }
-      .foot { font-size: 10px; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ZKas — private money, one block per second</title>
+<meta name="description" content="ZKas is a privacy-by-default proof-of-work BlockDAG: every payment shielded by construction, ~1-second settlement, merge-mined with Kaspa.">
+<meta name="theme-color" content="#060d0b">
+<link rel="icon" type="image/png" href="/logo-192.png">
+<link rel="apple-touch-icon" href="/logo-180.png">
+<meta property="og:title" content="ZKas — private money, one block per second">
+<meta property="og:description" content="A shielded proof-of-work BlockDAG, merge-mined with Kaspa. Private by construction.">
+<meta property="og:image" content="https://zkas.info/logo.png">
+<meta property="og:type" content="website">
+<link rel="preload" href="/fonts/clashdisplay-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/generalsans-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/jetbrains-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add('js');(function(){var L=['en','es','pt','fr','de','it','nl','pl','uk','ru','tr','ar','fa','ur','hi','bn','id','vi','th','zh','zh-TW','ja','ko','fil'],h=document.documentElement,pick=null,q=null;function nm(l){if(!l)return null;l=String(l).toLowerCase();if(l.indexOf('zh')===0)return /tw|hk|mo|hant/.test(l)?'zh-TW':'zh';if(l==='tl'||l.indexOf('tl-')===0||l.indexOf('fil')===0)return 'fil';var b=l.split('-')[0];return L.indexOf(b)>=0?b:null}try{q=new URLSearchParams(location.search).get('lang')}catch(e){}pick=nm(q);if(!pick){try{pick=nm(localStorage.getItem('zkas-lang2'))}catch(e){}}if(!pick){var ns=[],i;try{ns.push(Intl.DateTimeFormat().resolvedOptions().locale)}catch(e){}ns=ns.concat(navigator.language||[],navigator.userLanguage||[],navigator.languages||[]);for(i=0;i<ns.length&&!pick;i++){var x=String(ns[i]||'').toLowerCase();if(x.indexOf('en')===0)break;pick=nm(x)}if(!pick){try{var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'',T={es:'Madrid|Mexico_City|Bogota|Lima|Santiago|Buenos_Aires|Caracas|Montevideo|Asuncion|La_Paz|Guayaquil|Guatemala|El_Salvador|Tegucigalpa|Managua|Costa_Rica|Panama|Havana|Santo_Domingo|Canary|Ceuta|Monterrey|Merida|Chihuahua|Tijuana|Cancun|Hermosillo|Mazatlan',pt:'Lisbon|Sao_Paulo|Fortaleza|Recife|Bahia|Belem|Manaus|Cuiaba|Porto_Velho|Boa_Vista|Rio_Branco|Maceio|Araguaina|Campo_Grande|Santarem|Noronha|Azores|Madeira|Luanda|Maputo',fr:'Paris|Brussels|Luxembourg|Monaco|Abidjan|Dakar|Algiers|Tunis|Casablanca|Kinshasa|Douala|Libreville|Bamako|Niamey|Ouagadougou|Conakry|Lome|Porto-Novo|Ndjamena|Bangui|Brazzaville|Port-au-Prince|Martinique|Guadeloupe|Reunion|Noumea|Tahiti',de:'Berlin|Vienna|Zurich|Busingen|Vaduz',it:'Rome|San_Marino|Vatican',nl:'Amsterdam|Paramaribo|Curacao|Aruba',pl:'Warsaw',uk:'Kiev|Kyiv|Uzhgorod|Zaporozhye|Simferopol',ru:'Moscow|Volgograd|Kirov|Samara|Saratov|Ulyanovsk|Astrakhan|Yekaterinburg|Omsk|Novosibirsk|Barnaul|Tomsk|Novokuznetsk|Krasnoyarsk|Irkutsk|Chita|Yakutsk|Khandyga|Vladivostok|Ust-Nera|Magadan|Sakhalin|Srednekolymsk|Kamchatka|Anadyr|Kaliningrad|Minsk|Almaty|Qostanay|Bishkek',tr:'Istanbul',ar:'Riyadh|Dubai|Qatar|Bahrain|Kuwait|Baghdad|Amman|Beirut|Damascus|Cairo|Tripoli|Khartoum|Aden|Muscat|Gaza|Hebron|Nouakchott',fa:'Tehran|Kabul',ur:'Karachi',hi:'Kolkata|Calcutta',bn:'Dhaka',id:'Jakarta|Pontianak|Makassar|Jayapura',vi:'Ho_Chi_Minh|Saigon',th:'Bangkok',zh:'Shanghai|Chongqing|Harbin|Urumqi|Macau',ko:'Seoul',ja:'Tokyo','zh-TW':'Taipei|Hong_Kong',fil:'Manila'},k,city=tz.split('/').pop();if(/^en-us$/i.test(String(ns[0]||''))&&(navigator.languages||[]).length<=1){for(k in T){if(('|'+T[k]+'|').indexOf('|'+city+'|')>=0){pick=k;break}}}}catch(e){}}}pick=pick||'en';window.__zkLang=pick;h.setAttribute('lang',pick);if(pick!=='en'){h.classList.add('i18n-wait');if(['ar','fa','ur'].indexOf(pick)>=0)h.classList.add('rtl');setTimeout(function(){h.classList.remove('i18n-wait')},1800)}})();try{var s=localStorage.getItem('zkas-theme');if(s)document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
+<style>
+@font-face{font-family:'Clash Display';font-weight:500;font-style:normal;font-display:swap;src:url('/fonts/clashdisplay-500.woff2') format('woff2')}
+@font-face{font-family:'Clash Display';font-weight:600;font-style:normal;font-display:swap;src:url('/fonts/clashdisplay-600.woff2') format('woff2')}
+@font-face{font-family:'Clash Display';font-weight:700;font-style:normal;font-display:swap;src:url('/fonts/clashdisplay-700.woff2') format('woff2')}
+@font-face{font-family:'General Sans';font-weight:400;font-style:normal;font-display:swap;src:url('/fonts/generalsans-400.woff2') format('woff2')}
+@font-face{font-family:'General Sans';font-weight:500;font-style:normal;font-display:swap;src:url('/fonts/generalsans-500.woff2') format('woff2')}
+@font-face{font-family:'General Sans';font-weight:600;font-style:normal;font-display:swap;src:url('/fonts/generalsans-600.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:swap;src:url('/fonts/jetbrains-mono-var.woff2') format('woff2')}
+
+/* ZKas console — compact two-pane: left nav drives the right panel in place.
+   Right panel = persistent live bar + the active view. Dark-first; mint->cyan
+   (the logo's Z gradient) is the accent; JetBrains Mono is the data voice. */
+:root{
+  color-scheme:dark;
+  --bg:#060d0b; --bg-2:#081210; --panel:#0b1613; --panel-2:#0f1d18; --rail:#071311;
+  --line:#1b3029; --line-soft:#112420; --hair:rgba(140,230,210,.055);
+  --fg:#eefaf6; --muted:#8fa89e; --faint:#5a7067;
+  --mint:#18d8bd; --cyan:#59f0ff; --lime:#b7f05a; --amber:#f1ba70;
+  --grad:linear-gradient(118deg,#18d8bd,#59f0ff);
+  --mint-soft:rgba(24,216,189,.09); --mint-line:rgba(24,216,189,.30);
+  --glow:0 0 38px rgba(24,216,189,.13);
+  --display:'Clash Display','General Sans',ui-sans-serif,system-ui,sans-serif;
+  --sans:'General Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --btn-ink:#04120d; --topH:58px;
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#eef2f0; --bg-2:#e6ece9; --panel:#f9fbfa; --panel-2:#eef3f1; --rail:#e9efec;
+  --line:#c5d1cd; --line-soft:#d9e2de; --hair:rgba(10,120,106,.06);
+  --fg:#0f1d17; --muted:#3d564d; --faint:#5f746b;
+  --mint:#0a8b7c; --cyan:#0d8aa8; --lime:#5c8a12;
+  --grad:linear-gradient(118deg,#0a8b7c,#0d8aa8);
+  --mint-soft:rgba(10,139,124,.08); --mint-line:rgba(10,139,124,.28);
+  --glow:0 0 38px rgba(10,139,124,.12); --btn-ink:#fff;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 15px/1.6 var(--sans);
+  -webkit-font-smoothing:antialiased;font-feature-settings:"calt" 1,"ss01" 1;overflow:hidden}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{margin:0;text-wrap:balance}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px;border-radius:5px}
+::selection{background:rgba(24,216,189,.26);color:#fff}
+.mono{font-family:var(--mono)}
+.tnum{font-variant-numeric:tabular-nums}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* decoding beam: per-char wavefront (cyan lock-glow fades behind the beam) */
+.ch{-webkit-text-fill-color:currentColor;transition:color .45s ease,text-shadow .45s ease}
+.ch.hot{color:var(--cyan);-webkit-text-fill-color:var(--cyan);text-shadow:0 0 11px var(--cyan)}
+.ch.dim{color:color-mix(in srgb,var(--mint) 52%,var(--muted))}
+.dz-run{color:var(--mint)!important;-webkit-text-fill-color:currentColor!important;filter:none!important}
+.eyebrow{font:600 11px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+
+body::after{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(var(--hair) 1px,transparent 1px);background-size:3px 3px;mix-blend-mode:soft-light}
+
+/* privacy: redaction motif */
+.redact{display:flex;flex-wrap:wrap;align-items:center;gap:9px 14px;margin-top:24px;font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.redact .rk{color:var(--faint)}
+.redact .rb{display:inline-block;min-width:72px;margin-right:4px;text-transform:none;letter-spacing:.14em;color:color-mix(in srgb,var(--mint) 62%,var(--muted));transition:color .2s ease}
+.redact:hover .rb{color:var(--cyan)}
+.rcap{margin:12px 0 0;font:600 11px var(--mono);letter-spacing:.03em;color:var(--mint)}
+.snowq{margin:16px 0 0;padding-left:13px;border-left:2px solid var(--mint-line);max-width:46ch}
+.snowq p{margin:0;font-style:italic;font-size:14px;line-height:1.5;color:var(--fg);opacity:.86}
+.snowq cite{display:block;margin-top:7px;font:600 11px var(--mono);letter-spacing:.08em;font-style:normal;color:var(--mint)}
+.ov-copy .btn{transition:transform .28s cubic-bezier(.22,1,.36,1),filter .2s,border-color .2s,background .2s}
+.decline{margin:16px 0 0;font:600 13.5px var(--mono);letter-spacing:.03em;color:var(--mint);min-height:1.3em}
+/* scroll-reveal */
+.js .reveal{opacity:0;transform:translateY(16px)}
+.js .reveal.in{opacity:1;transform:none;transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+@media (prefers-reduced-motion:reduce){.js .reveal{opacity:1;transform:none}}
+
+/* ---------- shell ---------- */
+.topbar{height:var(--topH);display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:0 max(18px,env(safe-area-inset-right,0px)) 0 max(18px,env(safe-area-inset-left,0px));
+  border-bottom:1px solid var(--line-soft);background:var(--bg);position:relative;z-index:5}
+.brand{display:inline-flex;align-items:center;gap:11px;font-weight:800;letter-spacing:-.02em;font-size:17px;color:var(--fg)}
+.brand .logo{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
+  background:radial-gradient(130% 130% at 30% 15%,#114a40,#06130f);border:1px solid var(--mint-line);
+  font:800 13px var(--mono);color:var(--mint);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.brand .logo b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.top-right{display:flex;align-items:center;gap:9px}
+.top-right .ext{color:var(--muted);font-size:13px;padding:7px 10px;border-radius:8px}
+.top-right .ext:hover{color:var(--fg);background:var(--mint-soft)}
+@media(max-width:700px){.top-right .ext{display:none}}
+.iconbtn{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;
+  background:transparent;color:var(--muted);cursor:pointer;font-size:15px}
+.iconbtn:hover{color:var(--fg);border-color:var(--mint-line)}
+.cta{color:var(--btn-ink);background:var(--mint);font-weight:700;border:1px solid var(--mint);
+  padding:9px 15px;border-radius:9px;font-size:13.5px;box-shadow:var(--glow)}
+.cta:hover{filter:brightness(1.08)}
+
+.console{height:100%;display:grid;grid-template-columns:clamp(248px,21vw,296px) 1fr;position:relative;z-index:2}
+.console,.rail,.panel,.views,.view,.cols,.funnel,.pts,.works,.optin{min-width:0}
+
+/* ---------- LEFT RAIL ---------- */
+.rail{border-right:1px solid var(--line);background:
+    linear-gradient(180deg,color-mix(in srgb,var(--mint) 4%,transparent),transparent 200px),var(--rail);
+  padding:20px 16px 16px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.rail::-webkit-scrollbar{width:7px}.rail::-webkit-scrollbar-thumb{background:var(--line);border-radius:7px}
+.rail-top h1{font:700 26px/1 var(--display);letter-spacing:-.02em}
+.rail-top p{margin:7px 0 0;color:var(--muted);font-size:12.5px}
+.rail-top .born{margin-top:8px;font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.rail-top{position:relative}
+.rt-tools{position:absolute;top:-1px;right:0;display:flex;gap:6px}
+.railtheme{width:32px;height:32px;font-size:14px}
+.langbtn{width:auto;height:32px;padding:0 9px;display:inline-flex;align-items:center;gap:6px;font:600 11.5px var(--mono);letter-spacing:.04em;color:var(--fg)}
+.langbtn img,.lp img{width:20px;height:15px;border-radius:2px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.langpop{position:fixed;top:0;left:0;z-index:90;width:min(320px,calc(100vw - 16px));max-height:min(72vh,540px);overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px;
+  border:1px solid var(--mint-line);border-radius:14px;background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 22px 60px rgba(0,0,0,.45)}
+.langpop[hidden]{display:none}
+.lp{display:flex;align-items:center;gap:9px;min-height:38px;padding:6px 9px;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--fg);font:500 13px var(--sans);text-align:start;cursor:pointer;letter-spacing:normal!important}
+.lp:hover{background:var(--mint-soft);border-color:var(--mint-line)}
+.lp.on{background:color-mix(in srgb,var(--mint) 12%,transparent);border-color:var(--mint-line)}
+html.i18n-wait body>*{opacity:0}
+.rtl .views p,.rtl .views h2,.rtl .views h3,.rtl .views h4,.rtl .views h5,.rtl .views li,.rtl .views td,.rtl .views th,.rtl .views blockquote,.rtl .views .bx-card,.rtl .views .fcard,.rtl .views .prim,.rtl .views .pt,.rtl .views .sline .l,.rtl .views .race-say,.rtl .rail-top p,.rtl .nav .tab,.rtl .mfoot{direction:rtl;text-align:right}
+html[lang=ar] body *,html[lang=fa] body *,html[lang=ur] body *,html[lang=hi] body *,html[lang=bn] body *,html[lang=th] body *{letter-spacing:normal!important}
+h2,h3,h4{overflow-wrap:break-word;hyphens:auto}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .lab{font:600 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:2px 0 5px;padding:0 4px}
+.tab{display:flex;align-items:center;gap:11px;width:100%;text-align:left;border:0;background:transparent;cursor:pointer;
+  color:var(--muted);font:600 14px var(--sans);padding:10px 11px;border-radius:9px;position:relative;transition:color .15s,background .15s}
+.tab .ix{font:600 11px var(--mono);color:var(--faint);width:16px;flex:0 0 auto}
+.tab:hover{color:var(--fg);background:var(--mint-soft)}
+.tab[aria-selected="true"]{color:var(--fg);background:var(--mint-soft)}
+.tab[aria-selected="true"] .ix{color:var(--mint)}
+.tab[aria-selected="true"]::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:3px;background:var(--grad);box-shadow:0 0 10px rgba(24,216,189,.6)}
+.feedcard{border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 14px}
+.feed-h{display:flex;justify-content:space-between;font:600 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+.feed-h .live{display:inline-flex;align-items:center;gap:6px;color:var(--mint)}
+.feed-h .live i{width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 7px var(--mint);animation:ping 2.6s ease-out infinite}
+.feed-list{display:flex;flex-direction:column;gap:5px;font-family:var(--mono);font-size:11px}
+.feed-row{display:flex;gap:9px;align-items:center;color:var(--muted)}
+.feed-row .bs{color:var(--faint)}
+.feed-row .hx{color:var(--mint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feed-row.fresh{animation:fresh 1.1s ease-out}
+@keyframes fresh{0%{color:var(--cyan);transform:translateX(-3px)}100%{color:var(--muted);transform:none}}
+@keyframes ping{0%,100%{opacity:1}50%{opacity:.35}}
+.rail-foot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto;padding-top:16px;border-top:1px solid var(--line-soft)}
+.rail-foot .rf-h{grid-column:1/-1;font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+.rail-foot a{display:flex;align-items:center;justify-content:center;min-height:42px;font:600 14px var(--sans);color:var(--fg);border:1px solid var(--line);border-radius:11px;background:var(--panel);
+  transition:border-color .2s,background .2s,color .2s,transform .2s cubic-bezier(.22,1,.36,1)}
+.rail-foot a:hover{color:var(--mint);border-color:var(--mint-line);background:color-mix(in srgb,var(--mint) 7%,var(--panel));transform:translateY(-1px)}
+
+/* ---------- RIGHT: live bar + views ---------- */
+.panel{position:relative;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+.livebar{display:flex;align-items:center;flex:0 0 auto;height:50px;overflow-x:auto;scrollbar-width:none;
+  border-bottom:1px solid var(--line);background:var(--bg-2);padding:0 clamp(14px,2vw,22px)}
+.livebar::-webkit-scrollbar{display:none}
+.lb-live{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;padding-right:16px;margin-right:2px;
+  border-right:1px solid var(--line-soft);font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--fg)}
+.lb-live .d{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 9px var(--mint);animation:ping 2.6s ease-out infinite}
+.lb-m{display:inline-flex;align-items:baseline;gap:8px;flex:0 0 auto;padding:0 16px;border-right:1px solid var(--line-soft);white-space:nowrap}
+.lb-m .k{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.lb-m .v{font:700 13.5px var(--mono);color:var(--fg)}
+.lb-m .v.on{color:var(--mint)}
+.lb-ex{margin-left:auto;padding-left:16px;flex:0 0 auto;font:600 11px var(--mono);letter-spacing:.06em;color:var(--mint)}
+.lb-ex:hover{text-decoration:underline}
+.views{position:relative;flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.views::-webkit-scrollbar{width:10px}.views::-webkit-scrollbar-thumb{background:var(--line);border-radius:10px}
+@media (prefers-reduced-motion:reduce){.views{scroll-behavior:auto}}
+.view{padding:clamp(34px,4vw,60px) clamp(20px,3.2vw,46px);border-top:1px solid var(--line-soft);scroll-margin-top:14px}
+.view:first-child{border-top:0;padding-top:clamp(20px,2.6vw,30px)}
+.vhead{max-width:62ch;margin-bottom:24px}
+.vhead .eyebrow{margin-bottom:12px;display:block}
+.vhead h2{font:600 clamp(28px,3.6vw,46px)/1.03 var(--display);letter-spacing:-.02em}
+.vhead p{margin:14px 0 0;color:var(--muted);font-size:clamp(15px,1.5vw,17px);max-width:60ch;line-height:1.6}
+.vhead h2 .grad-text{filter:drop-shadow(0 0 24px rgba(24,216,189,.22))}
+
+.actions{display:flex;flex-wrap:wrap;gap:11px;margin-top:22px}
+.btn{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 19px;border-radius:10px;
+  font:700 14px var(--sans);border:1px solid var(--line);cursor:pointer;color:var(--fg);background:transparent;transition:.15s}
+.btn svg{width:16px;height:16px}
+.btn-primary{background:var(--mint);border-color:var(--mint);color:var(--btn-ink);box-shadow:var(--glow)}
+.btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-ghost:hover{border-color:var(--mint-line);background:var(--mint-soft)}
+
+/* overview cinematic hero */
+.ov-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:18px;
+  background:radial-gradient(82% 108% at 86% 42%,color-mix(in srgb,var(--mint) 14%,transparent),transparent 62%),var(--panel);
+  min-height:clamp(300px,40vh,420px);display:flex;margin-bottom:16px}
+.ov-hero #dag{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ov-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(100deg,var(--panel) 10%,color-mix(in srgb,var(--panel) 72%,transparent) 46%,transparent 82%),
+  linear-gradient(0deg,color-mix(in srgb,var(--panel) 80%,transparent),transparent 52%)}
+.dtag{position:absolute;top:14px;left:16px;z-index:3;display:inline-flex;align-items:center;gap:8px;
+  font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.dtag .d{width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)}
+.dtag b{color:var(--mint)}
+/* pinned race ticker: slides in once the hero race is scrolled past */
+.rmini{position:absolute;top:12px;left:50%;z-index:40;display:flex;align-items:center;gap:14px;height:46px;padding:0 18px 0 15px;max-width:calc(100% - 32px);
+  transform:translate(-50%,-160%);opacity:0;pointer-events:none;transition:transform .55s cubic-bezier(.22,1,.36,1),opacity .35s ease,border-color .2s;
+  border:1px solid var(--mint-line);border-radius:999px;color:var(--fg);font:600 12px var(--mono);letter-spacing:.03em;white-space:nowrap;overflow:hidden;
+  background:color-mix(in srgb,var(--panel) 95%,transparent);
+  box-shadow:0 14px 42px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.05);cursor:pointer}
+.rmini.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.rmini:hover{border-color:var(--mint)}
+.rm-live{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-variant-numeric:tabular-nums}
+.rm-live i{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 9px var(--mint);animation:ping 2.6s ease-out infinite}
+.rm-z{display:inline-flex;align-items:baseline;gap:7px;padding-left:14px;border-left:1px solid var(--line-soft)}
+.rm-z b{display:inline-block;font-size:16px;color:var(--mint);font-variant-numeric:tabular-nums;transition:transform .18s ease}
+.rm-z b.bump{transform:scale(1.25);text-shadow:0 0 12px var(--mint)}
+.rm-z em{font-style:normal;color:var(--faint);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.rmini .sht{display:none}
+.rm-strip{display:flex;align-items:center;justify-content:flex-end;gap:2px;width:118px;overflow:hidden}
+.rm-strip i{flex:0 0 auto;width:6px;height:6px;border-radius:1.5px;background:var(--grad);box-shadow:0 0 5px rgba(24,216,189,.5)}
+.rm-strip i.pop{animation:rpop .5s cubic-bezier(.34,1.56,.64,1)}
+.rm-o{padding-left:14px;border-left:1px solid var(--line-soft);color:var(--faint);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.rm-o b{margin-left:6px;color:var(--fg);font-size:14px;letter-spacing:0;font-variant-numeric:tabular-nums}
+.rm-x{padding-left:14px;border-left:1px solid var(--line-soft);color:var(--faint);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.rm-x:empty{display:none}
+.rm-x b{margin-right:5px;font-size:14px;letter-spacing:0;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rm-p{position:absolute;left:20px;right:20px;bottom:0;height:2px;overflow:hidden;border-radius:2px;background:color-mix(in srgb,var(--mint) 14%,transparent)}
+.rm-p i{display:block;height:100%;width:0;background:var(--mint);box-shadow:0 0 6px var(--mint)}
+@media(max-width:1180px){.rm-strip{display:none}}
+@media(max-width:860px){
+  .rmini{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:10px;right:10px;max-width:none;justify-content:space-between;gap:8px;height:44px;padding:0 14px;transform:translateY(-170%)}
+  .rmini.show{transform:none}
+  .rm-z,.rm-o{padding-left:9px}
+  .rmini .lng{display:none}.rmini .sht{display:inline}
+  .rmini{gap:6px;padding:0 12px}.rm-z,.rm-o{padding-left:8px}.rm-o b{margin-left:5px}.rm-live{font-size:13px;gap:6px}
+  .rm-x{display:none}
+}
+/* the live race sits on the hero DAG as a frosted-glass panel */
+.speedcmp.ov-race{position:relative;z-index:2;align-self:center;flex:0 0 min(440px,41%);margin:28px 28px 28px auto;
+  background:color-mix(in srgb,var(--panel) 90%,transparent);
+  border-color:var(--mint-line);box-shadow:0 24px 70px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.05)}
+.speedcmp.ov-race .rl{grid-template-columns:62px minmax(0,1fr) 96px;gap:12px}
+.speedcmp.ov-race .rc b{font-size:19px}
+.speedcmp.ov-race .race-say{font-size:15px}
+@media(max-width:1240px){.ov-hero{flex-wrap:wrap}.speedcmp.ov-race{flex:1 1 100%;margin:0 24px 24px}}
+@media(max-width:860px){.rnext .lng{display:none}.speedcmp.ov-race{margin:0 14px 16px}.speedcmp.ov-race .rl{grid-template-columns:54px minmax(0,1fr) 84px;gap:10px}}
+.ov-copy{position:relative;z-index:2;align-self:center;padding:clamp(24px,3vw,46px);max-width:48ch}
+.ov-copy .eyebrow{display:block}
+.ov-copy h2{font:700 clamp(30px,3.5vw,46px)/1.02 var(--display);letter-spacing:-.02em;margin-top:14px}
+.ov-copy h2 .grad-text{filter:drop-shadow(0 0 24px rgba(24,216,189,.25))}
+.ov-copy p{margin:15px 0 0;color:var(--muted);font-size:clamp(14.5px,1.5vw,17px);line-height:1.56;max-width:44ch}
+.ov-copy .actions{margin-top:22px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{display:inline-flex;align-items:center;gap:7px;font:600 11.5px var(--mono);color:var(--muted);
+  background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 13px}
+.chip::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--mint);box-shadow:0 0 6px var(--mint)}
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:620px){.cards3{grid-template-columns:1fr}}
+.pillar{text-align:left;border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:18px;
+  cursor:pointer;display:flex;flex-direction:column;gap:7px;transition:border-color .16s,transform .16s,box-shadow .16s;font-family:inherit}
+.pillar:hover{border-color:var(--mint-line);transform:translateY(-2px);box-shadow:var(--glow)}
+.pillar .pi{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--mint);background:var(--mint-soft);border:1px solid var(--mint-line);margin-bottom:3px}
+.pillar .pi svg{width:16px;height:16px}
+.pillar h4{font:750 15.5px var(--sans);color:var(--fg);letter-spacing:-.01em}
+.pillar p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.5}
+.pillar .go{margin-top:2px;font:600 11px var(--mono);letter-spacing:.06em;color:var(--mint)}
+.statusbar{border:1px solid var(--line-soft);border-radius:12px;background:var(--panel-2);padding:14px 16px;display:flex;gap:11px;align-items:flex-start}
+.statusbar .b{font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mint);border:1px solid var(--mint-line);border-radius:6px;padding:3px 7px;flex:0 0 auto;margin-top:1px}
+.statusbar p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.55}
+.statusbar p b{color:var(--fg);font-weight:600}
+
+/* opt-in vs mandatory */
+.optin{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+@media(max-width:620px){.optin{grid-template-columns:1fr}}
+.oi{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:18px}
+.oi.on{border-color:var(--mint-line);background:radial-gradient(130% 120% at 90% 0%,color-mix(in srgb,var(--mint) 9%,transparent),transparent 60%),var(--panel)}
+.oi-h{font:700 11.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
+.oi.on .oi-h{color:var(--mint)}
+.oi-dots{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:11px}
+.oi-dots i{width:9px;height:9px;border-radius:3px;background:var(--line);display:block}
+.oi.on .oi-dots i{background:var(--mint)}
+.oi-dots i.mk{background:var(--amber)}
+.oi-c{font-size:12.5px;color:var(--muted);line-height:1.52}
+.oi-c b{color:var(--fg);font-weight:600}
+
+/* stat rows */
+.srow{display:flex;flex-direction:column;gap:13px}
+.sline{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding-bottom:12px;border-bottom:1px solid var(--line-soft)}
+.sline:last-child{border-bottom:0;padding-bottom:0}
+.sline .l{color:var(--muted);font-size:14.5px}
+.sline .r{font:700 16px var(--mono);text-align:right}
+.sline .r small{display:block;font-weight:500;font-size:11px;color:var(--faint);margin-top:2px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,3vw,40px);align-items:start}
+@media(max-width:820px){.cols{grid-template-columns:1fr;gap:28px}}
+.card{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:20px}
+.fig-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:12px}
+.fig-h .t{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.fig-h .v{font:700 14px var(--mono);color:var(--mint)}
+#pulse,#emission,#histo{width:100%;height:auto;display:block;overflow:visible}
+#emission text,#histo text{font-family:var(--mono);fill:var(--faint);font-size:11px}
+#emission .axislab{fill:var(--muted)}
+
+.bigproof{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:clamp(18px,3vw,42px);align-items:baseline;
+  border:1px solid var(--line);border-radius:16px;padding:clamp(20px,3vw,32px);background:
+    radial-gradient(130% 150% at 90% -10%,color-mix(in srgb,var(--mint) 10%,transparent),transparent 52%),var(--panel)}
+@media(max-width:620px){.bigproof{grid-template-columns:1fr;row-gap:20px}}
+.bp-hero .n{font:700 clamp(56px,10vw,112px)/.82 var(--display);letter-spacing:-.03em}
+.bp-hero .c{margin-top:12px;color:var(--muted);font-size:14px;max-width:30ch}
+.bp-hero .c b{color:var(--fg)}
+.bp-stat .n{font:700 clamp(28px,5vw,48px)/.9 var(--mono);letter-spacing:-.02em}
+.bp-stat .c{margin-top:8px;color:var(--faint);font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+
+.pts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:14px;overflow:hidden}
+@media(max-width:620px){.pts{grid-template-columns:1fr}}
+.pt{background:var(--bg);padding:20px 22px;display:flex;flex-direction:column;gap:9px}
+.pt .ix{font:700 11px var(--mono);color:var(--mint);letter-spacing:.12em}
+.pt h3{font:750 18px var(--sans);letter-spacing:-.01em}
+.pt p{margin:0;color:var(--muted);font-size:14px;line-height:1.62}
+.pt p b{color:var(--fg);font-weight:600}
+.note{margin-top:20px;border-left:2px solid var(--mint-line);background:var(--mint-soft);border-radius:0 10px 10px 0;padding:14px 16px}
+.note h4{font:700 12.5px var(--mono);letter-spacing:.04em;color:var(--fg);margin:0 0 6px}
+.note p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.note p b{color:var(--fg);font-weight:600}
+
+.map-wrap{border:1px solid var(--line);border-radius:14px;padding:14px 12px;overflow:hidden;background:radial-gradient(70% 90% at 30% 40%,color-mix(in srgb,var(--mint) 7%,transparent),transparent 70%),var(--panel)}
+#nodemap{width:100%;height:auto;display:block}
+.leglist{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+.leglist .row{display:flex;align-items:center;gap:10px;font-size:13px}
+.leglist .co{color:var(--muted);width:116px;flex:0 0 auto}
+.leglist .bar{height:7px;border-radius:4px;background:var(--grad);min-width:4px}
+.leglist .ct{font:600 11.5px var(--mono);color:var(--faint);margin-left:auto}
+.hbar{display:flex;height:34px;border-radius:9px;overflow:hidden;border:1px solid var(--line);margin-top:4px}
+.hbar span{display:block;border-right:2px solid var(--bg)}.hbar span:last-child{border-right:0}
+.hleg{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px 15px;margin-top:14px}
+.hleg .it{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);min-width:0}
+.hleg .sw{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+.hleg .it b{color:var(--fg);font-weight:600;font-family:var(--mono);margin-left:auto;font-size:11.5px}
+.steps{display:flex;flex-direction:column;gap:11px;margin-top:4px}
+.step{display:flex;gap:13px;align-items:flex-start}
+.step .n{width:26px;height:26px;flex:0 0 auto;border-radius:8px;display:grid;place-items:center;background:var(--mint-soft);border:1px solid var(--mint-line);color:var(--mint);font:700 12px var(--mono)}
+.step .tx{font-size:13.5px;color:var(--muted);line-height:1.5}
+.step .tx b{color:var(--fg);font-weight:600}
+.vlink{display:inline-flex;align-items:center;gap:5px;font:600 11px var(--mono);color:var(--mint);margin-top:14px}
+.vlink:hover{text-decoration:underline}
+
+.works{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:4px}
+@media(max-width:620px){.works{grid-template-columns:1fr}}
+.works h4{font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin:0 0 11px}
+.works .shipped h4{color:var(--mint)}.works .soon h4{color:var(--faint)}
+.works ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.works li{display:flex;gap:9px;align-items:baseline;font-size:13.5px;color:var(--muted)}
+.works li .m{font-family:var(--mono);flex:0 0 auto}
+.works .shipped li .m{color:var(--mint)}.works .soon li .m{color:var(--faint)}
+.works .soon li{color:var(--faint)}
+@media(max-width:860px){
+  .chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .chip{justify-content:center;padding:12px 8px;border-radius:12px;font-size:12px;color:var(--fg);text-align:center}
+  .chip::before{content:"✓";width:auto;height:auto;border-radius:0;background:none;box-shadow:none;color:var(--mint);font-weight:700}
+}
+@media (pointer:coarse),(max-width:860px){.railtheme{width:42px;height:42px;font-size:16px}.langbtn{height:42px;padding:0 11px}.rt-tools{top:-6px}.bx-tab{min-height:40px;padding:9px 15px}}
+html:not(.js) .ov-race,html:not(.js) .rmini{display:none}
+.mfoot{display:none}
+@media(max-width:860px){
+  .mfoot{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin:34px 0 8px;padding:26px 0 calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line-soft)}
+  .mf-brand{font:700 24px/1 var(--display);letter-spacing:-.02em}
+  .mf-tag{font-size:13px;color:var(--muted)}
+  .mf-soc{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:14px}
+  .mf-soc a{display:flex;align-items:center;justify-content:center;min-height:46px;border:1px solid var(--line);border-radius:12px;background:var(--panel);
+    font:600 14px var(--sans);color:var(--fg);transition:border-color .2s,background .2s}
+  .mf-soc a:active{border-color:var(--mint-line);background:color-mix(in srgb,var(--mint) 8%,var(--panel))}
+}
+/* build: primitives + idea explorer */
+.prims{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:14px;overflow:hidden;margin-bottom:26px}
+.prim{background:var(--panel);padding:16px 18px;transition:background .25s}
+.prim:hover{background:color-mix(in srgb,var(--mint) 6%,var(--panel))}
+.prim .ix{font:600 11px var(--mono);color:var(--mint);letter-spacing:.08em}
+.prim h3{margin:7px 0 0;font:600 15px/1.25 var(--sans)}
+.prim p{margin:5px 0 0;font-size:13px;line-height:1.5;color:var(--muted)}
+.bx{margin-bottom:22px}
+.bx-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin-bottom:14px}
+.bx-h .scmp-h{margin:0;color:var(--mint)}
+.bx-tabs{display:flex;gap:6px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--panel);overflow-x:auto;scrollbar-width:none;max-width:100%}
+.bx-tabs::-webkit-scrollbar{display:none}
+.bx-tab{flex:0 0 auto;border:0;background:transparent;color:var(--muted);font:600 13px var(--sans);padding:7px 14px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s}
+.bx-tab:hover{color:var(--fg)}
+.bx-tab.on{background:var(--mint);color:var(--btn-ink)}
+.bx-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+.bx-cards{display:grid;gap:8px}
+.bx-card{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px 14px;color:var(--fg);font:inherit;cursor:pointer;
+  transition:border-color .22s,background .22s,transform .22s cubic-bezier(.22,1,.36,1)}
+.bx-card[hidden]{display:none}
+.bx-card b{display:flex;align-items:center;justify-content:space-between;gap:10px;font:600 14.5px/1.25 var(--sans)}
+.bx-card>span{display:block;margin-top:5px;font-size:12.5px;line-height:1.45;color:var(--muted)}
+.bx-card:hover{transform:translateX(3px);border-color:var(--mint-line)}
+.bx-card.on{border-color:var(--mint-line);background:color-mix(in srgb,var(--mint) 8%,var(--panel));box-shadow:inset 3px 0 0 var(--mint)}
+.bx-card.in{animation:bxin .45s cubic-bezier(.22,1,.36,1) both}
+@keyframes bxin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.itag{flex:0 0 auto;font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:2px 7px}
+.itag.live{color:var(--btn-ink);background:var(--mint);border-color:var(--mint)}
+.bx-detail{position:sticky;top:76px;border:1px solid var(--mint-line);border-radius:16px;padding:20px 22px;min-height:340px;
+  background:radial-gradient(120% 80% at 100% 0%,color-mix(in srgb,var(--mint) 11%,transparent),transparent 60%),var(--panel-2);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.bx-tag .itag{font-size:11px}
+.bx-detail.cx{padding:18px 20px 20px;background:radial-gradient(120% 80% at 100% 0%,color-mix(in srgb,var(--mint) 10%,transparent),transparent 60%),var(--panel-2)}
+.cx-h{display:flex;justify-content:space-between;align-items:center;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.cx-lw{display:inline-flex;align-items:center;gap:8px}.cx-l{color:var(--mint)}
+.cx-lw i{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 9px var(--mint);animation:ping 2.6s ease-out infinite}
+.cx-n{letter-spacing:.04em;text-transform:none}.cx-n b{color:var(--fg);font-size:14px;font-variant-numeric:tabular-nums}
+.cx-bar{height:3px;margin:11px 0 14px;border-radius:3px;background:color-mix(in srgb,var(--mint) 12%,transparent);overflow:hidden}
+.cx-bar i{display:block;height:100%;width:0;background:var(--grad);box-shadow:0 0 8px var(--mint);transition:width .65s cubic-bezier(.22,1,.36,1)}
+.cx .bx-tag .itag{font-size:11px}
+.cx h3{margin:10px 0 0}
+.cx-body{margin:12px 0 0;padding:12px 14px;min-height:118px;border:1px solid var(--line-soft);border-radius:10px;background:color-mix(in srgb,var(--bg) 55%,transparent);
+  font:500 13px/1.7 var(--mono);color:var(--mint);white-space:pre-wrap;word-break:break-word;direction:ltr;text-align:left}
+.cx h5{margin-top:14px}
+.cx .bx-pr{margin-top:12px}
+
+.bx-detail h3{margin:12px 0 0;font:700 clamp(20px,2vw,26px)/1.15 var(--display);letter-spacing:-.01em;color:var(--fg);min-height:1.2em}
+.bx-b{margin:10px 0 0;font-size:15px;line-height:1.55;color:var(--fg);opacity:.9}
+.bx-detail h5{margin:18px 0 0;font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mint)}
+.bx-w{margin:6px 0 0;font-size:14px;line-height:1.55;color:var(--muted)}
+.bx-pr{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.bx-pr span{font:600 11.5px var(--mono);color:var(--fg);border:1px solid var(--mint-line);background:color-mix(in srgb,var(--mint) 7%,transparent);border-radius:8px;padding:4px 9px}
+.bx-detail.sw .bx-b,.bx-detail.sw .bx-w,.bx-detail.sw .bx-pr{animation:bxin .5s cubic-bezier(.22,1,.36,1) both}
+.bx-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft);font-size:13px;color:var(--muted)}
+.bx-foot b{font:700 18px var(--mono);color:var(--mint);margin-right:4px}
+.bx-foot .vlink{margin-left:auto}
+@media(max-width:1100px){.bx-grid{grid-template-columns:1fr}.bx-detail{position:relative;top:0;order:-1;min-height:0}.prims{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.prims{grid-template-columns:1fr}.bx-foot .vlink{margin-left:0}.bx-detail{padding:18px}}
+.works.solo{grid-template-columns:1fr;border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:clamp(16px,2.2vw,22px)}
+.works.solo ul{display:grid;grid-template-columns:1fr 1fr;gap:10px 26px}
+@media(max-width:620px){.works.solo ul{grid-template-columns:1fr}}
+.em-foot{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;align-items:center}
+.em-foot .it{font:600 12px var(--mono);color:var(--muted)}.em-foot .it b{color:var(--mint)}
+.speedcmp{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:18px 20px;margin-top:16px}
+.scmp-h{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:15px}
+.scmp-row{display:grid;grid-template-columns:78px 1fr 58px;align-items:center;gap:12px;margin-bottom:11px}
+.scmp-row:last-child{margin-bottom:0}
+.scmp-row .nm{font-size:13px;color:var(--muted)}
+.scmp-row.zk .nm{color:var(--fg);font-weight:600}
+.scmp-bar{height:10px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line-soft);overflow:hidden}
+.scmp-bar span{display:block;height:100%;background:var(--line)}
+.scmp-row.zk .scmp-bar span{background:var(--grad)}
+.scmp-row .t{font:600 12px var(--mono);color:var(--faint);text-align:right}
+/* live race: blocks since you opened the page */
+.race{padding:18px 20px 16px}
+.race-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.race-h .scmp-h{margin:0}
+.race-t{display:inline-flex;align-items:center;gap:10px;font:700 24px var(--mono);color:var(--fg);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.race-t::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint);animation:ping 2.6s ease-out infinite}
+.rl{display:grid;grid-template-columns:70px minmax(0,1fr) 112px;align-items:center;gap:14px;padding:10px 0;border-top:1px solid var(--line-soft)}
+.rl .nm{font-size:13.5px;color:var(--muted)}
+.rl.zk .nm{color:var(--fg);font-weight:600}
+.rtrack{position:relative;height:30px;border-radius:8px;background:var(--panel-2);border:1px solid var(--line-soft);overflow:hidden}
+.rtiles{position:absolute;left:6px;right:6px;top:5px;bottom:8px;display:flex;justify-content:flex-end;align-items:center;gap:3px;overflow:hidden}
+.rtiles i{flex:0 0 auto;width:13px;height:13px;border-radius:3px;background:var(--line);border:1px solid var(--line)}
+.rl.zk .rtiles i{background:var(--grad);border-color:transparent;box-shadow:0 0 8px rgba(24,216,189,.4)}
+.rtiles i.pop{animation:rpop .55s cubic-bezier(.34,1.56,.64,1)}
+@keyframes rpop{0%{transform:scale(.1) translateY(6px);opacity:0;filter:brightness(2.4)}55%{transform:scale(1.3);opacity:1;filter:brightness(1.9)}100%{transform:none;opacity:1;filter:none}}
+.rtrack::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--mint) 30%,transparent) 60%,transparent)}
+.rtrack.flash::after{animation:rsweep .75s cubic-bezier(.22,1,.36,1)}
+@keyframes rsweep{0%{transform:translateX(-100%);opacity:1}100%{transform:translateX(100%);opacity:0}}
+.rprog{position:absolute;left:0;right:0;bottom:0;height:3px}
+.rprog i{display:block;height:100%;width:0;background:var(--rival);opacity:.85;box-shadow:0 0 6px color-mix(in srgb,var(--rival) 60%,transparent)}
+.rl.zk .rprog i{background:var(--mint);opacity:1;box-shadow:0 0 6px var(--mint)}
+.rl.zk .rtiles i::after{content:"";display:block;width:5px;height:3px;margin:5px auto 0;border-radius:1px;background:var(--panel);opacity:.55}
+.rl:not(.zk) .rprog i{animation:rwait 1.8s ease-in-out infinite}
+@keyframes rwait{0%,100%{opacity:.35}50%{opacity:.8}}
+.rnext{position:absolute;left:10px;top:50%;transform:translateY(-58%);font:600 11px var(--mono);color:var(--faint);letter-spacing:.04em;white-space:nowrap;z-index:1}
+.rc{font:600 11px var(--mono);color:var(--faint);text-align:right;letter-spacing:.04em;white-space:nowrap}
+.rc b{display:inline-block;font:700 21px var(--mono);color:var(--fg);margin-right:6px;font-variant-numeric:tabular-nums;transition:transform .18s ease}
+.rl.zk .rc b{color:var(--mint)}
+.rc b.bump{transform:scale(1.22);text-shadow:0 0 14px var(--mint)}
+.race-say{margin:14px 0 0;font:600 clamp(15px,1.5vw,18px)/1.4 var(--display);letter-spacing:-.005em;color:var(--fg);min-height:1.4em}
+.race-say b{font-family:var(--mono);font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.race-f{margin:4px 0 0;font-size:11.5px;color:var(--faint)}
+@media(max-width:620px){.rl{grid-template-columns:56px minmax(0,1fr) 86px;gap:10px}.rc b{font-size:17px}.race-t{font-size:20px}}
+.scmp-row.zk .t{color:var(--mint)}
+
+.tbl-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table.cmp{width:100%;min-width:640px;border-collapse:collapse;font-size:13.5px}
+table.cmp th,table.cmp td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--line-soft)}
+table.cmp thead th{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);background:var(--panel)}
+table.cmp thead th.zkh{color:var(--mint)}
+table.cmp tbody th{font-weight:600;color:var(--muted);font-size:12.5px}
+table.cmp td{color:var(--muted)}
+table.cmp .zk{background:var(--mint-soft)}table.cmp .zk td{color:var(--fg)}
+table.cmp .yes{color:var(--mint);font-weight:700}table.cmp .no{color:var(--faint)}
+table.cmp tr:last-child th,table.cmp tr:last-child td{border-bottom:0}
+
+.funnel{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+@media(max-width:820px){.funnel{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.funnel{grid-template-columns:1fr}}
+.fcard{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:21px;display:flex;flex-direction:column;gap:9px;transition:.18s}
+.fcard:hover{border-color:var(--mint-line);transform:translateY(-3px);box-shadow:var(--glow)}
+.fcard .ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--mint);background:var(--mint-soft);border:1px solid var(--mint-line);margin-bottom:3px}
+.fcard .ic svg{width:18px;height:18px}
+.fcard h3{font:750 16px var(--sans);display:flex;align-items:center;gap:7px}
+.fcard h3 .arr{color:var(--faint);transition:.18s}
+.fcard:hover h3 .arr{color:var(--mint);transform:translate(3px,-3px)}
+.fcard p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+.fcard .tag{margin-top:auto;padding-top:10px;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.fcard .tag.on{color:var(--mint)}
+
+.pitem{padding:15px 0;border-bottom:1px solid var(--line-soft)}.pitem:last-child{border-bottom:0}
+.pitem h4{font:750 15px var(--sans);margin:0 0 6px}.pitem h4 .ix{color:var(--faint);font:600 11px var(--mono);margin-right:8px}
+.pitem p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.pitem p b{color:var(--fg);font-weight:600}
+.codeline{font:500 11px var(--mono);background:var(--panel-2);border:1px solid var(--line-soft);border-radius:8px;padding:9px 11px;margin-top:8px;color:var(--fg);overflow-wrap:anywhere;word-break:break-all}
+.modal-bg{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(2,7,6,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.modal-bg.open{display:flex}
+.modal{position:relative;width:min(640px,100%);max-height:86vh;overflow-y:auto;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.modal-head{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line-soft);padding:22px 24px 15px;border-radius:16px 16px 0 0}
+.modal-head h3{font:850 21px var(--sans)}.modal-head p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
+.modal-body{padding:6px 24px 22px}
+.modal-close{position:absolute;top:15px;right:15px;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:16px;cursor:pointer;display:grid;place-items:center}
+.modal-close:hover{color:var(--fg);border-color:var(--mint-line)}
+
+@media(max-width:860px){
+  body{overflow:auto}html,body{height:auto;overflow-x:hidden;max-width:100vw}
+  .console{height:auto;grid-template-columns:minmax(0,1fr)}
+  .rail{border-right:0;border-bottom:1px solid var(--line);overflow:visible;background:var(--rail);padding:13px 16px;gap:12px}
+  .rail-top{display:block}.rail-top p,.rail-top .born{display:none}.rail-top h1{font-size:18px}
+  .nav{display:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav .lab{display:none}
+  .tab{flex:0 0 auto;width:auto;padding:6px 11px;font-size:12.5px;border:1px solid var(--line-soft);border-radius:999px}
+  .tab[aria-selected="true"]::before{display:none}
+  .tab[aria-selected="true"]{border-color:var(--mint-line)}
+  .tab .ix{display:none}
+  .feedcard,.rail-foot{display:none}
+  .panel{overflow:visible}
+  .livebar{height:46px}
+  .views{position:static;flex:none;overflow:visible}
+  .view{padding:28px 16px;scroll-margin-top:14px}
+  .ov-hero,.card,.map-wrap,.bigproof,.tbl-scroll,.speedcmp{max-width:100%}
+  .ov-hero #dag{opacity:.42}
+  .ov-scrim{background:color-mix(in srgb,var(--panel) 74%,transparent)}
+  .ov-copy{max-width:100%;padding:26px 18px 22px;align-self:start}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+
+/* rivals (Zcash, Monero) in red */
+:root{--rival:#e5484d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--rival:#ff5c63}}
+:root[data-theme="dark"]{--rival:#ff5c63}
+.rl:not(.zk) .rtrack{border-color:color-mix(in srgb,var(--rival) 35%,transparent);background:color-mix(in srgb,var(--rival) 7%,var(--panel-2))}
+.rl:not(.zk) .rnext{color:var(--rival)}
+.rl:not(.zk) .rtiles i{background:var(--rival);border-color:transparent}
+@media(max-width:620px){
+  .rtrack{height:40px;border-radius:10px}
+  .rtiles{top:7px;bottom:10px}
+  .rtiles i{width:17px;height:17px;border-radius:4px}
+  .rl.zk .rtiles i::after{margin-top:7px}
+  .rnext{font-size:13px;left:12px}
+  .rprog{height:4px}
+  .rl .nm{font-size:15px}
+}
+
+/* mobile: floating language button once the header has scrolled away */
+.langfab{display:none}
+@media(max-width:860px){
+  .langfab{display:flex;position:fixed;z-index:45;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 16px);
+    width:50px;height:50px;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);
+    background:color-mix(in srgb,var(--panel) 97%,transparent);
+    box-shadow:0 8px 24px rgba(0,0,0,.35),0 0 0 1px color-mix(in srgb,var(--mint) 18%,transparent);cursor:pointer;
+    opacity:0;transform:translateY(14px) scale(.9);pointer-events:none;transition:opacity .25s,transform .3s cubic-bezier(.22,1,.36,1)}
+  .langfab.show{opacity:1;transform:none;pointer-events:auto}
+  .langfab img{width:24px;height:18px;border-radius:3px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+  .rtl .langfab{right:auto;left:max(14px,env(safe-area-inset-left,0px))}
+}
+@media(prefers-reduced-motion:reduce){.langfab{transition:none}}
+
+
+/* mobile race: name + count on top, full-width bar below */
+@media(max-width:620px){
+  .speedcmp.ov-race .rl,.rl{grid-template-columns:1fr auto;grid-template-areas:"nm rc" "tr tr";row-gap:8px;column-gap:10px;padding:12px 0}
+  .rl .nm{grid-area:nm}.rl .rc{grid-area:rc}.rl .rtrack{grid-area:tr}
+}
+
+/* desktop rail: compact on short windows / long translated labels so Community always fits */
+@media(min-width:861px) and (max-height:820px){
+  .rail{padding:14px 14px 12px;gap:12px}
+  .rail-top p{margin-top:4px}.rail-top .born{margin-top:5px}
+  .rail-foot{gap:6px;padding-top:10px}
+  .rail-foot a{min-height:34px;font-size:13px;border-radius:9px}
+}
+@media(min-width:861px) and (max-height:700px){
+  .rail-top p,.rail-top .born{display:none}
+  .rail-foot a{min-height:32px;font-size:12px}
+}
+
+/* compare table -> one card per property on phones */
+@media(max-width:620px){
+  .tbl-scroll{overflow:visible;border:0;border-radius:0}
+  table.cmp,table.cmp tbody{display:block;min-width:0;width:100%}
+  table.cmp thead{display:none}
+  table.cmp tbody{display:grid;gap:10px}
+  table.cmp tbody tr,table.cmp .zk{display:grid;grid-template-columns:1fr;gap:2px;padding:14px 14px 10px;border:1px solid var(--line);border-radius:16px;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--mint) 5%,transparent),transparent 70%),var(--panel)}
+  table.cmp tbody th{order:-2;padding:0 2px 10px;border:0;font:600 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  table.cmp td{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:7px 2px;border:0;border-top:1px solid var(--line-soft);
+    font-size:13.5px;color:var(--muted);text-align:right;min-width:0}
+  table.cmp td::before{content:attr(data-h);flex:0 0 auto;text-align:left;font-size:13px;color:var(--faint)}
+  table.cmp td.yes{order:-1;margin-bottom:6px;padding:12px 12px;border:1px solid color-mix(in srgb,var(--mint) 40%,transparent);border-radius:11px;
+    background:var(--mint-soft);color:var(--mint);font-size:16px;font-weight:700;box-shadow:0 0 18px color-mix(in srgb,var(--mint) 12%,transparent)}
+  table.cmp td.yes::before{content:"✓  " attr(data-h);color:var(--fg);font-size:14px;font-weight:700}
+  table.cmp td.yes+td{border-top:0}
+  table.cmp td.no{color:var(--faint)}
+  .rtl table.cmp td{text-align:left}.rtl table.cmp td::before{text-align:right}
+}
+
+/* latest blog post card (newest unread only) */
+.bpop{position:fixed;z-index:44;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 20px);width:340px;max-width:calc(100vw - 40px);
+  display:flex;flex-direction:column;gap:8px;padding:15px 16px 14px;border:1px solid var(--line);border-radius:16px;color:var(--fg);text-decoration:none;
+  background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--mint) 12%,transparent),transparent 60%),color-mix(in srgb,var(--panel) 97%,transparent);box-shadow:0 18px 44px rgba(0,0,0,.42);
+  opacity:0;transform:translateY(18px);pointer-events:none;transition:opacity .35s ease,transform .45s cubic-bezier(.22,1,.36,1),border-color .2s}
+.bpop.show{opacity:1;transform:none;pointer-events:auto}
+.bpop:hover{border-color:color-mix(in srgb,var(--mint) 60%,var(--line))}
+.bpop-k{display:flex;align-items:center;gap:8px;padding-right:40px;font:600 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mint)}
+.bpop-k i{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 9px var(--mint);animation:ping 2.6s ease-out infinite}
+.bpop-k em{font-style:normal;color:var(--faint);letter-spacing:.06em}
+.bpop-t{font:700 16px/1.35 var(--sans);letter-spacing:0;word-spacing:.04em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-wrap:balance}
+.bpop-f{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px}
+.bpop-r{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px;border-radius:9px;background:var(--grad);color:#04140f;font:700 13px var(--sans)}
+.bpop-m{font:600 12px var(--mono);color:var(--muted);text-decoration:none;padding:6px 2px}
+.bpop-m:hover{color:var(--mint)}
+.bpop-x{position:absolute;top:8px;right:8px;width:38px;height:38px;border:1px solid color-mix(in srgb,var(--rival) 45%,transparent);border-radius:10px;background:color-mix(in srgb,var(--rival) 14%,transparent);color:var(--rival);font-size:24px;font-weight:600;line-height:1;cursor:pointer;transition:background .15s,color .15s}
+.bpop-x:hover{color:#fff;background:var(--rival)}
+@media(max-width:860px){
+  .bpop{left:max(12px,env(safe-area-inset-left,0px));right:76px;width:auto;max-width:none;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);padding:13px 14px 12px}
+  .bpop-t{font-size:15px}
+  .rtl .bpop{right:max(12px,env(safe-area-inset-right,0px));left:76px}
+}
+@media(prefers-reduced-motion:reduce){.bpop{transition:opacity .2s}.bpop-k i{animation:none}}
+
+.bpop-i{display:block;width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:10px;border:1px solid var(--line-soft);margin-bottom:2px}
+@media(max-width:860px){.bpop-i{display:none}}
+
+/* desktop rail auto-fit: fitRail() adds rf1..rf3 only as far as needed for the current language + window height */
+@media(min-width:861px){
+  .nav .tab{white-space:nowrap}
+  html.rf1 .rail{gap:10px;padding-top:14px;padding-bottom:12px}
+  html.rf1 .tab{padding:7px 10px}
+  html.rf1 .nav .lab{margin-bottom:3px}
+  html.rf2 .tab{white-space:nowrap;font-size:13px;padding:6px 9px}
+  html.rf2 .rail-top p,html.rf2 .rail-top .born{display:none}
+  html.rf3 .tab{padding:4px 9px}
+  html.rf3 .rail-foot{gap:5px;padding-top:8px}
+  html.rf3 .rail-foot a{min-height:30px;font-size:12.5px}
+}
+</style>
 </head>
 <body>
-  <svg class="mesh-bg" viewBox="0 0 1200 800" preserveAspectRatio="none" aria-hidden="true">
-    <g>
-      <path d="M64 148 248 92 408 184 586 116 764 218 942 132 1138 246"/>
-      <path d="M64 148 156 344 328 286 408 184 516 388 694 326 764 218 906 402 1138 246"/>
-      <path d="M156 344 92 622 286 694 516 388 604 628 906 402 1082 632"/>
-      <path d="M328 286 286 694M694 326 604 628M942 132 906 402"/>
-      <circle cx="64" cy="148" r="3"/><circle cx="248" cy="92" r="2.5"/><circle cx="408" cy="184" r="3"/>
-      <circle cx="586" cy="116" r="2.5"/><circle cx="764" cy="218" r="3"/><circle cx="942" cy="132" r="2.5"/>
-      <circle cx="1138" cy="246" r="3"/><circle cx="156" cy="344" r="2.5"/><circle cx="328" cy="286" r="3"/>
-      <circle cx="516" cy="388" r="3"/><circle cx="694" cy="326" r="2.5"/><circle cx="906" cy="402" r="3"/>
-      <circle cx="92" cy="622" r="2.5"/><circle cx="286" cy="694" r="3"/><circle cx="604" cy="628" r="2.5"/>
-      <circle cx="1082" cy="632" r="3"/>
-    </g>
-  </svg>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a class="brand" href="/"><img src="/logo-192.png" alt="ZKas"><span><span style="color:var(--mint)">Z</span>Kas</span></a>
-      <nav class="top-links" aria-label="Main navigation">
-        <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false"><span class="theme-icon" aria-hidden="true">☼</span><span class="theme-label">Day mode</span></button>
-      </nav>
+<div class="console">
+  <aside class="rail">
+    <div class="rail-top">
+      <div class="rt-tools">
+        <button class="iconbtn langbtn" id="langBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Language"><img id="langFlag" src="/flags/us.svg" alt="" width="20" height="15"><span id="langCode">EN</span></button>
+        <button class="iconbtn railtheme" id="themeBtn" type="button" aria-label="Toggle theme">☀</button>
+      </div>
+      <div class="langpop" id="langPop" hidden><button type="button" class="lp" data-l="en" lang="en"><img src="/flags/us.svg" alt="" width="20" height="15" loading="lazy"><span>English</span></button><button type="button" class="lp" data-l="es" lang="es"><img src="/flags/es.svg" alt="" width="20" height="15" loading="lazy"><span>Español</span></button><button type="button" class="lp" data-l="pt" lang="pt"><img src="/flags/br.svg" alt="" width="20" height="15" loading="lazy"><span>Português</span></button><button type="button" class="lp" data-l="fr" lang="fr"><img src="/flags/fr.svg" alt="" width="20" height="15" loading="lazy"><span>Français</span></button><button type="button" class="lp" data-l="de" lang="de"><img src="/flags/de.svg" alt="" width="20" height="15" loading="lazy"><span>Deutsch</span></button><button type="button" class="lp" data-l="it" lang="it"><img src="/flags/it.svg" alt="" width="20" height="15" loading="lazy"><span>Italiano</span></button><button type="button" class="lp" data-l="nl" lang="nl"><img src="/flags/nl.svg" alt="" width="20" height="15" loading="lazy"><span>Nederlands</span></button><button type="button" class="lp" data-l="pl" lang="pl"><img src="/flags/pl.svg" alt="" width="20" height="15" loading="lazy"><span>Polski</span></button><button type="button" class="lp" data-l="uk" lang="uk"><img src="/flags/ua.svg" alt="" width="20" height="15" loading="lazy"><span>Українська</span></button><button type="button" class="lp" data-l="ru" lang="ru"><img src="/flags/ru.svg" alt="" width="20" height="15" loading="lazy"><span>Русский</span></button><button type="button" class="lp" data-l="tr" lang="tr"><img src="/flags/tr.svg" alt="" width="20" height="15" loading="lazy"><span>Türkçe</span></button><button type="button" class="lp" data-l="ar" lang="ar"><img src="/flags/sa.svg" alt="" width="20" height="15" loading="lazy"><span>العربية</span></button><button type="button" class="lp" data-l="fa" lang="fa"><img src="/flags/ir.svg" alt="" width="20" height="15" loading="lazy"><span>فارسی</span></button><button type="button" class="lp" data-l="ur" lang="ur"><img src="/flags/pk.svg" alt="" width="20" height="15" loading="lazy"><span>اردو</span></button><button type="button" class="lp" data-l="hi" lang="hi"><img src="/flags/in.svg" alt="" width="20" height="15" loading="lazy"><span>हिन्दी</span></button><button type="button" class="lp" data-l="bn" lang="bn"><img src="/flags/bd.svg" alt="" width="20" height="15" loading="lazy"><span>বাংলা</span></button><button type="button" class="lp" data-l="id" lang="id"><img src="/flags/id.svg" alt="" width="20" height="15" loading="lazy"><span>Bahasa Indonesia</span></button><button type="button" class="lp" data-l="vi" lang="vi"><img src="/flags/vn.svg" alt="" width="20" height="15" loading="lazy"><span>Tiếng Việt</span></button><button type="button" class="lp" data-l="th" lang="th"><img src="/flags/th.svg" alt="" width="20" height="15" loading="lazy"><span>ไทย</span></button><button type="button" class="lp" data-l="zh" lang="zh"><img src="/flags/cn.svg" alt="" width="20" height="15" loading="lazy"><span>简体中文</span></button><button type="button" class="lp" data-l="zh-TW" lang="zh-TW"><img src="/flags/tw.svg" alt="" width="20" height="15" loading="lazy"><span>繁體中文</span></button><button type="button" class="lp" data-l="ja" lang="ja"><img src="/flags/jp.svg" alt="" width="20" height="15" loading="lazy"><span>日本語</span></button><button type="button" class="lp" data-l="ko" lang="ko"><img src="/flags/kr.svg" alt="" width="20" height="15" loading="lazy"><span>한국어</span></button><button type="button" class="lp" data-l="fil" lang="fil"><img src="/flags/ph.svg" alt="" width="20" height="15" loading="lazy"><span>Filipino</span></button></div>
+      <h1><span class="grad-text">Z</span>Kas</h1>
+      <p>Private money. One block per second.</p>
+      <div class="born">Mainnet · launched 26 Jul 2026</div>
     </div>
-  </header>
+    <nav class="nav" role="tablist" aria-label="Sections">
+      <span class="lab">Explore</span>
+            <button class="tab" role="tab" data-view="overview" aria-selected="true"><span class="ix">00</span>Overview</button>
+      <button class="tab" role="tab" data-view="compare" aria-selected="false"><span class="ix">01</span>Compare</button>
+      <button class="tab" role="tab" data-view="privacy" aria-selected="false"><span class="ix">02</span>Privacy</button>
+      <button class="tab" role="tab" data-view="supply" aria-selected="false"><span class="ix">03</span>Supply &amp; fair launch</button>
+      <button class="tab" role="tab" data-view="speed" aria-selected="false"><span class="ix">04</span>Speed &amp; finality</button>
+      <button class="tab" role="tab" data-view="mining" aria-selected="false"><span class="ix">05</span>Mining &amp; security</button>
+      <button class="tab" role="tab" data-view="build" aria-selected="false"><span class="ix">06</span>Build &amp; accept</button>
+      <button class="tab" role="tab" data-view="get" aria-selected="false"><span class="ix">07</span>Get ZKAS</button>
+    
+    </nav>
+    <div class="rail-foot">
+      <span class="rf-h">Community</span>
+      <a href="/blogs">Blogs</a>
+      <a href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">Discord</a>
+      <a href="https://x.com/ZKas_X" target="_blank" rel="noopener">X</a>
+      <a href="https://t.me/zkasofficial" target="_blank" rel="noopener">Telegram</a>
+    </div>
+  </aside>
 
-  <main class="layout">
-    <aside class="rail">
-      <div class="visible-scrollbar" aria-hidden="true"><i></i></div>
-      <h1>ZKas</h1>
-      <p class="rail-lede">Private by default. One-second speed.</p>
-      <div class="security"><strong>Shielded by default</strong><span>Secured by merged kHeavyHash hashrate.</span></div>
-
-      <div class="rail-section">
-        <h2>Use ZKAS</h2>
-        <div class="rail-links">
-          <a href="https://services.zkas.info/store/" target="_blank" rel="noopener">Wallet <span>↗</span></a>
-          <a href="https://services.zkas.info/earn/" target="_blank" rel="noopener">Mining Pools <span>↗</span></a>
-          <a href="https://explorer.zkas.info" target="_blank" rel="noopener">BlockDAG Explorer <span>↗</span></a>
+  <section class="panel">
+    <button class="rmini" type="button" aria-label="Back to the live block race">
+      <span class="rm-live"><i></i><b id="rmT">0:00</b></span>
+      <span class="rm-z"><b id="rmZ">0</b><em><span class="lng">ZKas blocks</span><span class="sht">ZKAS</span></em></span>
+      <span class="rm-strip" id="rmS"></span>
+      <span class="rm-o"><span class="lng">Zcash</span><span class="sht">ZEC</span><b id="rmC">0</b></span>
+      <span class="rm-o"><span class="lng">Monero</span><span class="sht">XMR</span><b id="rmM">0</b></span>
+      <span class="rm-x" id="rmX"></span>
+      <span class="rm-p"><i id="rmP"></i></span>
+    </button>
+    <div class="views">
+      <!-- OVERVIEW -->
+      <div class="view active" id="view-overview" role="tabpanel">
+        <div class="ov-hero">
+          <canvas id="dag" aria-hidden="true"></canvas>
+          <div class="ov-scrim"></div>
+          <div class="ov-copy">
+            <span class="eyebrow">Freedom money</span>
+            <h2>Spend freely.<br><span class="grad-text">Reveal nothing.</span></h2>
+            <p>Send money in about a second — the amount, the sender and the recipient hidden by default. No bank, no gatekeeper, no premine. Mined alongside Kaspa.</p>
+            <div class="actions">
+              <a class="btn btn-primary" href="https://services.zkas.info/store/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.3a1 1 0 1 1 1.4 1.42l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.42l2.3 2.3V4a1 1 0 0 1 1-1zM4 17a1 1 0 0 1 1 1v1h14v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/></svg>Get the wallet</a>
+              <a class="btn btn-ghost" href="/trade"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7h13l-2.3-2.3a1 1 0 0 1 1.4-1.4l4 4a1 1 0 0 1 0 1.4l-4 4a1 1 0 0 1-1.4-1.4L16 9H3a1 1 0 0 1 0-2zm18 10H8l2.3 2.3a1 1 0 0 1-1.4 1.4l-4-4a1 1 0 0 1 0-1.4l4-4a1 1 0 0 1 1.4 1.4L8 15h13a1 1 0 0 1 0 2z"/></svg>Buy ZKAS</a>
+              <a class="btn btn-ghost" href="/whitepaper.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h7l5 5v15H6V2zm6 1.4V7.5h4.1L12 3.4z"/></svg>Whitepaper</a>
+              <button class="btn btn-ghost" type="button" id="proofOpen"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3zm-1 13-3.6-3.6 1.4-1.4L11 12.2l4.1-4.1 1.4 1.4L11 15z"/></svg>No-premine proof</button>
+            </div>
+            <div class="redact" aria-hidden="true"><span class="rk">Amount</span><span class="rb">7F3A9C2B1</span><span class="rk">From</span><span class="rb">C41D08E5F</span><span class="rk">To</span><span class="rb">9B2E6A70D</span></div>
+            <blockquote class="snowq"><p>“You have to make the idea that cryptocurrency is private by design.”</p><cite>— Edward Snowden</cite></blockquote>
+          </div>
+          <div class="speedcmp race ov-race">
+            <div class="race-h"><span class="scmp-h">Since you opened this page</span><span class="race-t" id="raceT">0:00</span></div>
+            <div class="rl zk"><span class="nm">ZKas</span><div class="rtrack"><div class="rtiles" id="rtZ"></div><div class="rprog"><i id="rpZ"></i></div></div><span class="rc"><b id="rcZ">0</b>blocks</span></div>
+            <div class="rl"><span class="nm">Zcash</span><div class="rtrack"><span class="rnext" id="rnC"></span><div class="rtiles" id="rtC"></div><div class="rprog"><i id="rpC"></i></div></div><span class="rc"><b id="rcC">0</b>blocks</span></div>
+            <div class="rl"><span class="nm">Monero</span><div class="rtrack"><span class="rnext" id="rnM"></span><div class="rtiles" id="rtM"></div><div class="rprog"><i id="rpM"></i></div></div><span class="rc"><b id="rcM">0</b>blocks</span></div>
+            <p class="race-say" id="raceSay">&nbsp;</p>
+          </div>
         </div>
       </div>
-      <div class="rail-section">
-        <h2>Learn &amp; build</h2>
-        <div class="rail-links">
-          <a href="/whitepaper.html">Whitepaper <span>↗</span></a>
-          <a href="https://github.com/firecash/zkas-sdk" target="_blank" rel="noopener">SDK <span>↗</span></a>
-          <a href="https://github.com/firecash/zkas-payment-gateway" target="_blank" rel="noopener">Payment gateway <span>↗</span></a>
-        </div>
-      </div>
-      <div class="rail-section">
-        <h2>Links</h2>
-        <div class="rail-links">
-          <a href="https://services.zkas.info" target="_blank" rel="noopener">Services <span>↗</span></a>
-          <a href="https://github.com/firecash/zkas-rusty" target="_blank" rel="noopener">GitHub <span>↗</span></a>
-          <a href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">Discord <span>↗</span></a>
-          <a href="https://x.com/ZKas_X" target="_blank" rel="noopener">X <span>↗</span></a>
-          <a href="https://t.me/zkasofficial" target="_blank" rel="noopener">Telegram <span>↗</span></a>
-        </div>
-      </div>
-    </aside>
 
-    <section class="panel hero" aria-labelledby="headline">
-      <div class="visible-scrollbar" aria-hidden="true"><i></i></div>
-      <div class="hero-head">
-        <span class="live">Mainnet · launched 26 July 2026</span>
-        <h2 id="headline">Hardcore privacy<span class="hl-because">With <b>DAG</b> architecture</span></h2>
-      </div>
-      <div class="actions">
-        <a class="button secondary" href="/whitepaper.html">Read whitepaper</a>
-        <button class="button secondary proof-cta" type="button" id="proofOpen" aria-haspopup="dialog" aria-controls="proofModal">No Premine Proof</button>
-      </div>
-      <p class="hero-lede">ZKas combines Kaspa’s BlockDAG and kHeavyHash with Zcash’s shielded transaction technology.</p>
-      <div class="stats" aria-label="ZKas key specifications">
-        <div class="stat"><strong>1 s</strong><span>Block time</span></div>
-        <div class="stat"><strong>Mandatory</strong><span>Privacy</span></div>
-        <div class="stat"><strong>Kaspa</strong><span>Merged mining</span></div>
-      </div>
-
-      <div class="workspace">
-        <article class="card wide">
-          <div class="card-head"><h3>ZKas specs</h3></div>
-          <table>
-            <thead><tr><th>Property</th><th>ZKas</th><th>Meaning</th></tr></thead>
+      <!-- COMPARE -->
+      <div class="view" id="view-compare" role="tabpanel">
+        <div class="vhead"><span class="eyebrow">Why settle for less freedom</span>
+          <h2>All four at once — <span class="grad-text">nowhere else.</span></h2>
+          <p>Mandatory privacy, one-second settlement, merged proof-of-work security, and no trusted setup. Other coins pick one or two. ZKas is the only chain that ships all four.</p></div>
+        <div class="tbl-scroll">
+          <table class="cmp">
+            <thead><tr><th>Property</th><th class="zkh">ZKas</th><th>Monero</th><th>Zcash</th><th>Public PoW</th></tr></thead>
             <tbody>
-              <tr><td>Privacy</td><td class="good">Mandatory</td><td>Every payment is shielded.</td></tr>
-              <tr><td>Speed</td><td>1-second target</td><td>Fast BlockDAG settlement.</td></tr>
-              <tr><td>Security</td><td>Kaspa merged mining</td><td>kHeavyHash work secures both networks.</td></tr>
-              <tr><td>Proof system</td><td>Orchard + Halo 2</td><td>Validity without revealing value.</td></tr>
+              <tr class="zk"><th>Privacy</th><td class="yes">Mandatory</td><td>Mandatory</td><td>Optional</td><td class="no">Transparent</td></tr>
+              <tr class="zk"><th>Settlement target</th><td class="yes">~1 second</td><td>~2 minutes</td><td>~75 seconds</td><td>varies</td></tr>
+              <tr class="zk"><th>Consensus</th><td class="yes">GHOSTDAG BlockDAG</td><td>Single chain</td><td>Single chain</td><td>Single chain</td></tr>
+              <tr class="zk"><th>Proof system</th><td class="yes">Orchard · Halo 2</td><td>RingCT</td><td>Groth16 / Halo 2</td><td class="no">—</td></tr>
+              <tr class="zk"><th>Trusted setup</th><td class="yes">None</td><td>None</td><td>Legacy pools had one</td><td>—</td></tr>
+              <tr class="zk"><th>Security source</th><td class="yes">Merge-mined w/ Kaspa</td><td>RandomX</td><td>Equihash</td><td>Standalone</td></tr>
+              <tr class="zk"><th>Public app-data</th><td class="yes">512-byte, authenticated</td><td class="no">None</td><td>Encrypted memo</td><td>varies</td></tr>
             </tbody>
           </table>
-        </article>
+        </div>
+        <div class="note"><h4>No compromise — all four, in one chain</h4><p>Monero can’t touch one-second settlement or carry authenticated app-data. Zcash leaves privacy optional. Public chains have none at all. <b>ZKas is the only one that refuses to trade any of it away.</b></p></div>
+      </div>
 
-        <article class="card wide">
-          <div class="card-head"><h3>Comparison</h3></div>
-          <div class="tblwrap">
-            <table class="comparison-table">
-              <thead><tr><th>Network</th><th>Privacy</th><th>Speed</th><th>Consensus / mining</th></tr></thead>
-              <tbody>
-                <tr><td class="good">ZKas</td><td>Mandatory</td><td>1-second target</td><td>GHOSTDAG · kHeavyHash · Kaspa merged mining</td></tr>
-                <tr><td>Kaspa</td><td>Transparent</td><td>Fast BlockDAG</td><td>GHOSTDAG · kHeavyHash</td></tr>
-              <tr><td>Zcash</td><td>Optional</td><td>~75-second target</td><td>Proof of work · Equihash</td></tr>
-                <tr><td>Monero</td><td>Mandatory</td><td>~2-minute target</td><td>Proof of work · RandomX</td></tr>
-              </tbody>
-            </table>
+      <!-- PRIVACY -->
+      <div class="view" id="view-privacy" role="tabpanel">
+        <div class="vhead"><span class="eyebrow" data-decode>Freedom from surveillance</span>
+          <h2>Privacy only works when <span class="grad-text">nobody can opt out.</span></h2>
+          <p>An opt-in privacy pool starts empty and marks everyone who uses it. A mandatory one starts full and marks nobody — the anonymity set includes every participant from the genesis block.</p></div>
+        <p class="decline" data-decode>Reveal only what you choose — to only who you choose.</p>
+        <div class="optin">
+          <div class="oi"><div class="oi-h">Opt-in privacy</div><div class="oi-dots"><i class="mk"></i><i class="mk"></i><i class="mk"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="oi-c">A small set — and <b>the few who opt in are marked</b> as having something to hide.</div></div>
+          <div class="oi on"><div class="oi-h">Mandatory · ZKas</div><div class="oi-dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="oi-c">Everyone, from genesis. <b>Using it marks nobody</b> — the set is the whole chain.</div></div>
+        </div>
+        <div class="bigproof" style="margin:22px 0">
+          <div class="bp-hero"><div class="n grad-text tnum" data-v="shieldedBig" data-decode-num>100%</div><p class="c">of all ZKAS value is <b>shielded right now</b>. Amounts, sender and recipient hidden by construction.</p></div>
+          <div class="bp-stat"><div class="n tnum" data-v="deshielded" data-decode-num>0</div><div class="c">ever de-shielded</div></div>
+          <div class="bp-stat"><div class="n tnum" data-v="notes">—</div><div class="c">shielded notes</div></div>
+        </div>
+        <div class="pts">
+          <div class="pt"><span class="ix">01</span><h3>Every output is an Orchard note</h3><p>Each payment is an <b>Orchard shielded transaction</b> with a Halo 2 proof — <b>no trusted setup</b>, no transparent address to leak to.</p></div>
+          <div class="pt"><span class="ix">02</span><h3>Fungible by default</h3><p>No lineage, so <b>no taint</b>. No coin can be blacklisted, frozen or discounted. Absolute fungibility in base consensus.</p></div>
+          <div class="pt"><span class="ix">03</span><h3>Supply anyone can audit</h3><p>Amounts are hidden, the total isn’t. A <b>public turnstile integer</b>, checkable from any node, proves nothing was minted from thin air.</p></div>
+          <div class="pt"><span class="ix">04</span><h3>Selective disclosure</h3><p>Share a <b>viewing key</b> with exactly one counterparty — an auditor, an exchange — and reveal only what you choose.</p></div>
+        </div>
+      </div>
+
+      <!-- SUPPLY -->
+      <div class="view" id="view-supply" role="tabpanel">
+        <div class="vhead"><span class="eyebrow">Freedom from insiders</span>
+          <h2>No premine. <span class="grad-text">Mined from block one.</span></h2>
+          <p>No presale, no founder allocation, no airdrop. The block reward halves roughly every three months into a two-step perpetual tail — and the miner keeps the entire block subsidy, forever.</p></div>
+        <div class="cols">
+          <div class="card"><div class="fig-h"><span class="t">Block reward over time · ZKAS</span><span class="v" data-v="rewardNow">—</span></div>
+            <svg id="emission" viewBox="0 0 560 240" aria-label="ZKAS block reward decaying to a 0.6 perpetual tail"></svg></div>
+          <div class="srow">
+            <div class="sline"><span class="l">Launch reward</span><span class="r">60 ZKAS / block</span></div>
+            <div class="sline"><span class="l">Halving cadence</span><span class="r">~every 3 months</span></div>
+            <div class="sline"><span class="l">Perpetual tail</span><span class="r">6 → 0.6 ZKAS<small>from ~month 10, then month 24</small></span></div>
+            <div class="sline"><span class="l">Miner reward (ZKrise)</span><span class="r" style="color:var(--mint)">100%<small>full subsidy to the miner, forever</small></span></div>
+            <div class="sline"><span class="l">Security budget</span><span class="r">forever<small>perpetual tail — miners paid, no fee cliff</small></span></div>
+            <div class="sline"><span class="l">Circulating today</span><span class="r"><span data-v="circ">—</span></span></div>
           </div>
-        </article>
+        </div>
+        <div class="pts" style="margin-top:22px">
+          <div class="pt"><span class="ix">PROOF 01</span><h3>Genesis coinbase is unspendable</h3><p>Genesis pays its reward to a one-byte <b>OP_FALSE</b> script — no signature can ever satisfy it. The ledger starts at an effective balance of zero, not an allocation. Readable straight from the coinbase, no viewing key.</p></div>
+          <div class="pt"><span class="ix">PROOF 02</span><h3>Anchored to Bitcoin</h3><p>The genesis coinbase embeds the hash of <b>Bitcoin block 959,713</b> — unknowable before that block was mined. It proves genesis was cut after that moment, ruling out a privately pre-mined, backdated chain.</p><div class="codeline">zkas-mainnet btc#959713</div></div>
+        </div>
+        <div class="em-foot"><span class="it">No ICO · no IEO · no presale</span><a class="vlink" href="/whitepaper.html#s11" target="_blank" rel="noopener" style="margin-top:0">Full fair-launch proof ↗</a></div>
+      </div>
 
-        <article class="card wide">
-          <div class="card-head"><h3>Tokenomics</h3></div>
-          <p class="card-note">60 ZKAS is created per launch block: 57 to the miner and 3 to development. The reward halves every three months &mdash; the schedule is deliberately front-loaded, with most supply minted in the first year &mdash; then settles on a two-step perpetual tail: 6 ZKAS/block from about month 10, stepping down to 0.6 ZKAS/block from month 24, forever. No supply cap; the tail funds security.</p>
-          <div class="split">
-            <svg class="chart" viewBox="0 0 620 190" role="img" aria-label="ZKAS reward declines from 60 to a 0.6 tail">
-              <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#18d8bd" stop-opacity=".28"/><stop offset="1" stop-color="#18d8bd" stop-opacity=".01"/></linearGradient></defs>
-              <line class="gridline" x1="42" y1="24" x2="600" y2="24"/><line class="gridline" x1="42" y1="88" x2="600" y2="88"/><line class="gridline" x1="42" y1="152" x2="600" y2="152"/>
-              <text class="axis" x="35" y="28" text-anchor="end">60</text><text class="axis" x="35" y="92" text-anchor="end">30</text><text class="axis" x="35" y="156" text-anchor="end">0</text>
-              <path class="area" d="M42 24 L110 72 L178 108 L246 128 L314 140 L382 147 L450 151 L520 152 L600 152 L600 152 L42 152Z"/>
-              <path class="line" d="M42 24 L110 72 L178 108 L246 128 L314 140 L382 147 L450 151 L520 152 L600 152"/>
-              <circle class="point" cx="42" cy="24" r="4"/><circle class="point" cx="600" cy="152" r="4"/>
-              <text class="axis" x="42" y="178">Launch</text><text class="axis" x="246" y="178" text-anchor="middle">3–12 months</text><text class="axis" x="600" y="178" text-anchor="end">6 → 0.6 tail</text>
-            </svg>
-            <div class="legend">
-              <div class="legend-row"><span class="dot-label">Miner share</span><b>95% per block</b></div>
-              <div class="legend-row"><span class="dot-label dev">Development fund</span><b>5% per block</b></div>
-              <div class="legend-row"><span>Emission</span><b>3-month halving → 6 → 0.6 tail</b></div>
+      <!-- SPEED -->
+      <div class="view" id="view-speed" role="tabpanel">
+        <div class="vhead"><span class="eyebrow">Freedom from waiting</span>
+          <h2>A BlockDAG, <span class="grad-text">not a single chain.</span></h2>
+          <p>GHOSTDAG orders parallel blocks instead of discarding them, so shielded payments settle in about a second with no congestion market — and they stay settled.</p></div>
+        <div class="cols">
+          <div class="srow">
+            <div class="sline"><span class="l">Measured block time</span><span class="r"><span data-v="btime">—</span></span></div>
+            <div class="sline"><span class="l">Blocks ordered per second</span><span class="r"><span data-v="bps">—</span></span></div>
+            <div class="sline"><span class="l">Deepest reorg (24h)</span><span class="r"><span data-v="deepest">—</span><small>then it never moves again</small></span></div>
+            <div class="sline"><span class="l">Fee market</span><span class="r">none<small>feerate 1.0 — never priced out</small></span></div>
+            <div class="sline"><span class="l">Proving, on consumer hardware</span><span class="r">~0.8 core·s / note<small>no datacenter required</small></span></div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:16px"><div class="fig-h"><span class="t">Live chain pulse · 15 min</span><span class="v" data-v="bps3">—</span></div>
+              <svg id="pulse" viewBox="0 0 520 110" preserveAspectRatio="none" aria-label="Blocks per 15-second bin"></svg></div>
+            <div class="card"><div class="fig-h"><span class="t">Reorg depth · 24h</span><span class="v" data-v="reorgCount">—</span></div>
+              <svg id="histo" viewBox="0 0 520 120" aria-label="Reorg depth distribution"></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MINING -->
+      <div class="view" id="view-mining" role="tabpanel">
+        <div class="vhead"><span class="eyebrow">Freedom to participate</span>
+          <h2>Merge-mined <span class="grad-text">with Kaspa.</span></h2>
+          <p>ZKas shares Kaspa’s kHeavyHash proof-of-work byte-for-byte — same algorithm, same ASICs, same stratum. One grind secures both chains, so ZKas inherits real hashrate at zero marginal energy, and mining is the fairest way in.</p></div>
+        <div class="cols">
+          <div class="map-wrap"><svg id="nodemap" viewBox="0 0 600 220" aria-label="Reachable nodes by country"></svg></div>
+          <div>
+            <div class="fig-h"><span class="t">Reachable nodes by country</span><span class="v" data-v="nodesTotal">—</span></div>
+            <div class="leglist" id="nodeLegend"></div>
+            <div class="fig-h" style="margin-top:22px"><span class="t">Hashrate distribution · 1h</span><span class="v" data-v="minerN">—</span></div>
+            <div class="hbar" id="hbar"></div>
+            <div class="hleg" id="hleg"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:22px">
+          <div class="fig-h"><span class="t">Start mining</span><span class="v"><span data-v="rewardNow2">—</span> / block</span></div>
+          <div class="steps">
+            <div class="step"><span class="n">1</span><span class="tx">Use any <b>kHeavyHash</b> miner — the same ASICs and stratum software you already run on Kaspa work unchanged.</span></div>
+            <div class="step"><span class="n">2</span><span class="tx">Point it at a <b>ZKas pool</b>, or merge-mine beside Kaspa so one share of work earns on both chains.</span></div>
+            <div class="step"><span class="n">3</span><span class="tx">You keep <b>100% of the block reward</b> — the full subsidy goes to the miner, forever.</span></div>
+          </div>
+          <a class="vlink" href="https://services.zkas.info/earn/" target="_blank" rel="noopener">Mining pools ↗</a>&nbsp;&nbsp;<a class="vlink" href="https://docs.zkas.info/mining/" target="_blank" rel="noopener">Mining docs ↗</a>
+        </div>
+        <div class="note"><h4>One grind, two chains</h4><p>A single kHeavyHash solution can be valid on <b>both Kaspa and ZKas</b> at once. Miners point existing hardware at both — ZKas inherits Kaspa-grade security at no extra energy, and no new ASIC exists to centralise it.</p></div>
+      </div>
+
+      <!-- BUILD -->
+      <div class="view" id="view-build" role="tabpanel">
+        <div class="vhead"><span class="eyebrow">Freedom to build</span>
+          <h2>A private rail you can <span class="grad-text">build on today.</span></h2>
+          <p>Six privacy primitives ship on mainnet today. Compose them with the SDK — no virtual machine, no gas auction, no public mempool to front-run. <b>38 products are live or buildable right now.</b></p></div>
+        <div class="prims">
+          <div class="prim"><span class="ix">01</span><h3>Shielded notes</h3><p>Bearer value with no lineage — nothing to trace, taint or freeze.</p></div>
+          <div class="prim"><span class="ix">02</span><h3>Encrypted memos</h3><p>512 bytes of authenticated, encrypted data on every action.</p></div>
+          <div class="prim"><span class="ix">03</span><h3>Viewing keys</h3><p>Disclose to one auditor, scoped. The public still sees nothing.</p></div>
+          <div class="prim"><span class="ix">04</span><h3>Payment proofs</h3><p>Prove one payment to one party without exposing your wallet.</p></div>
+          <div class="prim"><span class="ix">05</span><h3>Unlinkable addresses</h3><p>A fresh address for every payer, all from one wallet.</p></div>
+          <div class="prim"><span class="ix">06</span><h3>Atomic bundles</h3><p>One transaction, up to 512 actions, all-or-nothing.</p></div>
+        </div>
+        <div class="bx">
+          <div class="bx-h"><span class="scmp-h">What you can build — live or on the SDK today</span>
+            <div class="bx-tabs" role="tablist" aria-label="Idea categories"><button class="bx-tab on" type="button" role="tab" data-t="pay" aria-selected="true">Payments</button><button class="bx-tab" type="button" role="tab" data-t="con" aria-selected="false">Consumer</button><button class="bx-tab" type="button" role="tab" data-t="biz" aria-selected="false">Business</button><button class="bx-tab" type="button" role="tab" data-t="inf" aria-selected="false">Privacy infra</button></div></div>
+          <div class="bx-grid">
+            <div class="bx-cards">
+              <button class="bx-card" type="button" data-t="pay" data-i="0"><b>Un-freezable money<span class="itag live">live</span></b><span>Every ZKAS is identical — no lineage, no taint, nothing anyone can blacklist or freeze.</span></button>
+              <button class="bx-card" type="button" data-t="pay" data-i="1"><b>Split payouts, all-or-nothing<span class="itag live">live</span></b><span>One payment fans out to many recipients atomically — royalty splits, DAO payouts, supplier chains.</span></button>
+              <button class="bx-card" type="button" data-t="pay" data-i="2"><b>Frozen-proof checkout<span class="itag">sdk · today</span></b><span>Sub-second, near-zero-fee, chargeback-free payments no acquirer can freeze — with auto-settle to USD.</span></button>
+              <button class="bx-card" type="button" data-t="con" data-i="3" hidden><b>Front-run-proof wallets<span class="itag live">live</span></b><span>No public mempool and hidden amounts — MEV can’t exist. A decoy wallet protects you under coercion.</span></button>
+              <button class="bx-card" type="button" data-t="con" data-i="4" hidden><b>Gift cards, tickets &amp; licences<span class="itag">sdk · today</span></b><span>Value and right-of-use in one private note — no issuer database of who holds what.</span></button>
+              <button class="bx-card" type="button" data-t="con" data-i="5" hidden><b>Canary addresses<span class="itag">sdk · today</span></b><span>Give every company its own address — a breach dump names the leaker instantly.</span></button>
+              <button class="bx-card" type="button" data-t="biz" data-i="6" hidden><b>Revealable notarisation<span class="itag live">live</span></b><span>Commit a hidden fact to proof-of-work and reveal it later — to whoever you choose.</span></button>
+              <button class="bx-card" type="button" data-t="biz" data-i="7" hidden><b>Private payroll &amp; donations<span class="itag">sdk · today</span></b><span>Staff can’t be ranked by wallet — and a donor can still prove the gift.</span></button>
+              <button class="bx-card" type="button" data-t="biz" data-i="8" hidden><b>Sealed-bid auctions<span class="itag">sdk · today</span></b><span>Bids stay secret until the close — tenders, procurement, drops.</span></button>
+              <button class="bx-card" type="button" data-t="inf" data-i="9" hidden><b>Trustless burn address<span class="itag live">live</span></b><span>An address anyone can recompute and no one can spend — destroy value provably.</span></button>
+              <button class="bx-card" type="button" data-t="inf" data-i="10" hidden><b>Tripwire notes<span class="itag">sdk · today</span></b><span>Move the money and a document is published — enforced by consensus itself.</span></button>
+              <button class="bx-card" type="button" data-t="inf" data-i="11" hidden><b>Whistleblower dead-drop<span class="itag">sdk · today</span></b><span>Pay a source with no counterparty graph to subpoena; memos carry files both ways.</span></button>
+            </div>
+            <div class="bx-detail cx" aria-live="polite">
+              <div class="cx-h"><div class="cx-lw"><i></i><span class="cx-l">Encrypted memo</span></div><span class="cx-n"><b id="cxN">0</b> / 512 B</span></div>
+              <div class="cx-bar"><i id="cxBar"></i></div>
+              <div class="cx-top"><span class="bx-tag" id="bxTag"></span></div>
+              <h3 id="bxT"></h3>
+              <pre class="cx-body" id="cxBody"></pre>
+              <h5>Why only on ZKas</h5>
+              <p class="bx-w" id="bxW"></p>
+              <div class="bx-pr" id="bxP"></div>
             </div>
           </div>
-        </article>
-
-        <article class="card wide">
-          <div class="card-head"><h3>How it works</h3></div>
-          <div class="steps">
-            <div class="step"><b>01</b><h4>Private by default</h4><p>Every payment is an Orchard shielded transaction with a Halo&nbsp;2 zero-knowledge proof — amounts, sender and recipient are hidden by construction. No transparent mode exists to opt out of.</p></div>
-            <div class="step"><b>02</b><h4>One-second blocks</h4><p>A GHOSTDAG BlockDAG orders parallel blocks on a ~1-second target, so shielded payments confirm in about a second — settlement speed with no single-chain bottleneck.</p></div>
-            <div class="step"><b>03</b><h4>Secured by Kaspa</h4><p>ZKAS shares Kaspa&rsquo;s kHeavyHash proof-of-work: merge mining points Kaspa&rsquo;s hashrate at ZKAS too, so the same hashes secure both chains at no extra energy.</p></div>
-          </div>
-          <div class="actions steps-cta">
-            <a class="button btn-wallet" href="https://services.zkas.info/store/" target="_blank" rel="noopener">
-              <svg class="b-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.3a1 1 0 1 1 1.4 1.42l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.42l2.3 2.3V4a1 1 0 0 1 1-1zM4 17a1 1 0 0 1 1 1v1h14v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/></svg>Get wallet</a>
-            <a class="button secondary" href="/whitepaper.html">
-              <svg class="b-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 12h8v1.5H8V12zm0 3h8v1.5H8V15z"/></svg>Read whitepaper</a>
-            <a class="button btn-github" href="https://github.com/firecash/zkas-rusty" target="_blank" rel="noopener">
-              <svg class="b-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>Run a node</a>
-          </div>
-          <div class="actions steps-social">
-            <a class="button social btn-discord" href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">
-              <svg class="b-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>Discord</a>
-            <a class="button social btn-x" href="https://x.com/ZKas_X" target="_blank" rel="noopener">
-              <svg class="b-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>X</a>
-            <a class="button social btn-tg" href="https://t.me/zkasofficial" target="_blank" rel="noopener">
-              <svg class="b-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>Telegram</a>
-          </div>
-        </article>
+          <div class="bx-foot"><span><b>7</b> live on mainnet</span><span><b>31</b> buildable on the SDK</span><span><b>79</b> ideas mapped</span></div>
+        </div>
+        <div class="actions"><a class="btn btn-ghost" href="https://docs.zkas.info/integrate/" target="_blank" rel="noopener">Integration docs</a><a class="btn btn-ghost" href="https://github.com/firecash/zkas-sdk" target="_blank" rel="noopener">SDK</a><a class="btn btn-ghost" href="https://github.com/firecash/zkas-payment-gateway" target="_blank" rel="noopener">Payment gateway</a><a class="btn btn-primary" href="/plan-draft-public/">Idea map ↗</a></div>
       </div>
-    </section>
-  </main>
 
-  <a id="blogPop" class="blogpop" href="/blogs" hidden>
-    <button class="blogpop-x" type="button" aria-label="Dismiss">&times;</button>
-    <span class="blogpop-k">Latest from the blog</span>
-    <span class="blogpop-t" id="blogPopTitle"></span>
-    <span class="blogpop-r">Read &rarr;</span>
-  </a>
-
-  <footer class="foot">
-    <span>© 2026 ZKas · open-source, permissionless proof of work</span>
-  </footer>
-  <script>
-    (function () {
-      var root = document.documentElement;
-      var button = document.getElementById('themeToggle');
-      if (button) {
-        function updateThemeButton() {
-          var light = root.dataset.theme === 'light';
-          button.setAttribute('aria-pressed', String(light));
-          button.querySelector('.theme-icon').textContent = light ? '☾' : '☼';
-          button.querySelector('.theme-label').textContent = light ? 'Night mode' : 'Day mode';
-        }
-        button.addEventListener('click', function () {
-          var next = root.dataset.theme === 'light' ? 'dark' : 'light';
-          root.dataset.theme = next;
-          try { localStorage.setItem('zkas-theme', next); } catch (_) {}
-          updateThemeButton();
-        });
-        updateThemeButton();
-      }
-    }());
-  </script>
-  <script>
-    (function () {
-      var desktop = window.matchMedia('(min-width: 861px)');
-      var pairs = Array.prototype.map.call(document.querySelectorAll('.rail, .panel'), function (scroller) {
-        return { scroller: scroller, track: scroller.querySelector('.visible-scrollbar') };
-      }).filter(function (pair) { return pair.track; });
-      function sync(pair) {
-        if (!desktop.matches) { pair.track.style.display = 'none'; return; }
-        var rect = pair.scroller.getBoundingClientRect();
-        var top = rect.top + 10;
-        var height = Math.max(40, rect.height - 20);
-        var range = pair.scroller.scrollHeight - pair.scroller.clientHeight;
-        var thumb = pair.track.querySelector('i');
-        var thumbHeight = range > 0 ? Math.max(18, height * pair.scroller.clientHeight / pair.scroller.scrollHeight) : height;
-        pair.track.style.display = 'block';
-        pair.track.style.left = (rect.right - 12) + 'px';
-        pair.track.style.top = top + 'px';
-        pair.track.style.right = 'auto';
-        pair.track.style.bottom = 'auto';
-        pair.track.style.height = height + 'px';
-        thumb.style.height = thumbHeight + 'px';
-        thumb.style.top = range > 0 ? ((pair.scroller.scrollTop / range) * (height - thumbHeight)) + 'px' : '0px';
-      }
-      function syncAll() { pairs.forEach(sync); }
-      pairs.forEach(function (pair) { pair.scroller.addEventListener('scroll', function () { sync(pair); }, { passive: true }); });
-      var rail = document.querySelector('.rail');
-      var panel = document.querySelector('.panel');
-      function chainDown(source, target, event) {
-        if (event.deltaY <= 0) return;
-        var sourceAtBottom = source.scrollTop + source.clientHeight >= source.scrollHeight - 1;
-        var targetRange = target.scrollHeight - target.clientHeight;
-        if (!sourceAtBottom || target.scrollTop >= targetRange) return;
-        target.scrollTop = Math.min(target.scrollTop + event.deltaY, targetRange);
-        event.preventDefault();
-      }
-      function chainUp(source, target, event) {
-        if (event.deltaY >= 0) return;
-        var sourceAtTop = source.scrollTop <= 0;
-        if (!sourceAtTop || target.scrollTop <= 0) return;
-        target.scrollTop = Math.max(target.scrollTop + event.deltaY, 0);
-        event.preventDefault();
-      }
-      if (rail && panel) {
-        panel.addEventListener('wheel', function (event) { chainDown(panel, rail, event); chainUp(panel, rail, event); }, { passive: false });
-        rail.addEventListener('wheel', function (event) { chainDown(rail, panel, event); chainUp(rail, panel, event); }, { passive: false });
-      }
-      window.addEventListener('resize', syncAll);
-      syncAll();
-    }());
-  
-    // Bound on DOMContentLoaded, NOT immediately: this inline script sits ABOVE the
-    // dialog markup in the document, so at parse time #proofModal does not exist yet
-    // and an eager getElementById would return null and silently bind nothing.
-    (function () {
-      function initProofDialog() {
-      var openBtn = document.getElementById('proofOpen');
-      var modal = document.getElementById('proofModal');
-      if (!openBtn || !modal) return;
-      var closeBtn = document.getElementById('proofClose');
-      var lastFocus = null;
-      function open() {
-        lastFocus = document.activeElement;
-        modal.hidden = false;
-        modal.classList.add('is-open');
-        document.body.style.overflow = 'hidden';
-        if (closeBtn) closeBtn.focus();
-      }
-      function close() {
-        modal.classList.remove('is-open');
-        modal.hidden = true;
-        document.body.style.overflow = '';
-        if (lastFocus && lastFocus.focus) lastFocus.focus();
-      }
-      openBtn.addEventListener('click', open);
-      if (closeBtn) closeBtn.addEventListener('click', close);
-      // Click the backdrop (but not the panel) to dismiss.
-      modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !modal.hidden) close();
-      });
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initProofDialog);
-      } else {
-        initProofDialog();
-      }
-    })();
-</script>
-
-<!-- No-premine proof dialog -->
-<div class="proof-backdrop" id="proofModal" role="dialog" aria-modal="true" aria-labelledby="proofTitle" hidden>
-  <div class="proof-modal">
-    <button class="proof-close" type="button" id="proofClose" aria-label="Close">&times;</button>
-    <div class="proof-head">
-      <span class="proof-eyebrow">Verifiable &mdash; not a claim</span>
-      <h3 id="proofTitle">No premine</h3>
-      <p>No presale, no founder allocation, no airdrop. Every ZKAS in existence was mined, starting at block one.</p>
+      <!-- GET -->
+      <div class="view" id="view-get" role="tabpanel">
+        <div class="vhead"><span class="eyebrow">Your move</span><h2>Claim your <span class="grad-text">freedom.</span></h2></div>
+        <div class="funnel">
+          <a class="fcard" href="https://services.zkas.info/store/" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6a2 2 0 0 1 2-2h11a1 1 0 1 1 0 2H6v10h13v-3a1 1 0 1 1 2 0v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6zm13 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg></span><h3>Get a wallet <span class="arr">↗</span></h3><p>Non-custodial. Your seed never leaves the device — the daemon only sees a viewing key.</p><span class="tag">Android · desktop · web</span></a>
+          <a class="fcard" href="/trade"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7h13l-2.3-2.3a1 1 0 0 1 1.4-1.4l4 4a1 1 0 0 1 0 1.4l-4 4a1 1 0 0 1-1.4-1.4L16 9H3a1 1 0 0 1 0-2zm18 10H8l2.3 2.3a1 1 0 0 1-1.4 1.4l-4-4a1 1 0 0 1 0-1.4l4-4a1 1 0 0 1 1.4 1.4L8 15h13a1 1 0 0 1 0 2z"/></svg></span><h3>Buy ZKAS <span class="arr">↗</span></h3><p>Trade on NonKYC and Neoxa, or swap peer-to-peer at the ZKas OTC desk.</p><span class="tag">exchanges · OTC</span></a>
+          <a class="fcard" href="https://services.zkas.info/earn/" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a1 1 0 0 1 1 1v2.06a7 7 0 0 1 5.94 5.94H21a1 1 0 1 1 0 2h-2.06A7 7 0 0 1 13 18.94V21a1 1 0 1 1-2 0v-2.06A7 7 0 0 1 5.06 13H3a1 1 0 1 1 0-2h2.06A7 7 0 0 1 11 5.06V3a1 1 0 0 1 1-1zm0 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></span><h3>Mine it <span class="arr">↗</span></h3><p>The fairest way in. Point kHeavyHash hashrate at a pool and merge-mine beside Kaspa.</p><span class="tag on">primary on-ramp</span></a>
+          <a class="fcard" href="https://docs.zkas.info/node/" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm3 3.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM4 13h16a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1zm3 3.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg></span><h3>Run a node <span class="arr">↗</span></h3><p>Validate the chain and serve shielded history. Pruned nodes still hand out full wallet history.</p><span class="tag">open source</span></a>
+          <a class="fcard" href="https://docs.zkas.info/integrate/" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6 4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg></span><h3>Build &amp; accept <span class="arr">↗</span></h3><p>SDK, protocol reference and a merchant gateway with invoices, webhooks and WooCommerce.</p><span class="tag on">shipped</span></a>
+          <a class="fcard" href="https://explorer.zkas.info" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 3a8 8 0 1 0 4.9 14.32l3.4 3.39a1 1 0 0 0 1.4-1.42l-3.39-3.39A8 8 0 0 0 11 3zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg></span><h3>Explore the chain <span class="arr">↗</span></h3><p>Live BlockDAG, miners, reorgs and the shielded-state turnstile — all verifiable.</p><span class="tag">live explorer</span></a>
+        </div>
+        <footer class="mfoot">
+          <span class="mf-brand"><span class="grad-text">Z</span>Kas</span>
+          <span class="mf-tag">Private money. One block per second.</span>
+          <nav class="mf-soc" aria-label="ZKas community">
+            <a href="/blogs">Blogs</a>
+            <a href="https://discord.gg/jysMS4XNFT" target="_blank" rel="noopener">Discord</a>
+            <a href="https://x.com/ZKas_X" target="_blank" rel="noopener">X</a>
+            <a href="https://t.me/zkasofficial" target="_blank" rel="noopener">Telegram</a>
+          </nav>
+        </footer>
+      </div>
     </div>
-    <div class="proof-body">
-      <p class="proof-lede">On a chain where balances are hidden by construction, that would normally be impossible to check &mdash; a shielded premine is invisible. So ZKas doesn&rsquo;t ask to be believed. It is settled in the genesis block itself, in ways anyone can verify without trusting us.</p>
+  </section>
+</div>
 
-      <div class="proof-item"><div>
-        <h4><span class="proof-idx">01</span>The genesis coinbase is provably unspendable</h4>
-        <p>Genesis nominally issues 1&nbsp;ZKAS and pays it to a one-byte script consisting solely of <strong>OP_FALSE</strong>. No signature or witness can ever satisfy that script, so the genesis output can never be spent &mdash; by anyone, including its authors. The ledger starts at an effective balance of <strong>zero</strong>, not at an allocation.</p>
-        <p>This is transparent data, not shielded &mdash; readable straight from the genesis coinbase payload, with no viewing key.</p>
-      </div></div>
-
-      <div class="proof-item"><div>
-        <h4><span class="proof-idx">02</span>Genesis is anchored to Bitcoin</h4>
-        <p>The genesis coinbase carries this tag:</p>
-        <div class="mono-block"><span class="mono-cap">Genesis coinbase tag</span>zkas-mainnet btc#959713
-00000000000000000001ef962f5604c074751cc75671e798d8b71e592a965a1f</div>
-        <p>That is the height and block hash of <strong>Bitcoin block 959,713</strong>. A Bitcoin block hash cannot be known before that block is mined, so embedding it proves ZKas genesis was built <em>after</em> that moment &mdash; the same construction Bitcoin used with its newspaper headline. It rules out the usual way a &ldquo;fair launch&rdquo; is faked: a chain mined privately in advance, then republished with a backdated genesis.</p>
-      </div></div>
-
-      <div class="proof-item"><div>
-        <h4><span class="proof-idx">03</span>No easy-mining window</h4>
-        <p>ZKas launched with <strong>no low-difficulty start and no difficulty ramp</strong>. Genesis was cut at a real target &mdash; roughly 50&nbsp;TH/s at one block per second &mdash; and ordinary difficulty adjustment governed the chain from block one. There was no interval in which insiders could accumulate cheaply against a deliberately easy chain.</p>
-        <p>Shortly after launch the network was supported by <strong>K1Pool</strong>, which pointed hashrate at ZKas and helped the young chain reach a healthy, well-distributed difficulty quickly.</p>
-      </div></div>
-
-      <div class="proof-item"><div>
-        <h4><span class="proof-idx">04</span>The launch was announced publicly</h4>
-        <p>The launch &mdash; including the Bitcoin-anchored genesis height &mdash; was announced on Discord, so participants could verify the anchor themselves rather than take the launch time on trust. Mining opened to everyone at the same moment.</p>
-      </div></div>
-
-      <div class="proof-item"><div>
-        <h4><span class="proof-idx">&mdash;</span>What about the 5% development share?</h4>
-        <p>That is not a premine. It is minted block by block alongside the miner&rsquo;s 95%, enforced by consensus rather than by holding a pre-existing balance, and visible in the emission schedule from the outset. Changing the share or its recipient requires a coordinated binary upgrade &mdash; both are compile-time consensus constants.</p>
-        <p><strong>What is and isn&rsquo;t auditable.</strong> How much the fund has ever received is exactly computable by anyone &mdash; 5% of a public emission schedule. What it has since spent or sold is shielded, like every other wallet on this chain; that is a real trade-off of mandatory privacy, not an oversight. Orchard supports selective disclosure: publishing the fund&rsquo;s viewing key would make it permanently watch-only public without any protocol change.</p>
-      </div></div>
-
-      <div class="proof-item"><div>
-        <h4><span class="proof-idx">&mdash;</span>Status, plainly</h4>
-        <p>Mainnet has been live since late July 2026; earlier public test chains were wound down before this Bitcoin-anchored genesis was cut, and this genesis is final &mdash; no reset is planned. The novel core &mdash; Orchard shielded state kept consistent under GHOSTDAG&rsquo;s parallel, after-the-fact block ordering &mdash; is specified in the whitepaper and covered by the consensus test suite, but has <strong>not yet had an independent external audit</strong>. Every end-user wallet is non-custodial (the seed stays on your device; the daemon gets a viewing key only). Run what you can verify.</p>
-      </div></div>
-
-      <div class="proof-foot">
-        <a class="button secondary" href="https://discord.com/channels/1521797800952729612/1521798639679438949/1530921585135980575" target="_blank" rel="noopener">Launch announcement <span>&#8599;</span></a>
-        <a class="button secondary" href="/whitepaper.html#s11" target="_blank" rel="noopener">Whitepaper &sect;11.1 <span>&#8599;</span></a>
-        <a class="button secondary" href="https://github.com/firecash/zkas-rusty" target="_blank" rel="noopener">Verify in source <span>&#8599;</span></a>
-      </div>
+<div class="modal-bg" id="proofModal" role="dialog" aria-modal="true" aria-label="No premine — verifiable" hidden>
+  <div class="modal">
+    <button class="modal-close" id="proofClose" type="button" aria-label="Close">✕</button>
+    <div class="modal-head"><span class="eyebrow">Verifiable — not a claim</span><h3>No premine</h3><p>No presale, no founder allocation, no airdrop. Every ZKAS was mined, from block one.</p></div>
+    <div class="modal-body">
+      <div class="pitem"><h4><span class="ix">01</span>The genesis coinbase is unspendable</h4><p>Genesis pays its reward to a one-byte <b>OP_FALSE</b> script. No signature can ever satisfy it, so the genesis output can never be spent. The ledger starts at an effective balance of zero, not an allocation.</p></div>
+      <div class="pitem"><h4><span class="ix">02</span>Genesis is anchored to Bitcoin</h4><p>The genesis coinbase embeds the height and hash of <b>Bitcoin block 959,713</b> — unknowable before that block was mined. It proves genesis was cut <i>after</i> that moment, ruling out a privately pre-mined, backdated chain.</p><div class="codeline">zkas-mainnet btc#959713<br>00000000000000000001ef962f5604c074751cc75671e798d8b71e592a965a1f</div></div>
+      <div class="pitem"><h4><span class="ix">03</span>No easy-mining window</h4><p>Genesis was cut at a real target — roughly <b>50 TH/s</b> at one block per second — with ordinary difficulty from block one. No low-difficulty ramp for insiders.</p></div>
+      <div class="pitem"><h4><span class="ix">04</span>Miner keeps 100%</h4><p>Issuance is proof-of-work only — every coin is mined. The <b>whole block subsidy goes to the miner</b>, forever.</p></div>
+      <div class="pitem"><h4><span class="ix">—</span>Live and final</h4><p>Mainnet live since July 2026 — the genesis is final. Orchard shielded state under GHOSTDAG ordering, backed by the full consensus test suite. <b>Every wallet is non-custodial.</b></p></div>
+      <div class="actions"><a class="btn btn-ghost" href="/whitepaper.html#s11" target="_blank" rel="noopener">Whitepaper §11.1</a><a class="btn btn-ghost" href="https://github.com/firecash/zkas-rusty" target="_blank" rel="noopener">Verify in source</a></div>
     </div>
   </div>
 </div>
 
-  <script>
-    (function () {
-      var KEY = 'zkas-blog-seen';
-      fetch('/blog/api/latest', { cache: 'no-store' })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (d) {
-          if (!d || !d.post) return;
-          var p = d.post, seen = '';
-          try { seen = localStorage.getItem(KEY) || ''; } catch (e) {}
-          if (seen === p.slug) return;
-          var el = document.getElementById('blogPop');
-          if (!el) return;
-          document.getElementById('blogPopTitle').textContent = p.title;
-          el.setAttribute('href', '/blog/' + p.slug);
-          el.hidden = false;
-          setTimeout(function () { el.classList.add('show'); }, 1200);
-          el.querySelector('.blogpop-x').addEventListener('click', function (ev) {
-            ev.preventDefault(); ev.stopPropagation();
-            try { localStorage.setItem(KEY, p.slug); } catch (e) {}
-            el.classList.remove('show');
-            setTimeout(function () { el.hidden = true; }, 300);
-          });
-        })
-        .catch(function () {});
-    }());
-  </script>
+<script>
+(function(){
+  "use strict";
+  var API='https://explorer.zkas.info/api';
+  var RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  /* ===== i18n: English inline; 23 more languages load on demand from /i18n/<code>.json ===== */
+  var I18N={lang:'en',d:null},TITLE_EN=document.title;
+  function tr(s){return (I18N.d&&I18N.d[s])||s}
+  function tf(s,o){return tr(s).replace(/\{(\w+)\}/g,function(m,k){return o[k]!=null?o[k]:m})}
+  function cmpLabels(){var hs=$$('table.cmp thead th');$$('table.cmp tbody tr').forEach(function(tr){$$('td',tr).forEach(function(td,i){if(hs[i+1])td.setAttribute('data-h',hs[i+1].textContent.trim())})})}
+  var LV={};function relabel(){cmpLabels();if(typeof fitRail==='function')fitRail();if(window.__bpopLab)window.__bpopLab();if(LV.rw!=null)setV('rewardNow',tf('{v} now',{v:LV.rw.toFixed(2)}));if(LV.dp!=null){setV('reorgCount',tf('max depth {d}',{d:LV.dp}));setV('deepest',tf('depth {d}',{d:LV.dp}));setV('deepest2',tf('depth {d}',{d:LV.dp}))}if(LV.ms)drawMiners(LV.ms)}
+  cmpLabels();
+  function setV(n,v){$$('[data-v="'+n+'"]').forEach(function(e){e.textContent=v})}
+  function fJSON(p){return fetch(API+p,{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()})}
+  function fmtInt(n){return Math.round(n).toLocaleString('en-US')}
+  function fmtHash(h){if(!isFinite(h)||h<=0)return '—';var u=[['EH/s',1e18],['PH/s',1e15],['TH/s',1e12],['GH/s',1e9]];for(var i=0;i<u.length;i++){if(h>=u[i][1]){var x=h/u[i][1];return (x>=100?Math.round(x):x.toFixed(x>=10?1:2))+' '+u[i][0]}}return Math.round(h)+' H/s'}
+  function gC(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||'#18d8bd'}
+  function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+
+  var dagCtl=null, curView='overview';
+
+  (function(){var root=document.documentElement,b=$('#themeBtn');
+    function cur(){return root.getAttribute('data-theme')||'dark'}
+    function paint(){b.textContent=cur()==='dark'?'☀':'☾'}
+    paint();b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('zkas-theme',n)}catch(e){}paint();drawEmission();drawPulseLast();drawNodesLast();drawHistoLast();if(dagCtl)dagCtl.refresh()});
+  })();
+
+  var tabs=$$('.tab'),sections=$$('.view'),byName={},heroVisible=true;
+  sections.forEach(function(v){byName[v.id.replace('view-','')]=v});
+  function dagSync(){if(!dagCtl)return;if(heroVisible&&!document.hidden)dagCtl.start();else dagCtl.stop()}
+  function goTo(name){var v=byName[name];if(!v)return;v.scrollIntoView({behavior:RM?'auto':'smooth',block:'start'});try{history.replaceState(null,'','#'+name)}catch(e){}}
+  tabs.forEach(function(t){t.addEventListener('click',function(){goTo(t.dataset.view)})});
+  var actObs=new IntersectionObserver(function(es){var best=null;es.forEach(function(e){if(e.isIntersecting&&(!best||e.intersectionRatio>best.intersectionRatio))best=e});
+    if(best){var n=best.target.id.replace('view-','');tabs.forEach(function(t){t.setAttribute('aria-selected',String(t.dataset.view===n))})}},
+    {rootMargin:'-14% 0px -74% 0px',threshold:[0,.25,.6]});
+  sections.forEach(function(v){actObs.observe(v)});
+  var heroObs=new IntersectionObserver(function(es){heroVisible=es[0].isIntersecting;dagSync()},{threshold:.05});
+  var ovh=$('#view-overview');if(ovh)heroObs.observe(ovh);
+  document.addEventListener('visibilitychange',dagSync);
+  if(location.hash){var hn=location.hash.replace('#','');if(byName[hn])setTimeout(function(){goTo(hn)},140)}
+
+  (function(){var m=$('#proofModal'),o=$('#proofOpen'),c=$('#proofClose'),last=null;
+    function op(){last=document.activeElement;m.hidden=false;m.classList.add('open');c.focus()}
+    function cl(){m.classList.remove('open');m.hidden=true;if(last)last.focus()}
+    o.addEventListener('click',op);c.addEventListener('click',cl);
+    m.addEventListener('click',function(e){if(e.target===m)cl()});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!m.hidden)cl()});
+  })();
+
+  function countUp(el,to){if(RM||!el){if(el)el.textContent=fmtInt(to);return}var t0=performance.now();
+    function s(t){var k=Math.min(1,(t-t0)/900),e=1-Math.pow(1-k,3);el.textContent=fmtInt(to*e);if(k<1)requestAnimationFrame(s)}requestAnimationFrame(s)}
+
+  var lastBins=[],lastNodes=[],lastHisto=null;
+  function load(){
+    fJSON('/info/shielded').then(function(d){setV('height',fmtInt(Number(d.blueScore)));
+      var nc=Number(d.noteCount);$$('[data-v="notes"]').forEach(function(el){countUp(el,nc)});setV('notes2',(nc/1e6).toFixed(1)+'M');
+      var out=Number(d.turnstileOut)||0;setV('deshielded',fmtInt(out));
+      var pct=out===0?'100%':(100-100*out/Number(d.turnstileIn)).toFixed(4)+'%';setV('shielded',pct);setV('shieldedBig',pct);
+      if(d.emissionPerBlock){LV.rw=d.emissionPerBlock;setV('rewardNow',tf('{v} now',{v:LV.rw.toFixed(2)}));setV('rewardNow2',d.emissionPerBlock.toFixed(2)+' ZKAS');markNow(d.emissionPerBlock)}}).catch(function(){});
+    fJSON('/info/pulse').then(function(d){var bt=d.averageBlockTime15m;setV('btime',bt?bt.toFixed(2)+' s':'—');
+      if(d.bps15m)window.__zkBps=d.bps15m;var bps=d.bps15m?d.bps15m.toFixed(2):'—';setV('bps',bps);setV('bps3',bps+' b/s');lastBins=d.blockBins||[];drawPulseLast()}).catch(function(){});
+    fJSON('/info/blockdag').then(function(d){setV('hash',fmtHash(Number(d.difficulty)*2))}).catch(function(){});
+    fJSON('/info/nodes').then(function(d){lastNodes=d.countries||[];drawNodesLast()}).catch(function(){});
+    fJSON('/info/miners?window=1h').then(function(d){if(d.networkHashrate)setV('hash',fmtHash(d.networkHashrate));drawMiners(d.miners||[])}).catch(function(){});
+    fJSON('/info/reorgs?window=24h').then(function(d){lastHisto=d;LV.dp=d.deepest||'—';setV('reorgCount',tf('max depth {d}',{d:d.deepest||'—'}));setV('deepest',tf('depth {d}',{d:d.deepest||'—'}));setV('deepest2',tf('depth {d}',{d:d.deepest||'—'}));drawHistoLast()}).catch(function(){});
+    fetch(API+'/circulating',{cache:'no-store'}).then(function(r){return r.json()}).then(function(v){setV('circ',fmtInt(v)+' ZKAS')}).catch(function(){});
+  }
+
+  function drawPulseLast(){var svg=$('#pulse'),bins=lastBins;if(!svg||!bins.length)return;var W=520,H=110,pad=5,max=Math.max.apply(null,bins)||1,n=bins.length,bw=(W-pad*2)/n,mint=gC('--mint'),s='';
+    for(var i=0;i<n;i++){var h=Math.max(2,(bins[i]/max)*(H-pad*2)),x=pad+i*bw,y=H-pad-h,op=(0.3+0.7*(i/n)).toFixed(2);s+='<rect x="'+(x+bw*.14).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(bw*.72).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2" fill="'+mint+'" opacity="'+op+'"/>'}svg.innerHTML=s}
+  function drawHistoLast(){var svg=$('#histo'),d=lastHisto;if(!svg||!d||!d.depthHistogram)return;var hist=d.depthHistogram.slice(1);if(!hist.length){svg.innerHTML='';return}
+    var W=520,H=120,L=8,R=8,T=14,B=24,pw=W-L-R,ph=H-T-B,max=Math.max.apply(null,hist)||1,n=hist.length,bw=pw/n,mint=gC('--mint'),faint=gC('--faint'),s='';
+    for(var i=0;i<n;i++){var h=Math.max(3,(hist[i]/max)*ph),x=L+i*bw,y=T+ph-h;
+      s+='<rect x="'+(x+bw*.22).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(bw*.56).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="3" fill="'+mint+'" opacity="'+(0.5+0.5*(i===0?1:0.55)).toFixed(2)+'"/>';
+      s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle">d'+(i+1)+'</text>';
+      s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-4).toFixed(1)+'" text-anchor="middle" fill="'+faint+'">'+hist[i]+'</text>'}svg.innerHTML=s}
+  /* dot-matrix world (Natural Earth 110m land, 2.4° cells, 76.8°N..55.2°S) */
+  var LAND=['0000003edd803fffe00000001c007fe00e0000','000001c05ae00fff800000006007fffb000000','0070003f1bfc0fff4000060061bffffffff800','83fffff22d8e07fe00003fe43efffffffffffc','77fffffffe0f87f05800ff8ffffffffffffffc','10fffffff90503c00001effffffffffffffff8','03fffffff01801800007cffffffffffffff1e0','00207ffff03f80000006c7fffffffffffc0600','00800ffffc1f80000043cffffffffffff00e00','000017ffffbfe0000121fffffffffffff00c00','000003ffffbfe0000077fffffffffffffe0800','000002fffffe1800003ffffffffffffffa0000','000001ffffff0800003fffdf7ffffffffa0000','000001ffffff0000003f7e1efffffffff20000','000001fffffc000001f09e4e7fffffff840000','000001fffff0000001e01bff7ffffff9040000','000000ffffe0000001c00bff7ffffffc8c0000','0000007fffe0000000fe003ffffffff8380000','0000003fff80000001ff983ffffffffc400000','0000000ffd80000001fffffefffffffc000000','00000017c040000003ffffbe7ffffff8000000','0000000bc040000007ffffbf89fffff8000000','00000001c0c000000fffffdff0ffffe0000000','00000001e61000000fffffcfe07e3e00000000','00000000fc0100000fffffefe07c3e04000000','000000000f0000000ffffff780300f04000000','00000000010000000ffffffc00300f86000000','00000000010e400007fffffb00100300000000','0000000000ffc00003ffffff00180803000000','00000000001fe00001f7fffe00080410000000','00000000001ffc000001fffe00001430000000','00000000003ffc000001fff800000cf0800000','00000000007fff000001fff000000474600000','00000000007fffe00001fff0000002043e2000','00000000007ffff00000ffe000000100075000','00000000003ffff00000ffe0000000280e8000','00000000001ffff000007ff000000000000200','00000000001fffe00000fff100000000720000','00000000000fffe00000fff300000001f30080','000000000007ffe00000ffc700000003ff0000','000000000003ffc00000ff860000000fff8100','000000000003ffc000007fc60000003fffc000','000000000003fe0000007f800000003fffe000','000000000007fe0000007f800000001fffe000','000000000007fc0000003f000000001fffe000','000000000007f80000001e000000001e1fe000','000000000007e000000000000000001007c000','00000000000fe0000000000000000000078000','00000000000f80000000000000000000000008','00000000000f00000000000000000000008030','00000000000f00000000000000000000000040','00000000000e00000000000000000000000000','00000000000e00000000000000000000000000','00000000000c20000000000000000000000000','00000000000e00000000000000000000000000'];
+  var MAPN=76.8,MAPSPAN=132,landPath=null;
+  function proj(lat,lon,W,H){return[(lon+180)/360*W,(MAPN-lat)/MAPSPAN*H]}
+  function buildLand(W,H){var cw=W/150,ch=H/55,r=Math.min(cw,ch)*.32,s='';for(var y=0;y<LAND.length;y++){var row=LAND[y];for(var i=0;i<row.length;i++){var v=parseInt(row[i],16);for(var b=0;b<4;b++){if(v&(8>>b)){var cx=((i*4+b)+.5)*cw,cy=(y+.5)*ch;s+='M'+(cx-r).toFixed(1)+' '+cy.toFixed(1)+'a'+r.toFixed(2)+' '+r.toFixed(2)+' 0 1 0 '+(2*r).toFixed(2)+' 0a'+r.toFixed(2)+' '+r.toFixed(2)+' 0 1 0 '+(-2*r).toFixed(2)+' 0'}}}}return s}
+  function drawNodesLast(){var svg=$('#nodemap'),cs=lastNodes;if(!svg)return;var W=600,H=220,mint=gC('--mint'),g='';
+    if(!landPath)landPath=buildLand(W,H);
+    g+='<defs><radialGradient id="ngl"><stop offset="0" stop-color="'+mint+'" stop-opacity=".55"/><stop offset="1" stop-color="'+mint+'" stop-opacity="0"/></radialGradient></defs>';
+    g+='<path d="'+landPath+'" fill="'+mint+'" opacity=".26"/>';
+    if(!cs.length){svg.innerHTML=g;return}
+    var total=cs.reduce(function(a,c){return a+c.count},0)||1,maxc=Math.max.apply(null,cs.map(function(c){return c.count}))||1;
+    var pts=cs.filter(function(c){return c.lat!=null}).map(function(c){var p=proj(c.lat,c.lon,W,H);return{c:c,x:p[0],y:p[1],r:2.4+4.6*Math.sqrt(c.count/maxc)}}).sort(function(a,b){return b.c.count-a.c.count});
+    var hub=pts[0];
+    pts.slice(1,10).forEach(function(q,i){if(!hub)return;var dx=q.x-hub.x,dy=q.y-hub.y,d=Math.sqrt(dx*dx+dy*dy),mx=(q.x+hub.x)/2,my=Math.min(q.y,hub.y)-d*.28;
+      g+='<path d="M'+hub.x.toFixed(1)+' '+hub.y.toFixed(1)+'Q'+mx.toFixed(1)+' '+my.toFixed(1)+' '+q.x.toFixed(1)+' '+q.y.toFixed(1)+'" fill="none" stroke="'+mint+'" stroke-width="1" opacity=".38" stroke-dasharray="2 5">'+(RM?'':'<animate attributeName="stroke-dashoffset" from="14" to="0" dur="'+(1.2+i*.15).toFixed(2)+'s" repeatCount="indefinite"/>')+'</path>'});
+    pts.forEach(function(q,i){var x=q.x.toFixed(1),y=q.y.toFixed(1);
+      g+='<circle cx="'+x+'" cy="'+y+'" r="'+(q.r*3.2).toFixed(1)+'" fill="url(#ngl)"/>';
+      if(!RM)g+='<circle cx="'+x+'" cy="'+y+'" r="'+q.r.toFixed(1)+'" fill="none" stroke="'+mint+'" stroke-width="1.2"><animate attributeName="r" from="'+q.r.toFixed(1)+'" to="'+(q.r*3.6).toFixed(1)+'" dur="2.8s" begin="'+(i*.37).toFixed(2)+'s" repeatCount="indefinite"/><animate attributeName="opacity" from=".7" to="0" dur="2.8s" begin="'+(i*.37).toFixed(2)+'s" repeatCount="indefinite"/></circle>';
+      g+='<circle cx="'+x+'" cy="'+y+'" r="'+q.r.toFixed(1)+'" fill="'+mint+'"><title>'+esc(q.c.name)+': '+tf(q.c.count>1?'{n} nodes':'{n} node',{n:q.c.count})+'</title></circle>'});
+    svg.innerHTML=g;setV('nodesTotal',total);setV('nodes',total);
+    var leg=$('#nodeLegend');if(leg)leg.innerHTML=cs.slice(0,7).map(function(c){return '<div class="row"><span class="co">'+esc(c.name)+'</span><span class="bar" style="width:'+(90*c.count/maxc).toFixed(0)+'px"></span><span class="ct">'+c.count+'</span></div>'}).join('')}
+  function drawMiners(ms){LV.ms=ms;var bar=$('#hbar'),leg=$('#hleg');if(!bar)return;var top=ms.slice(0,6),rest=ms.slice(6).reduce(function(a,m){return a+m.share},0),cols=['#18d8bd','#59f0ff','#8ad6b4','#5fb6c9','#b7f05a','#f1ba70'],h='',lh='';
+    top.forEach(function(m,i){var p=m.share*100;h+='<span style="width:'+p.toFixed(2)+'%;background:'+cols[i]+'" title="'+esc(m.name)+' '+p.toFixed(1)+'%"></span>';lh+='<div class="it"><span class="sw" style="background:'+cols[i]+'"></span>'+esc(m.name)+'<b>'+p.toFixed(1)+'%</b></div>'});
+    if(rest>0.0001){h+='<span style="width:'+(rest*100).toFixed(2)+'%;background:var(--line)"></span>';lh+='<div class="it"><span class="sw" style="background:var(--line)"></span>'+esc(tr('Others'))+'<b>'+(rest*100).toFixed(1)+'%</b></div>'}
+    bar.innerHTML=h;leg.innerHTML=lh;setV('minerN',tf('{n} miners',{n:ms.length}))}
+
+  var feedSeen={},feedInit=false;
+  function loadFeed(){fJSON('/blocks/recent').then(function(list){var el=$('#feed');if(el&&list){
+    var rows=list.slice(0,6),html='';
+    rows.forEach(function(b){var fresh=feedInit&&!feedSeen[b.block_hash];
+      html+='<div class="feed-row'+(fresh?' fresh':'')+'"><span class="bs">#'+(Number(b.blueScore).toLocaleString('en-US'))+'</span><span class="hx">'+b.block_hash.slice(0,10)+'…</span></div>'});
+    el.innerHTML=html;feedSeen={};rows.forEach(function(b){feedSeen[b.block_hash]=1});feedInit=true;}
+    window.__seedList=list;if(window.__dagIngest)window.__dagIngest(list)}).catch(function(){})}
+
+  var LAUNCH=new Date('2026-07-26T00:00:00Z').getTime(),nowM=null,nowR=null;
+  function rewardAt(m){if(m>=24)return 0.6;var r=60*Math.pow(2,-m/3);return r<6?6:r}
+  function markNow(r){nowR=r;nowM=(Date.now()-LAUNCH)/(1000*60*60*24*30.4375);drawEmission()}
+  function drawEmission(){var svg=$('#emission');if(!svg)return;var W=560,H=240,L=38,R=14,T=16,B=30,pw=W-L-R,ph=H-T-B,MAXM=30,MAXR=60,fg=gC('--mint'),grid=gC('--line-soft'),cyan=gC('--cyan'),panel=gC('--panel');
+    function X(m){return L+(Math.min(m,MAXM)/MAXM)*pw}function Y(r){return T+(1-r/MAXR)*ph}var s='';
+    [60,30,15,6,0.6].forEach(function(v){var y=Y(v);s+='<line x1="'+L+'" y1="'+y.toFixed(1)+'" x2="'+(W-R)+'" y2="'+y.toFixed(1)+'" stroke="'+grid+'" stroke-width="1"/>';s+='<text x="'+(L-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end" class="axislab">'+v+'</text>'});
+    var pts=[];for(var m=0;m<=MAXM;m+=0.25)pts.push([X(m),Y(rewardAt(m))]);var d='M'+pts.map(function(p){return p[0].toFixed(1)+' '+p[1].toFixed(1)}).join(' L');
+    s+='<defs><linearGradient id="emA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+fg+'" stop-opacity="0.28"/><stop offset="1" stop-color="'+fg+'" stop-opacity="0.01"/></linearGradient></defs>';
+    s+='<path d="'+d+' L'+X(MAXM).toFixed(1)+' '+Y(0).toFixed(1)+' L'+L+' '+Y(0).toFixed(1)+' Z" fill="url(#emA)"/>';
+    s+='<path d="'+d+'" fill="none" stroke="'+fg+'" stroke-width="2.5" stroke-linejoin="round"/>';
+    [[0,'Launch'],[3,'3 mo'],[12,'1 yr'],[24,'2 yr'],[30,'tail']].forEach(function(t){s+='<text x="'+X(t[0]).toFixed(1)+'" y="'+(H-10)+'" text-anchor="'+(t[0]===0?'start':t[0]>=30?'end':'middle')+'">'+tr(t[1])+'</text>'});
+    if(nowM!=null){var nx=X(nowM),ny=Y(nowR);s+='<line x1="'+nx.toFixed(1)+'" y1="'+T+'" x2="'+nx.toFixed(1)+'" y2="'+(H-B)+'" stroke="'+cyan+'" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>';s+='<circle cx="'+nx.toFixed(1)+'" cy="'+ny.toFixed(1)+'" r="4.5" fill="'+cyan+'" stroke="'+panel+'" stroke-width="2"/>';s+='<text x="'+nx.toFixed(1)+'" y="'+(T-4)+'" text-anchor="middle" fill="'+cyan+'">'+tf('now · {v}',{v:nowR.toFixed(1)})+'</text>'}
+    svg.innerHTML=s}
+
+  /* ---- performant living DAG: cached colors, 30fps cap, paused off Overview ---- */
+  (function(){
+    var cv=$('#dag');if(!cv)return;var ctx=cv.getContext('2d');
+    var dpr=Math.min(1.5,window.devicePixelRatio||1),W=0,H=0,blocks=[],seen={},speed=15,LANES=9;
+    var COL={mint:'#18d8bd',panel:'#0b1613'};
+    function refresh(){COL.mint=gC('--mint');COL.panel=gC('--panel')}
+    function resize(){var r=cv.parentElement.getBoundingClientRect();if(!r.width)return;W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+    function laneY(i){var t=H*.2,b=H*.8;return t+((b-t)/(LANES-1))*i}
+    function spawn(ln){var lane=ln!=null?ln:Math.floor(Math.random()*LANES),dep=.5+.5*Math.random(),c=blocks.length,par=[];
+      if(c){par.push(blocks[c-1])}if(c>2&&Math.random()<.75){par.push(blocks[c-2-Math.floor(Math.random()*2)]||blocks[c-2])}if(c>5&&Math.random()<.5){par.push(blocks[c-4-Math.floor(Math.random()*3)]||blocks[c-4])}
+      blocks.push({x:W+22,y:laneY(lane),r:4.5+4.5*dep,dep:dep,parents:par,pulse:1})}
+    function seed(list){if(blocks.length||!list)return;var n=Math.min(72,list.length);for(var i=n-1;i>=0;i--){spawn(i%LANES);var b=blocks[blocks.length-1];b.x=W-(n-1-i)*(W/n)*.96-12;b.pulse=0;seen[list[i].block_hash]=1}}
+    function ingest(list){if(!list)return;if(!blocks.length){seed(list);return}var a=0;for(var i=list.length-1;i>=0;i--){var h=list[i].block_hash;if(!seen[h]){seen[h]=1;if(a<2){spawn();a++}}}var k=Object.keys(seen);if(k.length>300)for(var j=0;j<120;j++)delete seen[k[j]]}
+    window.__dagIngest=ingest;
+    function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+    function fld(){return 0}
+    function draw(){if(!W)return;ctx.clearRect(0,0,W,H);var m=COL.mint;ctx.strokeStyle=m;ctx.lineWidth=1;
+      for(var e=0;e<blocks.length;e++){var n=blocks[e];if(!n.parents)continue;var a=n.x/(W*.85);a=a<0?0:a>1?1:a;var fe=fld(n.x,n.y);
+        for(var pi=0;pi<n.parents.length;pi++){var pr=n.parents[pi];if(!pr)continue;ctx.globalAlpha=Math.max(.3*a+.1,.6*fe);ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(pr.x,pr.y);ctx.stroke()}}
+      ctx.fillStyle=m;
+      for(var k=0;k<blocks.length;k++){var b=blocks[k],a2=b.x/(W*.9);a2=a2<0?0:a2>1?1:a2;var r=b.r,f=fld(b.x,b.y);
+        if(b.pulse>.03){ctx.globalAlpha=.18*b.pulse;ctx.beginPath();ctx.arc(b.x,b.y,r+11*b.pulse,0,6.283);ctx.fill();b.pulse-=.06}
+        if(f>0){ctx.globalAlpha=.6*f;ctx.beginPath();ctx.arc(b.x,b.y,r+5+5*f,0,6.283);ctx.stroke()}
+        ctx.globalAlpha=Math.max(.4+.5*a2,.5+.5*f);rr(ctx,b.x-r,b.y-r,r*2,r*2,2.2);ctx.fill();
+        ctx.globalAlpha=(.4+.5*a2)*.5;ctx.fillStyle=COL.panel;ctx.fillRect(b.x-r*.3,b.y-r*.1,r*.6,r*.5);ctx.fillStyle=m}
+      ctx.globalAlpha=1}
+    var raf=null,lastT=0,running=false,step=1000/30;
+    function frame(t){if(!running)return;if(!lastT)lastT=t;var dt=t-lastT;
+      if(dt>=step){var sec=Math.min(.05,dt/1000);lastT=t;for(var i=0;i<blocks.length;i++)blocks[i].x-=speed*sec;blocks=blocks.filter(function(b){return b.x>-32});draw()}
+      raf=requestAnimationFrame(frame)}
+    function start(){if(running||RM)return;refresh();resize();if(!blocks.length&&window.__seedList)seed(window.__seedList);running=true;lastT=0;raf=requestAnimationFrame(frame)}
+    function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null}
+    dagCtl={start:start,stop:stop,refresh:function(){refresh();if(!running){resize();draw()}}};
+    window.addEventListener('resize',function(){resize();if(!running)draw()});
+    refresh();resize();draw();
+  })();
+
+  
+
+  /* ===== privacy "decoding beam": a per-character cyan wavefront that locks each glyph with a glow (used ONLY on privacy text + privacy numbers, never every title) ===== */
+  var DEC_T='ABCDEFGHKLMNPQRSTUVWXYZ0123456789#%&$@/<>',DEC_N='0123456789';
+  function rg(s){return s[(Math.random()*s.length)|0]}
+  function buildChars(el,txt){el.textContent='';return txt.split('').map(function(c){var sp=document.createElement('span');sp.className='ch';sp.textContent=c;el.appendChild(sp);return sp})}
+
+  /* (A) scroll-triggered one-shot decode — privacy eyebrow/line + privacy proof numbers */
+  (function(){
+    if(RM)return;
+    function decode(el){if(el.__dz)return;el.__dz=1;
+      var num=el.hasAttribute('data-decode-num'),grad=el.classList.contains('grad-text');
+      var fin=(el.getAttribute('data-plain')||el.textContent).trim();el.setAttribute('data-plain',fin);
+      var G=num?DEC_N:DEC_T,cs=fin.split(''),scr=cs.map(function(c){return num?/[0-9]/.test(c):!/\s/.test(c)});
+      if(grad)el.classList.add('dz-run');
+      var spans=buildChars(el,fin);for(var i=0;i<cs.length;i++){spans[i].className=scr[i]?'ch dim':'ch';if(scr[i])spans[i].textContent=rg(G)}
+      var N=cs.length,edge=3,dur=num?480+N*95:560+N*42,start=performance.now();
+      (function fr(now){var p=Math.min(1,(now-start)/dur),e=(1-Math.pow(1-p,3))*(N+edge);
+        for(var i=0;i<N;i++){var sp=spans[i];if(!scr[i])continue;
+          if(i<e-edge){if(sp.className!=='ch'){sp.textContent=cs[i];sp.className='ch'}}
+          else if(i<e){sp.className='ch hot';sp.textContent=rg(G)}
+          else{sp.className='ch dim';sp.textContent=rg(G)}}
+        if(p<1)requestAnimationFrame(fr);else{if(grad)el.classList.remove('dz-run');el.textContent=fin}})(start);}
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){decode(e.target);io.unobserve(e.target)}})},{threshold:.6});
+    $$('[data-decode],[data-decode-num]').forEach(function(e){io.observe(e)});
+  })();
+
+
+  /* sealed fields: the redaction ▇ become live ciphertext that scrambles faster under the cursor but never resolves */
+  (function(){
+    var bars=$$('.redact .rb');if(!bars.length)return;var CH='0123456789ABCDEF';
+    function fill(b){var n=b.__n||(b.__n=7+((Math.random()*4)|0)),s='';for(var i=0;i<n;i++)s+=CH[(Math.random()*16)|0];b.textContent=s}
+    bars.forEach(fill);
+    var redact=$('.redact'),t=null;
+    if(redact&&!RM){
+      redact.addEventListener('pointerenter',function(){if(t)return;t=setInterval(function(){bars.forEach(fill)},55)});
+      redact.addEventListener('pointerleave',function(){clearInterval(t);t=null;bars.forEach(fill)});
+    }
+  })();
+
+  /* live race: blocks produced since this page was opened (ZKas at live rate; Zcash/Monero at protocol targets) */
+  (function(){var T=$('#raceT');if(!T)return;var box=T.closest('.race'),say=$('#raceSay'),t0=performance.now(),last=t0,zk=0,vis=false,lastSay=0;
+    var L=[{k:'Z',t:0},{k:'C',t:75},{k:'M',t:120}].map(function(o){o.tiles=$('#rt'+o.k);o.prog=$('#rp'+o.k);o.cnt=$('#rc'+o.k);o.nx=$('#rn'+o.k);o.n=0;o.r=0;return o});
+    var mini=$('.rmini'),mT=$('#rmT'),mZ=$('#rmZ'),mC=$('#rmC'),mM=$('#rmM'),mX=$('#rmX'),mS=$('#rmS'),mP=$('#rmP'),mr=0,lastMini=0;
+    new IntersectionObserver(function(es){var e=es[0];vis=e.isIntersecting;
+      if(mini)mini.classList.toggle('show',!vis)},{threshold:0}).observe(box);
+    if(mini)mini.addEventListener('click',function(){box.scrollIntoView({behavior:RM?'auto':'smooth',block:'center'})});
+    function fmt(s){s=Math.max(0,Math.floor(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+    function add(o,k,anim){var f=document.createDocumentFragment();for(var i=0;i<k;i++){var t=document.createElement('i');if(anim)t.className='pop';f.appendChild(t)}o.tiles.appendChild(f);while(o.tiles.children.length>64)o.tiles.removeChild(o.tiles.firstChild)}
+    function bump(el){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');setTimeout(function(){el.classList.remove('bump')},180)}
+    function setH(el,h){if(el.__h!==h){el.__h=h;el.innerHTML=h}}function setT(el,t){if(el.__t!==t){el.__t=t;el.textContent=t}}function setW(el,w){if(el.__w!==w){el.__w=w;el.style.width=w}}
+    var lastFr=-1e9;(function fr(now){if(now-lastFr<50){requestAnimationFrame(fr);return}lastFr=now;var el=(now-t0)/1000;zk=el*(window.__zkBps||1);
+      for(var j=0;j<L.length;j++){var o=L[j],v=o.t?el/o.t:zk,n=Math.floor(v);o.n=n;
+        if(vis){if(n>o.r){var k=n-o.r;add(o,Math.min(k,64),k<4);o.r=n;o.cnt.textContent=n.toLocaleString();bump(o.cnt);
+            var tr=o.tiles.parentElement;tr.classList.remove('flash');void tr.offsetWidth;tr.classList.add('flash')}
+          setW(o.prog,((v-n)*100).toFixed(1)+'%');if(o.nx)setH(o.nx,tf('next <span class="lng">block </span>in {t}',{t:fmt(o.t-(el%o.t))}))}}
+      if(mini&&!vis){var zz=L[0].n;setT(mT,fmt(el));setW(mP,((zk-Math.floor(zk))*100).toFixed(1)+'%');
+        if(zz>mr){var kk=zz-mr;mr=zz;mZ.textContent=zz.toLocaleString();bump(mZ);
+          if(mS.offsetParent){var fg=document.createDocumentFragment();for(var q=0;q<Math.min(kk,16);q++){var ti=document.createElement('i');if(kk<4)ti.className='pop';fg.appendChild(ti)}mS.appendChild(fg);while(mS.children.length>16)mS.removeChild(mS.firstChild)}}
+        if(now-lastMini>250){lastMini=now;setT(mC,String(L[1].n));setT(mM,String(L[2].n));var xx=L[2].n,cc=L[1].n;
+          setH(mX,xx?tf('<b>{r}×</b>Monero',{r:Math.round(zz/xx)}):cc?tf('<b>{r}×</b>Zcash',{r:Math.round(zz/cc)}):'')}}
+      if(vis){setT(T,fmt(el));if(now-lastSay>250){lastSay=now;var z=L[0].n,c=L[1].n,x=L[2].n;
+        setH(say,x?(c===x?tf('ZKas: <b>{r}×</b> the blocks of Zcash and Monero — every one of them shielded.',{r:Math.round(z/x)}):tf('ZKas: <b>{m}×</b> the blocks of Monero, <b>{c}×</b> Zcash — every one of them shielded.',{m:Math.round(z/x),c:Math.round(z/c)}))
+          :c?tf('<b>{z}</b> ZKas blocks. Zcash has made {c}. Monero hasn’t made one yet.',{z:z.toLocaleString(),c:c})
+          :tf('<b>{z}</b> ZKas blocks — Zcash and Monero haven’t produced a single one yet.',{z:z.toLocaleString()}))}}
+      requestAnimationFrame(fr)})(t0);
+  })();
+
+  /* build: idea explorer — tabs + cards + a console that decrypts each idea's payload and meters its bytes; tours itself until touched */
+  (function(){var root=$('.bx');if(!root)return;var DATA=[{"t": "Un-freezable money", "s": "live", "b": "Every ZKAS is identical — no lineage, no taint, nothing anyone can blacklist or freeze.", "w": "On transparent chains every coin carries a history that can be traced, flagged and frozen. Here there is no history to flag.", "p": ["Shielded notes"], "c": "note:     250 ZKAS\nlineage:  none\ntaint:    none\nfreeze:   impossible"}, {"t": "Split payouts, all-or-nothing", "s": "live", "b": "One payment fans out to many recipients atomically — royalty splits, DAO payouts, supplier chains.", "w": "Private distribution in a single step, with no intermediary ever holding the funds.", "p": ["Atomic bundles"], "c": "bundle:   atomic · 3 outputs\nout[0]:   40%  artist\nout[1]:   35%  label\nout[2]:   25%  studio\nmemo:     royalties Q3"}, {"t": "Frozen-proof checkout", "s": "sdk", "b": "Sub-second, near-zero-fee, chargeback-free payments no acquirer can freeze — with auto-settle to USD.", "w": "Removes the two things that stop merchants: price swings and payment processors that can switch them off.", "p": ["Merchant gateway", "OTC USD rail"], "c": "inv:      ZK-2026-0042\norder:    #88213 · 3 items\ntotal:    129.50 ZKAS\nsettle:   auto → USD"}, {"t": "Front-run-proof wallets", "s": "live", "b": "No public mempool and hidden amounts — MEV can’t exist. A decoy wallet protects you under coercion.", "w": "Front-running and coerced disclosure are solved by the structure of the chain, not by a policy.", "p": ["Shielded notes", "Value-0 notes"], "c": "mempool:  no public view\namount:   hidden\norder:    unseen until block\ndecoy:    wallet B ready"}, {"t": "Gift cards, tickets & licences", "s": "sdk", "b": "Value and right-of-use in one private note — no issuer database of who holds what.", "w": "The note itself is the ticket: transferable, unforgeable, private.", "p": ["Shielded notes", "Encrypted memos"], "c": "ticket:   TKT-9F3A\nevent:    ZKas meetup, Lisbon\nseat:     B12\nholder:   bearer note"}, {"t": "Canary addresses", "s": "sdk", "b": "Give every company its own address — a breach dump names the leaker instantly.", "w": "Elsewhere, chain analysis re-links fresh addresses the moment you spend. Here the link never exists.", "p": ["Unlinkable addresses"], "c": "acme.shop → zkas:qz8…f3a\nbank      → zkas:qp2…9c1\nforum     → zkas:qm7…04e\nleak      → names its source"}, {"t": "Revealable notarisation", "s": "live", "b": "Commit a hidden fact to proof-of-work and reveal it later — to whoever you choose.", "w": "Prove priority and integrity without ever publishing the content.", "p": ["Message signing", "Encrypted memos"], "c": "notary:   sha256\n9f2c41d07ab3e5c86f1d2b90e47a3c58\nfile:     contract-v3.pdf\nreveal:   later, to anyone"}, {"t": "Private payroll & donations", "s": "sdk", "b": "Staff can’t be ranked by wallet — and a donor can still prove the gift.", "w": "Compliance without a public ledger: disclosure becomes a deliberate, scoped act.", "p": ["Viewing keys", "Payment proofs"], "c": "payslip:  2026-10\nemployee: EMP-117\ngross:    4,200 ZKAS\nauditor:  viewing key"}, {"t": "Sealed-bid auctions", "s": "sdk", "b": "Bids stay secret until the close — tenders, procurement, drops.", "w": "Impossible on a transparent chain, where the public mempool exposes every bid.", "p": ["Encrypted memos", "Unlinkable addresses", "Atomic bundles"], "c": "tender:   T-2026-17\nbid:      ********\nstatus:   sealed\nreveal:   at close only"}, {"t": "Trustless burn address", "s": "live", "b": "An address anyone can recompute and no one can spend — destroy value provably.", "w": "Verifiable burns for fee sinks, commitments and proofs-of-burn — no trusted party.", "p": ["Burn address"], "c": "burn:     NUMS point\nspendable: never\namount:   1,000 ZKAS\nproof:    anyone recomputes"}, {"t": "Tripwire notes", "s": "sdk", "b": "Move the money and a document is published — enforced by consensus itself.", "w": "There is no other way to attach a consequence to moving money — and no VM needed.", "p": ["Nullifiers"], "c": "note:     tripwire\ntrigger:  nullifier on spend\ndoc:      dossier.pdf.enc\nresult:   key goes public"}, {"t": "Whistleblower dead-drop", "s": "sdk", "b": "Pay a source with no counterparty graph to subpoena; memos carry files both ways.", "w": "Source protection, bug bounties and journalism — with cover traffic built in.", "p": ["Encrypted memos", "Value-0 notes", "Unlinkable addresses"], "c": "to:       source #7\namount:   0 ZKAS (cover)\nfile:     leak-2026.tar.enc\ngraph:    none to subpoena"}];
+    var tabs=$$('.bx-tab',root),cards=$$('.bx-card',root),dT=$('#bxT'),dW=$('#bxW'),dP=$('#bxP'),dTag=$('#bxTag'),cB=$('#cxBody'),cN=$('#cxN'),cBar=$('#cxBar'),det=$('.bx-detail',root),tab='pay',cur=-1,auto=true,vis=false,
+      enc=window.TextEncoder?new TextEncoder():null;
+    function bytes(s){return enc?enc.encode(s).length:s.length}
+    function dec(el,txt,G,d,onp){var t0=performance.now();(function fr(now){var k=d?Math.min(1,(now-t0)/d):1,e=k*txt.length,o='';
+      for(var j=0;j<txt.length;j++){var ch=txt[j];o+=(j<e||ch===' '||ch==='\n')?ch:G[(Math.random()*G.length)|0]}el.textContent=o;if(onp)onp(k);if(k<1)requestAnimationFrame(fr)})(t0)}
+    function pick(i){if(i===cur)return;cur=i;var x=DATA[i];cards.forEach(function(c){c.classList.toggle('on',+c.dataset.i===i)});
+      dTag.innerHTML=x.s==='live'?'<span class="itag live">'+esc(tr('live on mainnet'))+'</span>':'<span class="itag">'+esc(tr('sdk · build today'))+'</span>';
+      dec(dT,tr(x.t),'ABCDEFGHKLMNPQRSTUVWXYZ0123456789',RM?0:520);
+      var n=bytes(x.c);cBar.style.width=(n/512*100).toFixed(1)+'%';
+      dec(cB,x.c,'0123456789abcdef',RM?0:760,function(k){cN.textContent=Math.round(n*k)});
+      dW.textContent=tr(x.w);dP.innerHTML=x.p.map(function(p){return '<span>'+esc(tr(p))+'</span>'}).join('');
+      det.classList.remove('sw');void det.offsetWidth;det.classList.add('sw')}
+    function setTab(t){tab=t;tabs.forEach(function(b){var on=b.dataset.t===t;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false')});
+      var vs=cards.filter(function(c){var on=c.dataset.t===t;c.hidden=!on;c.classList.remove('in');return on});
+      vs.forEach(function(c,k){if(!RM){c.style.animationDelay=(k*.06)+'s';void c.offsetWidth;c.classList.add('in')}});
+      cur=-1;pick(+vs[0].dataset.i)}
+    tabs.forEach(function(b){b.addEventListener('click',function(){auto=false;setTab(b.dataset.t)})});
+    cards.forEach(function(c){c.addEventListener('click',function(){auto=false;pick(+c.dataset.i)});
+      c.addEventListener('mouseenter',function(){if(window.matchMedia('(pointer:fine)').matches){auto=false;pick(+c.dataset.i)}})});
+    new IntersectionObserver(function(es){vis=es[0].isIntersecting},{threshold:.2}).observe(root);
+    setTab('pay');window.__bxRefresh=function(){var i=cur;cur=-1;pick(i)};
+    setInterval(function(){if(!auto||!vis||document.hidden)return;var vs=cards.filter(function(c){return !c.hidden}),k=vs.findIndex(function(c){return +c.dataset.i===cur});
+      if(k<vs.length-1)pick(+vs[k+1].dataset.i);else{var ti=tabs.findIndex(function(b){return b.dataset.t===tab});setTab(tabs[(ti+1)%tabs.length].dataset.t)}},4200);
+  })();
+
+  /* ===== i18n engine: scan English once (blocks with inline markup, loose text, aria-label/title), swap per language ===== */
+  var I18N_EX='script,style,svg,canvas,pre,noscript,[data-v],.rb,.rtiles,.rm-strip,#raceT,#raceSay,.rnext,[id^="rc"],[id^="rm"],#bxTag,#bxT,#bxB,#bxW,#bxP,.sc,.sc-ring,.langpop,#langCode,#cxBody,#cxN';
+  var INL={B:1,I:1,EM:1,STRONG:1,SPAN:1,BR:1,SMALL:1,A:1,CODE:1,SUP:1,SUB:1,U:1,CITE:1},LET=/\p{L}/u,UNITS=null,
+    BLK=/^(P|H[1-6]|LI|TD|TH|BLOCKQUOTE|LABEL|BUTTON|CITE|SMALL|DT|DD|FIGCAPTION|SUMMARY|A|SPAN|B|EM|STRONG|I|CODE)$/;
+  function dtext(n){for(var i=0;i<n.childNodes.length;i++){var c=n.childNodes[i];if(c.nodeType===3&&LET.test(c.nodeValue))return true}return false}
+  function nrm(s){return s.replace(/\s+/g,' ').trim()}
+  function pureI(el){for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i];if(n.nodeType===1&&(!INL[n.tagName]||n.matches(I18N_EX)||!pureI(n)))return false}return true}
+  function i18nScan(){if(UNITS)return UNITS;var u=[];
+    (function walk(el){for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i];
+      if(n.nodeType===3){var t=nrm(n.nodeValue);if(LET.test(t))u.push({tn:n,k:t,h:n.nodeValue})}
+      else if(n.nodeType===1&&!n.matches(I18N_EX)){if(pureI(n)&&LET.test(n.textContent)&&(BLK.test(n.tagName)||dtext(n)))u.push({el:n,k:nrm(n.innerHTML),h:n.innerHTML});else walk(n)}}})(document.body);
+    $$('[aria-label],[title]').forEach(function(el){if(el.closest('svg,.langpop'))return;['aria-label','title'].forEach(function(a){var v=el.getAttribute(a);if(v&&LET.test(v))u.push({el:el,a:a,k:nrm(v),h:v})})});
+    return UNITS=u}
+  function i18nApply(d){I18N.d=d;i18nScan().forEach(function(x){var t=d&&d[x.k];
+      if(x.a)x.el.setAttribute(x.a,t||x.h);else if(x.tn)x.tn.nodeValue=t?(x.h.match(/^\s*/)[0]+t+x.h.match(/\s*$/)[0]):x.h;else x.el.innerHTML=t||x.h});
+    document.title=tr(TITLE_EN);try{drawEmission();drawNodesLast();if(window.__bxRefresh)window.__bxRefresh();relabel()}catch(e){}}
+  var LFLAG={en:'us',es:'es',pt:'br',fr:'fr',de:'de',it:'it',nl:'nl',pl:'pl',uk:'ua',ru:'ru',tr:'tr',ar:'sa',fa:'ir',ur:'pk',hi:'in',bn:'bd',id:'id',vi:'vn',th:'th',zh:'cn','zh-TW':'tw',ja:'jp',ko:'kr',fil:'ph'};
+  function langUI(code){var f=$('#langFlag'),cd=$('#langCode'),ff=$('#langFabFlag');if(f)f.src='/flags/'+LFLAG[code]+'.svg';if(ff)ff.src='/flags/'+LFLAG[code]+'.svg';if(cd)cd.textContent=code==='zh-TW'?'TW':code.toUpperCase();
+    $$('.lp').forEach(function(b){b.classList.toggle('on',b.dataset.l===code)})}
+  function setLang(code,save){if(!LFLAG[code])code='en';if(save){try{localStorage.setItem('zkas-lang2',code)}catch(e){}}
+    var h=document.documentElement;h.setAttribute('lang',code);h.classList.toggle('rtl',['ar','fa','ur'].indexOf(code)>=0);I18N.lang=code;langUI(code);
+    if(code==='en'){if(I18N.d)i18nApply(null);h.classList.remove('i18n-wait');return}
+    fetch('/i18n/'+code+'.json').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){if(I18N.lang===code)i18nApply(d)}).catch(function(){}).then(function(){h.classList.remove('i18n-wait')})}
+  (function(){var b0=$('#langBtn'),pop=$('#langPop'),b=b0;if(!b0||!pop)return;
+    var fab=document.createElement('button');fab.type='button';fab.id='langFab';fab.className='langfab';fab.setAttribute('aria-haspopup','true');fab.setAttribute('aria-label',b0.getAttribute('aria-label')||'Language');
+    fab.innerHTML='<img id="langFabFlag" alt="" width="22" height="16" src="'+$('#langFlag').src+'">';document.body.appendChild(fab);
+    function close(){pop.hidden=true;b.setAttribute('aria-expanded','false')}
+    document.body.appendChild(pop);
+    function place(){var r=b.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight,W=window.innerWidth,H=window.innerHeight;
+      var left=Math.max(8,Math.min(r.right-w,W-w-8)),top=b===fab?r.top-h-10:r.bottom+8;if(top+h>H-8)top=H-h-8;top=Math.max(8,top);pop.style.left=left+'px';pop.style.top=top+'px'}
+    function toggle(btn,e){e.stopPropagation();if(!pop.hidden&&b!==btn)close();b=btn;var o=pop.hidden;pop.hidden=!o;b.setAttribute('aria-expanded',o?'true':'false');if(o){place();pop.__y=window.scrollY;var on=$('.lp.on',pop)||$('.lp',pop);if(on)on.focus({preventScroll:true})}}
+    b0.addEventListener('click',function(e){toggle(b0,e)});fab.addEventListener('click',function(e){toggle(fab,e)});
+    function fabVis(){var r=b0.getBoundingClientRect();fab.classList.toggle('show',r.bottom<0||r.top>window.innerHeight)}
+    window.addEventListener('scroll',fabVis,{passive:true});var vw=$('.views');if(vw)vw.addEventListener('scroll',fabVis,{passive:true});fabVis();
+    window.addEventListener('resize',function(){if(!pop.hidden)place()});
+    window.addEventListener('scroll',function(){if(!pop.hidden&&Math.abs(window.scrollY-(pop.__y||0))>40)close()},{passive:true});
+    pop.addEventListener('click',function(e){var t=e.target.closest('.lp');if(!t)return;setLang(t.dataset.l,true);close();b.focus()});
+    document.addEventListener('click',function(e){if(!pop.hidden&&!pop.contains(e.target)&&!b0.contains(e.target)&&!fab.contains(e.target))close()});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!pop.hidden){close();b.focus()}})})();
+
+  /* blog card: posts shown one at a time in a fixed order; once one is opened (article pages record it in
+     zkas-blog-read) or closed (zkas-blog-dismissed) the next one appears; after the last, nothing. */
+  (function(){var ORD=[],POSTS=null,el=null,cur=null;
+    function ls(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []}}
+    function add(k,s){try{var a=ls(k);if(a.indexOf(s)<0){a.push(s);localStorage.setItem(k,JSON.stringify(a.slice(-200)))}}catch(e){}}
+    function seen(){return ls('zkas-blog-read').concat(ls('zkas-blog-dismissed'))}
+    function nextPost(){var sn=seen();return POSTS.filter(function(p){return ORD.indexOf(p.slug)>=0&&sn.indexOf(p.slug)<0})
+      .sort(function(a,b){return ORD.indexOf(a.slug)-ORD.indexOf(b.slug)})[0]||null}
+    function hide(){if(!el)return;var x=el;el=null;cur=null;x.classList.remove('show');setTimeout(function(){x.remove()},350)}
+    function lab(){if(!el)return;$('.bpop-k span',el).textContent=tr('From the blog');$('.bpop-k em',el).textContent='· '+tf('{m} min read',{m:cur.mins||1});
+      $('.bpop-r',el).textContent=tr('Read')+' →';$('.bpop-x',el).setAttribute('aria-label',tr('Close'))}
+    function show(p,delay){cur=p;el=document.createElement('a');el.className='bpop';el.href='/blog/'+encodeURIComponent(p.slug);
+      el.innerHTML='<span class="bpop-k"><i></i><span></span><em></em></span><span class="bpop-t"></span><span class="bpop-f"><span class="bpop-r"></span></span><button class="bpop-x" type="button">&times;</button>';
+      $('.bpop-t',el).textContent=p.title;
+      if(p.cover){var im=document.createElement('img');im.className='bpop-i';im.alt='';im.loading='lazy';im.src=p.cover;el.insertBefore(im,el.firstChild)}
+      lab();document.body.appendChild(el);var me=el;
+      el.addEventListener('click',function(e){if(e.target.closest('.bpop-x')){e.preventDefault();e.stopPropagation();add('zkas-blog-dismissed',p.slug);hide();setTimeout(refresh,600);return}
+        add('zkas-blog-read',p.slug);hide()});
+      setTimeout(function(){if(el===me)me.classList.add('show')},delay)}
+    /* runs on load, on Back/Forward (bfcache restores without re-running scripts) and when the tab regains focus */
+    function refresh(){if(!POSTS)return;var n=nextPost();if(cur&&n&&n.slug===cur.slug)return;var had=!!el;if(el)hide();if(!n)return;cur=n;setTimeout(function(){if(cur===n&&!el)show(n,400)},had?380:0)}
+    window.__bpopLab=lab;
+    window.addEventListener('pageshow',function(e){if(e.persisted)refresh()});
+    document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')refresh()});
+    if(ORD.length)fetch('/blog/api/posts',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(d){
+      if(!d||!d.posts)return;POSTS=d.posts;var n=nextPost();if(n)show(n,2600)}).catch(function(){})})();
+
+  /* keep the whole rail (nav + Community) on screen whatever the language or window height */
+  function fitRail(){var h=document.documentElement,r=$('.rail');if(!r)return;h.classList.remove('rf1','rf2','rf3');
+    $$('.nav .tab').forEach(function(t){t.style.fontSize=''});if(window.innerWidth<=860)return;
+    function fits(){return r.scrollHeight<=r.clientHeight+1}
+    function shrink(){$$('.nav .tab').forEach(function(t){t.style.fontSize='';var f=parseFloat(getComputedStyle(t).fontSize);while(t.scrollWidth>t.clientWidth+1&&f>11){f-=.5;t.style.fontSize=f+'px'}})}
+    shrink();for(var l=1;l<=3&&!fits();l++){h.classList.add('rf'+l);shrink()}return;
+    $$('.nav .tab').forEach(function(t){var f=parseFloat(getComputedStyle(t).fontSize);while(t.scrollWidth>t.clientWidth+1&&f>11){f-=.5;t.style.fontSize=f+'px'}})}
+  var frT;window.addEventListener('resize',function(){clearTimeout(frT);frT=setTimeout(fitRail,120)});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitRail);
+  window.addEventListener('load',fitRail);if(window.ResizeObserver){var frB=0,frO=new ResizeObserver(function(){if(frB)return;frB=1;requestAnimationFrame(function(){fitRail();requestAnimationFrame(function(){frB=0})})});$$('.rail-top,.nav').forEach(function(e){frO.observe(e)})}
+  i18nScan();setLang(window.__zkLang||'en',false);fitRail();
+  window.__i18nKeys=function(){return i18nScan().map(function(x){return x.k})};
+
+  /* scroll-reveal (js-gated so content is never hidden without JS) */
+  document.documentElement.classList.add('js');
+  (function(){var els=$$('.chips,.statusbar,.vhead,.pts,.cols,.bigproof,.optin,.speedcmp,.tbl-scroll,.funnel,.works,.note,.em-foot');
+    els.forEach(function(e){e.classList.add('reveal')});
+    if(RM){els.forEach(function(e){e.classList.add('in')});return}
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -7% 0px',threshold:.04});
+    els.forEach(function(e){io.observe(e)});
+  })();
+
+  drawEmission();load();loadFeed();
+  setInterval(load,15000);
+  setInterval(loadFeed,5000);
+})();
+</script>
 </body>
 </html>

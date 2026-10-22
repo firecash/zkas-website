@@ -67,6 +67,23 @@
   .names dd b{color:var(--mint)} code{font:13px var(--mono);background:var(--mint-soft);padding:1px 6px;border-radius:5px}
   .foot{margin-top:52px;padding-top:18px;border-top:1px solid var(--line-soft);color:var(--faint);font-size:13px}
 </style>
+<link rel="stylesheet" href="/fonts/brand-type.css">
+<style>
+/* Brand type (see /fonts/brand-type.css). These pages named Inter or a system stack that is not
+   loaded here, so every visitor got whatever sans-serif their OS had. */
+:root{--sans:'General Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{font-family:var(--sans)}
+h1,h2{font-family:'Clash Display','General Sans',ui-sans-serif,system-ui,sans-serif;letter-spacing:-.01em;word-spacing:.1em;line-height:1.15}
+/* Readability (measured in a browser 2026-10-17). --faint was 3.5-4.0:1 on these backgrounds in
+   both themes, under WCAG's 4.5:1; these clear it on bg, panel and panel-2 and stay dimmer than --muted. */
+:root{--faint:#7d948b}
+:root[data-theme="light"]{--faint:#52655b;--mint:#0a7364}
+.btn span{font-size:12.5px}
+figcaption{font-size:13.5px}
+/* the light sample tile is light in both themes: its caption needs a dark colour */
+.mark.light figcaption{color:#52655b}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -124,7 +141,7 @@
 </div>
 <script>
   document.querySelectorAll('.hex').forEach(function(el){
-    el.addEventListener('click',function(){ navigator.clipboard && navigator.clipboard.writeText(el.textContent.trim()); el.textContent=el.textContent.trim()+'  ✓'; setTimeout(function(){el.textContent=el.textContent.replace(/\s+✓$/,'');},900); });
+    el.addEventListener('click',function(){ navigator.clipboard && navigator.clipboard.writeText(el.textContent.trim()); el.textContent=el.textContent.trim()+'  · copied'; setTimeout(function(){el.textContent=el.textContent.replace(/\s+· copied$/,'');},900); });
   });
 </script>
 </body>

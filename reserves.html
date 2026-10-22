@@ -30,6 +30,10 @@
   .usd{color:var(--dim); font-size:15px; margin-top:6px}
   .total{margin-top:16px; border-color:#24443c}
   .total .amount{color:var(--mint)}
+  h2{font-size:17px; margin:36px 0 4px; letter-spacing:-.01em}
+  .seclead{color:var(--dim); font-size:14px; margin:0 0 14px}
+  h2{font-size:17px; margin:30px 0 4px; letter-spacing:-.01em}
+  .seclead{color:var(--dim); font-size:14px; margin:0 0 14px}
   .meta{
     margin-top:28px; padding-top:20px; border-top:1px solid var(--line);
     color:var(--dim); font-size:14px;
@@ -38,38 +42,72 @@
   .err{color:var(--amber)}
   a{color:var(--mint)}
 </style>
+<link rel="stylesheet" href="/fonts/brand-type.css">
+<style>
+/* Brand type (see /fonts/brand-type.css). These pages named Inter or a system stack that is not
+   loaded here, so every visitor got whatever sans-serif their OS had. */
+:root{--sans:'General Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{font-family:var(--sans)}
+h1,h2{font-family:'Clash Display','General Sans',ui-sans-serif,system-ui,sans-serif;letter-spacing:-.01em;word-spacing:.1em;line-height:1.15}
+</style>
 </head>
 <body>
 <div class="wrap">
   <h1>ZKas Growth Fund</h1>
 
+  <h2>Growth fund</h2>
+  <p class="seclead">What the fund holds today. Desk fees are swept in here, and spending goes out to listings.</p>
   <div class="grid">
     <div class="card">
-      <div class="label">ZKAS in the fund</div>
+      <div class="label">ZKAS</div>
       <div class="amount" id="zkas">—<span class="unit">ZKAS</span></div>
       <div class="usd" id="zkas-usd">&nbsp;</div>
     </div>
     <div class="card">
-      <div class="label">KAS reserve</div>
+      <div class="label">KAS</div>
       <div class="amount" id="kas">—<span class="unit">KAS</span></div>
       <div class="usd" id="kas-usd">&nbsp;</div>
-    </div>
-    <div class="card">
-      <div class="label">USDT reserve</div>
-      <div class="amount" id="usdt">—<span class="unit">USDT</span></div>
-      <div class="usd">&nbsp;</div>
-    </div>
-    <div class="card">
-      <div class="label">Spent USDT</div>
-      <div class="amount" id="usdt-spent">—<span class="unit">USDT</span></div>
-      <div class="usd">&nbsp;</div>
     </div>
   </div>
 
   <div class="card total">
     <div class="label">Combined value</div>
     <div class="amount" id="total">—</div>
-    <div class="usd">ZKAS valued at the best bid on the desk — what it would actually fetch if sold. USDT at face value.</div>
+    <div class="usd">Both cards above, at the desk's best bid — what they would actually fetch if sold. Desk fees below are not counted: they are revenue on its way to the fund, not fund holdings.</div>
+  </div>
+
+  <h2>OTC desk fees</h2>
+  <p class="seclead">Earned by the desk and not yet swept into the fund. The same three assets, so the two lines read against each other.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="label">ZKAS</div>
+      <div class="amount" id="zkas-desk">—<span class="unit">ZKAS</span></div>
+      <div class="usd" id="zkas-desk-usd">&nbsp;</div>
+    </div>
+    <div class="card">
+      <div class="label">KAS</div>
+      <div class="amount" id="kas-desk">—<span class="unit">KAS</span></div>
+      <div class="usd" id="kas-desk-usd">&nbsp;</div>
+    </div>
+    <div class="card">
+      <div class="label">USDT</div>
+      <div class="amount" id="usd-desk">—<span class="unit">USDT</span></div>
+      <div class="usd" id="usd-desk-usd">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:16px">
+    <div class="card">
+      <div class="label">Spent on listings</div>
+      <div class="amount" id="usdt-spent">—<span class="unit">USDT</span></div>
+      <div class="usd">Paid out of the fund — $3,000 of it the NonKYC listing.</div>
+    </div>
+    <div class="card">
+      <div class="label">Sent to the listing fundraiser</div>
+      <div class="amount" id="sent-zkas">—<span class="unit">ZKAS</span></div>
+      <div class="usd" id="sent-kas">&nbsp;</div>
+    </div>
   </div>
 
   <div class="meta">
@@ -86,51 +124,76 @@ var SOURCE = 'https://mining-pool.zkas.info/api/otc/reserves';
 
 // The fund's stablecoin side. It lives off-chain of the desk, so nothing in
 // the endpoint can know it — stated here by hand and kept current.
-var USDT_BALANCE = 1291;   // still held (1691 - 400 spent)
+// The fund's non-ZKAS side. Nothing on the desk can know these — they are
+// off-desk holdings — so they are stated here by hand and kept current.
+var FUND_KAS     = 0;      // KAS held by the fund
 var USDT_SPENT   = 3400;   // already spent (3000 NonKYC listing + 400)
+
+// The fund's own ZKAS wallet is read through a walletd that is currently
+// unreachable from the desk, and an unreachable wallet must not read as an
+// empty one. This is the last figure that wallet actually reported; the live
+// number replaces it the moment the reader answers again.
+var FUND_ZKAS_LAST = 8973550.79786369;
+var FUND_ZKAS_LAST_ON = '2026-09-29';
+
+// Swept off the desk into the Pionex listing campaign. Shown so the money
+// that left the fee accounts is still accounted for on this page.
+var SENT_ZKAS = 794300.7964215;
+var SENT_KAS  = 16245;
+var SENT_USDT = 1279;      // the stablecoin side, sent to the same campaign
 
 // Every figure below is coerced with Number() before it is formatted, so no
 // string off the wire is ever written into the page.
 function set(id, html) { document.getElementById(id).innerHTML = html; }
 
 function render(d) {
-  // The fund's own ZKAS balance, read from its wallet. On-desk figures are
-  // deliberately not shown: this page is the fund, not the desk's books.
   var z = d.fees && d.fees.ZKAS ? d.fees.ZKAS : {};
-  var fund = z.growthFund === undefined ? NaN : Number(z.growthFund);
-  set('zkas', (isNaN(fund) ? '—' : fund.toLocaleString(undefined, {maximumFractionDigits: 2})) +
-      '<span class="unit">ZKAS</span>');
-
-  var zkasUsd = d.rates && d.rates.zkasUsd ? Number(d.rates.zkasUsd) : null;
-  var fundUsd = (!isNaN(fund) && zkasUsd) ? fund * zkasUsd : null;
-  var note = [];
-  if (fundUsd !== null) note.push('≈ $' + fundUsd.toLocaleString(undefined, {maximumFractionDigits: 0}));
-  // Say plainly when the wallet is still catching up, rather than letting a
-  // stale or partial figure read as final.
-  if (!isNaN(fund) && !z.growthFundSynced) note.push('wallet syncing');
-  set('zkas-usd', note.length ? note.join(' · ') : '&nbsp;');
-
-  // KAS held by the desk from fees.
   var k = d.fees && d.fees.KAS ? d.fees.KAS : {};
-  var kas = k.amount === undefined ? NaN : Number(k.amount);
+  var zkasUsd = d.rates && d.rates.zkasUsd ? Number(d.rates.zkasUsd) : null;
   var kasUsd = d.rates && d.rates.kasUsd ? Number(d.rates.kasUsd) : null;
-  var kasVal = (!isNaN(kas) && kasUsd) ? kas * kasUsd : null;
-  set('kas', (isNaN(kas) ? '—' : kas.toLocaleString(undefined, {maximumFractionDigits: 2})) +
-      '<span class="unit">KAS</span>');
-  set('kas-usd', kasVal !== null ? '≈ $' + kasVal.toLocaleString(undefined, {maximumFractionDigits: 0}) : '&nbsp;');
 
-  set('usdt', USDT_BALANCE.toLocaleString() + '<span class="unit">USDT</span>');
-  set('usdt-spent', USDT_SPENT.toLocaleString() + '<span class="unit">USDT</span>');
+  var n = function (v, dp) {
+    return Number(v).toLocaleString(undefined, { maximumFractionDigits: dp === undefined ? 2 : dp });
+  };
+  // A card always prints a figure. "0" is a fact — it usually means the fees
+  // were just swept into the fund — and an em dash would read as "unknown".
+  function coin(id, amount, unit, perUnit, note) {
+    var known = !isNaN(amount);
+    set(id, (known ? n(amount) : '—') + '<span class="unit">' + unit + '</span>');
+    var usd = known && perUnit ? amount * perUnit : null;
+    set(id + '-usd', usd === null ? '&nbsp;'
+      : '≈ $' + n(usd, usd < 100 ? 2 : 0) + (note ? ' · ' + note : ''));
+    return usd === null ? 0 : usd;
+  }
 
-  // What the fund holds now: its ZKAS at the bid, plus KAS at spot, plus the USDT still in hand.
-  // Spent USDT is shown above but is not part of it.
-  var combined = (fundUsd || 0) + (kasVal || 0) + USDT_BALANCE;
-  set('total', (fundUsd === null && kasVal === null) ? '—'
-    : '≈ $' + combined.toLocaleString(undefined, {maximumFractionDigits: 0}));
+  // ---- growth fund -------------------------------------------------------
+  // A fund figure of 0 from an unsynced or unreachable wallet is "not read",
+  // not "empty" — fall back to the last figure the wallet did report.
+  var fund = z.growthFund === undefined ? NaN : Number(z.growthFund);
+  var fundStale = false;
+  if (!(fund > 0)) { fund = FUND_ZKAS_LAST; fundStale = true; }
+  var fundUsd = coin('zkas', fund, 'ZKAS', zkasUsd,
+    fundStale ? 'as of ' + FUND_ZKAS_LAST_ON : (z.growthFundSynced ? '' : 'wallet syncing'));
+  var fundKasUsd = coin('kas', FUND_KAS, 'KAS', kasUsd, '');
+  set('usdt-spent', n(USDT_SPENT) + '<span class="unit">USDT</span>');
+  // Where the swept fees went. Named on the page so the drop in the fee
+  // accounts has a destination rather than just disappearing.
+  set('sent-zkas', n(SENT_ZKAS) + '<span class="unit">ZKAS</span>');
+  set('sent-kas', '+ ' + n(SENT_KAS) + ' KAS + ' + n(SENT_USDT) + ' USDT · funding the '
+    + '<a href="/fundraising">Pionex listing</a>');
+  set('total', '≈ $' + n(fundUsd + fundKasUsd, 0));
+
+  // ---- desk fees, the same three assets ----------------------------------
+  coin('zkas-desk', z.onDesk === undefined ? NaN : Number(z.onDesk), 'ZKAS', zkasUsd, 'awaiting sweep');
+  coin('kas-desk', k.amount === undefined ? NaN : Number(k.amount), 'KAS', kasUsd, 'awaiting sweep');
+  var u = d.fees && d.fees.USD ? d.fees.USD : {};
+  var usdFee = u.amount === undefined ? NaN : Number(u.amount);
+  set('usd-desk', (isNaN(usdFee) ? '—' : n(usdFee)) + '<span class="unit">USDT</span>');
+  set('usd-desk-usd', isNaN(usdFee) ? '&nbsp;' : '≈ $' + n(usdFee, 2) + ' · awaiting sweep');
 
   if (zkasUsd) {
     set('rates', '1 ZKAS ≈ $' + zkasUsd.toFixed(6) +
-        (d.rates.zkasKas ? ' · ' + Number(d.rates.zkasKas).toFixed(8) + ' KAS' : ''));
+        (kasUsd ? ' · 1 KAS ≈ $' + kasUsd.toFixed(6) : ''));
   }
   set('asof', 'Updated ' + new Date(d.asOf).toLocaleString() + ' · refreshes every 30s');
 }
