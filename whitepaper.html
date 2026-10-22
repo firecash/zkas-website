@@ -14,11 +14,11 @@
   html{-webkit-text-size-adjust:100%}
   body{
     margin:0; background:var(--bg); color:var(--ink);
-    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    font-family:'General Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
     font-size:16px; line-height:1.6;
   }
   .page{max-width:820px; margin:0 auto; padding:56px 60px 80px}
-  h1,h2,h3,h4{font-family:Georgia,"Times New Roman",serif; line-height:1.25; font-weight:700}
+  h1,h2,h3,h4{font-family:'Clash Display','General Sans',ui-sans-serif,system-ui,sans-serif; line-height:1.2; font-weight:600; letter-spacing:-.01em; word-spacing:.1em}
   h1{font-size:30px; margin:0 0 6px}
   h2{font-size:21px; margin:34px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line)}
   h3{font-size:17px; margin:22px 0 6px}
@@ -27,21 +27,22 @@
   ul,ol{margin:0 0 12px; padding-left:22px}
   li{margin:0 0 5px; text-align:justify}
   a{color:var(--accent); text-decoration:none}
-  code,.mono{font-family:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace; font-size:.86em}
-  pre{font-family:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace; font-size:.8em; line-height:1.5;
+  code,.mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.86em}
+  pre{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.8em; line-height:1.5;
       white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-all;
       background:rgba(127,127,127,.09); border:1px solid rgba(127,127,127,.22); border-radius:6px;
       padding:.7em .9em; margin:1em 0; max-width:100%; overflow-x:auto}
   .eq{background:var(--code); border:1px solid var(--line); border-radius:6px; padding:10px 14px; margin:12px 0;
-      font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.9em; overflow-x:auto; text-align:center}
+      font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.9em; overflow-x:auto; text-align:center}
   .muted{color:var(--mut)}
   .small{font-size:13.5px}
   .lead{font-size:17px; color:#2a2f34}
   table{border-collapse:collapse; width:100%; margin:14px 0; font-size:14px}
   th,td{border:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top}
-  th{background:#f0f2f4; font-family:Georgia,serif}
-  .cover{padding:70px 60px 30px}
-  .kicker{letter-spacing:.22em; text-transform:uppercase; font-size:12px; color:var(--mut); font-family:Georgia,serif}
+  th{background:#f0f2f4; font-family:'General Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif}
+  /* same column as .page, so the title, abstract and body share one left edge */
+  .cover{max-width:820px; margin:0 auto; padding:70px 60px 30px}
+  .kicker{letter-spacing:.22em; text-transform:uppercase; font-size:12px; color:var(--mut); font-family:'General Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif}
   .sub{font-size:18px; color:var(--mut); margin:2px 0 20px; font-style:italic}
   .meta{font-size:13px; color:var(--mut); margin-top:24px}
   .rule{height:2px; background:var(--ink); width:64px; margin:18px 0 24px}
@@ -58,12 +59,12 @@
   .dlbtn{position:fixed; top:18px; right:18px; z-index:50;
     display:inline-flex; align-items:center; gap:8px;
     background:var(--ink); color:#fff; border:0; border-radius:8px;
-    padding:10px 16px; font-family:Georgia,serif; font-size:13px; letter-spacing:.02em;
+    padding:10px 16px; font-family:'General Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif; font-size:13px; letter-spacing:.02em;
     cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.18)}
   .dlbtn:hover{background:#000}
   .dlbtn svg{width:14px;height:14px;fill:currentColor;display:block}
   .dlhint{position:fixed; top:56px; right:18px; z-index:50; max-width:230px;
-    font-family:Georgia,serif; font-size:11.5px; color:var(--mut); text-align:right; line-height:1.45}
+    font-family:'General Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif; font-size:11.5px; color:var(--mut); text-align:right; line-height:1.45}
   @media (max-width:640px){
     body{font-size:15px}
     .page{padding:28px 18px 56px}
@@ -92,6 +93,7 @@
     @page{size:A4; margin:22mm 20mm}
   }
 </style>
+<link rel="stylesheet" href="/fonts/brand-type.css">
 </head>
 <body>
 
@@ -169,12 +171,12 @@
 <ul>
   <li><strong>Confidential by construction.</strong> No transparent transfer type. Amounts, senders, and recipients are hidden for every payment; the sole public quantity is the fee a spender chooses to expose to the miner.</li>
   <li><strong>Fast.</strong> One block per second, roughly one-second settlement — privacy without surrendering throughput.</li>
-  <li><strong>Sound money.</strong> No inflation bug can silently counterfeit. A supply violation halts the chain rather than debasing it.</li>
+  <li><strong>Sound money.</strong> Issuance is public and fixed by consensus: no block can mint more than the schedule allows, and no more value can ever leave the shielded pool than was issued. What happens inside the pool cannot be observed, so inflation there is prevented by the soundness of the proofs, not detected (§8.4).</li>
   <li><strong>Fair.</strong> Proof-of-work issuance with no premine and no venture allocation; the genesis coinbase is provably unspendable, and the chain was mined against a real difficulty target from block one (§11.1).</li>
   <li><strong>Upgradable privacy.</strong> A membership argument that can migrate to full-chain proofs later.</li>
 </ul>
 <h4>Adversary &amp; assumptions</h4>
-<p>The network adversary controls a minority of hash power and may reorganize the recent tip, produce conflicting parallel blocks, and attempt double-spends; GHOSTDAG's security bounds hold as in Kaspa. The privacy adversary observes the full public DAG and all network traffic and attempts to link, deanonymize, or forge. The economic adversary attempts to create value through any seam — malformed coinbase, value-commitment edge cases, dummy/zero-value notes, or a spend against an anchor from an abandoned branch. ZKas assumes it <em>inherits latent bugs</em> from the code it forks: in 2026 a missing equality constraint in a Halo&nbsp;2 scalar-multiplication gadget allowed nullifier forgery and silent pool inflation in live Orchard, undetected for four years of expert review. The turnstile invariant (§8) exists precisely so that such a class of bug degrades to a halt, not a counterfeit.</p>
+<p>The network adversary controls a minority of hash power and may reorganize the recent tip, produce conflicting parallel blocks, and attempt double-spends; GHOSTDAG's security bounds hold as in Kaspa. The privacy adversary observes the full public DAG and all network traffic and attempts to link, deanonymize, or forge. The economic adversary attempts to create value through any seam — malformed coinbase, value-commitment edge cases, dummy/zero-value notes, or a spend against an anchor from an abandoned branch. ZKas assumes it <em>inherits latent bugs</em> from the code it forks: in 2026 a missing equality constraint in a Halo&nbsp;2 scalar-multiplication gadget allowed nullifier forgery and silent pool inflation in live Orchard, undetected for four years of expert review. The turnstile invariant (§8) bounds such a bug rather than detecting it: counterfeit value could circulate inside the pool unseen, but it could never be withdrawn beyond what was actually issued (§8.4).</p>
 
 <!-- ============ 4 ============ -->
 <h2 id="s4">4 · Consensus: the GHOSTDAG BlockDAG</h2>
@@ -248,6 +250,10 @@
 <h3>8.3 The coinbase seam</h3>
 <p>Mining rewards are created from nothing and so have no input note. A coinbase output is a note commitment with a <em>publicly stated</em> value, checked against the emission schedule and entered into the turnstile as minted supply; the recipient's Orchard address travels in the reward script. After one hop the note is indistinguishable from any other. This is the single point at which value visibly enters the system, and it is verified against the exact expected coinbase for the block, so a miner cannot mint more than consensus allows.</p>
 
+<h3>8.4 What the turnstile cannot see</h3>
+<p>The turnstile is an accounting of value entering and leaving the pool, not of the notes inside it. Amounts are hidden, so no one, the protocol included, can sum the notes in circulation and compare that sum with the issued total. If a soundness bug in the proof system or in nullifier handling let someone create notes without backing (the 2026 Orchard bug did exactly that, by forging nullifiers), those notes would be indistinguishable from honest ones and the public pool figure would not change. Nothing would halt.</p>
+<p>What the turnstile does guarantee is a ceiling on extraction. Value leaves the pool only as fees, and as burns once the bridge is enabled, and consensus rejects any block after which more has left than was ever issued. A counterfeiter could therefore dilute holders inside the pool, but could never take out more than the pool really holds, and the cost of any such bug would fall on the holders left with unbacked notes. Supply in ZKas, as in every fully shielded system, is audited at its boundary and protected inside it only by the correctness of the cryptography. That is why §3 assumes inherited bugs exist and why the proof system and nullifier logic are the components held to the highest standard of review.</p>
+
 <!-- ============ 9 ============ -->
 <h2 id="s9">9 · Verification &amp; scalability</h2>
 <p>A shielded proof costs on the order of 100–700× a signature check, so at one block per second naive per-Action verification would still overwhelm a node under load. ZKas addresses this in layers.</p>
@@ -268,7 +274,7 @@
 
 <!-- ============ 11 ============ -->
 <h2 id="s11">11 · Monetary policy &amp; emission</h2>
-<p>Issuance is <strong>proof-of-work only</strong>, with no venture or investor allocation. Each gross coinbase reward allocates <strong>95% to the miner</strong> and <strong>5% to ongoing development</strong>. Rewards enter the mandatory shielded pool as coinbase notes (§8.3), so even newly issued coins are private after a single hop.</p>
+<p>Issuance is <strong>proof-of-work only</strong>, with <strong>no premine and no venture or investor allocation</strong>. The miner receives <strong>100% of the coinbase reward</strong>; a temporary 5% development share applied until DAA 6,983,500 (the ZKrise security fork) and then ended. Rewards enter the mandatory shielded pool as coinbase notes (§8.3), so even newly issued coins are private after a single hop.</p>
 
 <h3>11.1 Fair launch</h3>
 <p><strong>There was no premine, no presale, no founder allocation and no airdrop.</strong> Every ZKAS in existence was mined, beginning at block one. On a chain whose balances are hidden by construction this claim would ordinarily be unfalsifiable — a shielded premine is invisible — so ZKas does not ask to be believed. It is settled in genesis itself, in two ways that anyone can check without trusting the project.</p>
@@ -283,12 +289,12 @@
 
 <p>Shortly after launch the network was supported by <strong>K1Pool</strong>, which pointed hashrate at ZKas and helped the young chain reach a healthy, well-distributed difficulty quickly. That support is externally visible rather than a claim: a merge-mined ZKas block records which peer first relayed it, and K1Pool appears in that data as one of the chain's early significant producers.</p>
 
-<p>The one continuing allocation is the <strong>5% development share of each coinbase</strong> described below. It is not a premine: it is minted block by block alongside the miner's 95%, it is enforced by consensus rather than by custody of a pre-existing balance, and it is visible in the emission schedule from the outset. Changing either the share or its recipient requires a coordinated binary upgrade, since both are compile-time consensus constants rather than configuration.</p>
+<p>There is <strong>no premine</strong>. The only allocation was a <strong>temporary 5% development share</strong>, which ends at DAA 6,983,500 — from that block the miner keeps <strong>100%</strong>. While it applied it was minted block by block alongside the miner's reward, enforced by consensus rather than by custody of a pre-existing balance, and visible in the emission schedule from the outset; it was a compile-time consensus constant, not configuration.</p>
 <h3>11.2 Key figures</h3>
-<p>Gross issuance begins at <strong>60&nbsp;ZKAS per block</strong> (60&nbsp;ZKAS per second at one block per second), of which the miner receives <strong>57&nbsp;ZKAS</strong> after the 5% development allocation. It follows a smooth decay that <strong>halves every three months</strong> from genesis. The curve does not fall to zero: it is caught by a <strong>two-step perpetual tail</strong>. The decay crosses a gross <strong>6&nbsp;ZKAS per block</strong> around month&nbsp;10, and that floor is paid through <strong>month&nbsp;24</strong>; it then steps down to a perpetual gross <strong>0.6&nbsp;ZKAS per block</strong>. There is therefore no fixed supply cap.</p>
+<p>Gross issuance begins at <strong>60&nbsp;ZKAS per block</strong> (60&nbsp;ZKAS per second at one block per second), all of which goes to the miner from DAA 6,983,500 (57&nbsp;ZKAS before it, under the temporary 5% development share). It follows a smooth decay that <strong>halves every three months</strong> from genesis. The curve does not fall to zero: it is caught by a <strong>two-step perpetual tail</strong>. The decay crosses a gross <strong>6&nbsp;ZKAS per block</strong> around month&nbsp;10, and that floor is paid through <strong>month&nbsp;24</strong>; it then steps down to a perpetual gross <strong>0.6&nbsp;ZKAS per block</strong>. There is therefore no fixed supply cap.</p>
 <table>
   <tr><th>Quantity</th><th>Value</th></tr>
-  <tr><td>Initial miner reward</td><td>57 ZKAS/block (95% of 60 ZKAS gross issuance)</td></tr>
+  <tr><td>Miner reward</td><td>100% of gross (60 ZKAS/block at launch; 57 before DAA 6,983,500)</td></tr>
   <tr><td>Reward after first halving (month 3)</td><td>30 ZKAS/block</td></tr>
   <tr><td>Halving interval</td><td>3 months</td></tr>
   <tr><td>Tail — first step</td><td>6 ZKAS/block (≈ month 10 through month 24; ≈ 189M ZKAS/year)</td></tr>
@@ -297,7 +303,7 @@
   <tr><td>Smallest unit</td><td>1 sompi = 10⁻⁸ ZKAS</td></tr>
 </table>
 <h3>11.3 Halving schedule</h3>
-<p>The schedule is front-loaded: a fast three-month halving distributes most coins in the first year, after which the reward is caught by the tail and issuance slows sharply. The curve halves 60&nbsp;→&nbsp;30&nbsp;→&nbsp;15&nbsp;→&nbsp;7.5&nbsp;ZKAS over the first four quarters, crossing the <strong>6&nbsp;ZKAS</strong> first-step floor around month&nbsp;10; that floor holds through month&nbsp;24, then steps down once to the perpetual <strong>0.6&nbsp;ZKAS</strong> floor. The figures below are computed from the on-chain per-block subsidy schedule.</p>
+<p>The schedule is front-loaded: a fast three-month halving distributes most coins in the first year, after which the reward is caught by the tail and issuance slows sharply. The curve halves 60&nbsp;<svg class="zk-ico" viewBox="0 0 16 16" aria-label="to" role="img"><path d="M3 8h10M9 4l4 4-4 4"/></svg>&nbsp;30&nbsp;<svg class="zk-ico" viewBox="0 0 16 16" aria-label="to" role="img"><path d="M3 8h10M9 4l4 4-4 4"/></svg>&nbsp;15&nbsp;<svg class="zk-ico" viewBox="0 0 16 16" aria-label="to" role="img"><path d="M3 8h10M9 4l4 4-4 4"/></svg>&nbsp;7.5&nbsp;ZKAS over the first four quarters, crossing the <strong>6&nbsp;ZKAS</strong> first-step floor around month&nbsp;10; that floor holds through month&nbsp;24, then steps down once to the perpetual <strong>0.6&nbsp;ZKAS</strong> floor. The figures below are computed from the on-chain per-block subsidy schedule.</p>
 <table>
   <tr><th>Milestone</th><th>Reward / block</th><th>Cumulative supply (ZKAS)</th></tr>
   <tr><td>Genesis</td><td>60 ZKAS</td><td>0</td></tr>
@@ -372,11 +378,11 @@
   <tr><td>Transfer types</td><td>Shielded only; coinbase is the sole public value event</td></tr>
   <tr><td>Anchor maturity</td><td>~10 min deep, canonical (reachability-checked)</td></tr>
   <tr><td>Supply rule</td><td>Turnstile: pool = Σ coinbase − Σ fees ≥ 0</td></tr>
-  <tr><td>Initial miner reward</td><td>57 ZKAS/block (95% of 60 ZKAS gross issuance at 1 BPS)</td></tr>
+  <tr><td>Miner reward</td><td>100% of gross (60 ZKAS/block at launch, 1 BPS; 57 before DAA 6,983,500)</td></tr>
   <tr><td>Halving</td><td>Every 3 months (smooth decay from genesis)</td></tr>
   <tr><td>Tail emission</td><td>6 ZKAS/block to month 24, then 0.6 ZKAS/block perpetual (≈ 18.9M ZKAS/year, ≈ 2.2% at onset decaying toward ~1%); no supply cap</td></tr>
   <tr><td>Denomination</td><td>1 ZKAS = 10⁸ sompi</td></tr>
-  <tr><td>Issuance allocation</td><td>95% miner reward, 5% development; no venture allocation</td></tr>
+  <tr><td>Issuance allocation</td><td>100% to the miner; no premine and no venture allocation (a temporary 5% development share applied until DAA 6,983,500)</td></tr>
   <tr><td>Launch difficulty</td><td>Real target from genesis (bits <code>0x1b02d093</code>, ~50 TH/s); no easy start, no ramp</td></tr>
   <tr><td>Premine</td><td>None — genesis coinbase pays <code>OP_FALSE</code> (unspendable)</td></tr>
   <tr><td>Genesis anchor</td><td>Bitcoin block 959,713</td></tr>

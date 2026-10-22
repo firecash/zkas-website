@@ -37,10 +37,24 @@
   .note{color:var(--faint);font-size:13px;margin-top:26px}
   @media(max-width:560px){.kv{grid-template-columns:1fr}}
 </style>
+<link rel="stylesheet" href="/fonts/brand-type.css">
+<style>
+/* Brand type (see /fonts/brand-type.css). These pages named Inter or a system stack that is not
+   loaded here, so every visitor got whatever sans-serif their OS had. */
+:root{--sans:'General Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{font-family:var(--sans)}
+h1,h2{font-family:'Clash Display','General Sans',ui-sans-serif,system-ui,sans-serif;letter-spacing:-.01em;word-spacing:.1em;line-height:1.15}
+/* Readability (measured in a browser 2026-10-17). --faint was 3.5-4.0:1 on these backgrounds in
+   both themes, under WCAG's 4.5:1; these clear it on bg, panel and panel-2 and stay dimmer than --muted. */
+:root{--faint:#7d948b}
+:root[data-theme="light"]{--faint:#52655b;--mint:#0a7364}
+.note{font-size:14px}
+</style>
 </head>
 <body>
 <div class="wrap">
-  <div class="crumb"><a href="/">← zkas.info</a></div>
+  <div class="crumb"><a href="/"><svg class="zk-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M7 4 3 8l4 4"/></svg> zkas.info</a></div>
   <h1>Verification</h1>
   <p class="lede">This page is hosted on the official ZKas domain (<a href="https://zkas.info">zkas.info</a>) and is
   maintained by the ZKas team. It confirms our active listing applications so aggregators can verify that the request
