@@ -10,7 +10,7 @@
       "status": "Live",
       "tags": ["Local custody", "Self-hosted", "CLI + API"],
       "action": "View wallet tools",
-      "href": "https://github.com/firecash/zkas-rusty#wallet",
+      "href": "https://gitlab.com/zkas-group/zkas-rusty#wallet",
       "icon": "terminal"
     },
     {
@@ -32,7 +32,7 @@
       "status": "Available",
       "tags": ["App", "Secure", "Self-custody"],
       "action": "Download app",
-      "href": "https://github.com/firecash/zkas-wallet/releases",
+      "href": "https://gitlab.com/zkas-group/zkas-wallet/-/releases",
       "icon": "wallet"
     },
     {
@@ -82,7 +82,7 @@
       "status": "Live",
       "tags": ["Self-verified", "Self-hosted", "CLI"],
       "action": "Run the software",
-      "href": "https://github.com/firecash/zkas-rusty#run-a-node--join-the-network",
+      "href": "https://gitlab.com/zkas-group/zkas-rusty#run-a-node--join-the-network",
       "icon": "server"
     },
     {
@@ -93,7 +93,7 @@
       "status": "Testing",
       "tags": ["Watch-only", "Self-hosted", "WooCommerce"],
       "action": "View gateway project",
-      "href": "https://github.com/firecash/zkas-rusty/tree/main/gateway",
+      "href": "https://gitlab.com/zkas-group/zkas-rusty/-/tree/main/gateway",
       "icon": "credit-card"
     },
     {
@@ -104,7 +104,7 @@
       "status": "Developer preview",
       "tags": ["SDK", "Rust", "TypeScript"],
       "action": "Build with ZKAS",
-      "href": "https://github.com/firecash/zkas-rusty/tree/main/sdk",
+      "href": "https://gitlab.com/zkas-group/zkas-rusty/-/tree/main/sdk",
       "icon": "code"
     },
     {
@@ -115,7 +115,7 @@
       "status": "Live",
       "tags": ["Source", "Open", "Rust"],
       "action": "View repository",
-      "href": "https://github.com/firecash/zkas-rusty",
+      "href": "https://gitlab.com/zkas-group/zkas-rusty",
       "icon": "git"
     },
     {
