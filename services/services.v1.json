@@ -1,14 +1,53 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-09T00:00:00Z",
+  "updated_at": "2026-10-27T14:18:08Z",
   "services": [
+    {
+      "id": "trade",
+      "name": "Trade ZKAS",
+      "description": "Buy, sell and swap ZKAS on exchanges or through the official OTC desk.",
+      "categories": [
+        "use",
+        "store"
+      ],
+      "status": "Live",
+      "tags": [
+        "Exchanges",
+        "OTC desk",
+        "No account"
+      ],
+      "action": "Where to trade",
+      "href": "https://zkas.info/trade",
+      "icon": "exchange",
+      "secondary": [
+        {
+          "label": "NonKYC",
+          "href": "https://nonkyc.io"
+        },
+        {
+          "label": "Neoxa Exchange",
+          "href": "https://neoxa.exchange"
+        },
+        {
+          "label": "ZKas OTC Desk",
+          "href": "https://t.me/ZKas_OTC_bot"
+        }
+      ]
+    },
     {
       "id": "cli-wallet",
       "name": "CLI & self-hosted wallet",
       "description": "Run walletd or shielded-pay on your own machine.",
-      "categories": ["store", "build"],
+      "categories": [
+        "store",
+        "build"
+      ],
       "status": "Live",
-      "tags": ["Local custody", "Self-hosted", "CLI + API"],
+      "tags": [
+        "Local custody",
+        "Self-hosted",
+        "CLI + API"
+      ],
       "action": "View wallet tools",
       "href": "https://zkas.info/code/rusty",
       "icon": "terminal"
@@ -17,9 +56,14 @@
       "id": "web-wallet",
       "name": "Web Wallet",
       "description": "Non-custodial browser wallet: the seed is created in your browser and the server cannot spend.",
-      "categories": ["store"],
+      "categories": [
+        "store"
+      ],
       "status": "Live",
-      "tags": ["Web", "Non-custodial"],
+      "tags": [
+        "Web",
+        "Non-custodial"
+      ],
       "action": "Open web wallet",
       "href": "https://wallet.zkas.info",
       "icon": "wallet"
@@ -28,9 +72,15 @@
       "id": "app-wallet",
       "name": "Light Wallet",
       "description": "Wallet app with local keys for secure ZKAS custody.",
-      "categories": ["store"],
+      "categories": [
+        "store"
+      ],
       "status": "Available",
-      "tags": ["App", "Secure", "Self-custody"],
+      "tags": [
+        "App",
+        "Secure",
+        "Self-custody"
+      ],
       "action": "Download app",
       "href": "https://zkas.info/downloads/wallet/",
       "icon": "wallet"
@@ -39,9 +89,14 @@
       "id": "paper-wallet",
       "name": "Paper Wallet",
       "description": "Create keys offline and keep the seed disconnected.",
-      "categories": ["store"],
+      "categories": [
+        "store"
+      ],
       "status": "Live",
-      "tags": ["Cold storage", "Self-custody"],
+      "tags": [
+        "Cold storage",
+        "Self-custody"
+      ],
       "action": "Create offline wallet",
       "href": "https://zkas.info/paper-wallet.html",
       "icon": "file-key"
@@ -50,9 +105,15 @@
       "id": "explorer",
       "name": "BlockDAG Explorer",
       "description": "Inspect blocks and public chain activity. Shielded details stay private.",
-      "categories": ["verify"],
+      "categories": [
+        "verify"
+      ],
       "status": "Live",
-      "tags": ["Chain data", "No balances", "Search"],
+      "tags": [
+        "Chain data",
+        "No balances",
+        "Search"
+      ],
       "action": "Explore the DAG",
       "href": "https://explorer.zkas.info",
       "icon": "search"
@@ -61,26 +122,59 @@
       "id": "mining-pools",
       "name": "Mining Pools",
       "description": "Choose a kHeavyHash pool and check its fees and payout rules.",
-      "categories": ["earn"],
+      "categories": [
+        "earn"
+      ],
       "status": "Live",
-      "tags": ["Shielded payout", "Merged mining", "Stratum"],
+      "tags": [
+        "Shielded payout",
+        "Merged mining",
+        "Stratum"
+      ],
       "action": "Choose a pool",
       "href": "https://services.zkas.info/earn",
       "icon": "pickaxe",
       "secondary": [
-        { "label": "ZKas Pool", "href": "https://mining-pool.zkas.info" },
-        { "label": "K1Pool", "href": "https://k1pool.com" },
-        { "label": "KekPool", "href": "https://kekpool.com" },
-        { "label": "CoreBlock", "href": "https://coreblock.cc" }
+        {
+          "label": "ZKas Pool",
+          "href": "https://mining-pool.zkas.info"
+        },
+        {
+          "label": "K1Pool",
+          "href": "https://k1pool.com"
+        },
+        {
+          "label": "KekPool",
+          "href": "https://kekpool.com"
+        },
+        {
+          "label": "CoreBlock",
+          "href": "https://coreblock.cc"
+        },
+        {
+          "label": "ZKas Stream",
+          "href": "https://zkas.stream/community-mining"
+        },
+        {
+          "label": "RustyKaspa",
+          "href": "https://rkstratum.rustykaspa.org/bridges?mode=multicoin"
+        }
       ]
     },
     {
       "id": "node-solo-mining",
       "name": "Node & Solo Mining",
       "description": "Run a node, verify the chain and mine to your own shielded address.",
-      "categories": ["earn", "verify"],
+      "categories": [
+        "earn",
+        "verify"
+      ],
       "status": "Live",
-      "tags": ["Self-verified", "Self-hosted", "CLI"],
+      "tags": [
+        "Self-verified",
+        "Self-hosted",
+        "CLI"
+      ],
       "action": "Run the software",
       "href": "https://zkas.info/code/rusty",
       "icon": "server"
@@ -89,31 +183,50 @@
       "id": "payment-gateway",
       "name": "Payment Gateway",
       "description": "Accept ZKAS with invoices, checkout pages and webhooks.",
-      "categories": ["build"],
+      "categories": [
+        "build"
+      ],
       "status": "Testing",
-      "tags": ["Watch-only", "Self-hosted", "WooCommerce"],
+      "tags": [
+        "Watch-only",
+        "Self-hosted",
+        "WooCommerce"
+      ],
       "action": "View gateway project",
-      "href": "https://zkas.info/code/rusty/tree/main/gateway",
+      "href": "https://zkas.info/code/gateway",
       "icon": "credit-card"
     },
     {
       "id": "sdk",
       "name": "ZKAS SDK",
       "description": "Rust and TypeScript tools for addresses, wallets and private payments.",
-      "categories": ["build"],
+      "categories": [
+        "build"
+      ],
       "status": "Developer preview",
-      "tags": ["SDK", "Rust", "TypeScript"],
+      "tags": [
+        "SDK",
+        "Rust",
+        "TypeScript"
+      ],
       "action": "Build with ZKAS",
-      "href": "https://zkas.info/code/rusty/tree/main/sdk",
+      "href": "https://zkas.info/code/sdk",
       "icon": "code"
     },
     {
       "id": "core-source",
       "name": "Core Source",
       "description": "Source code for the node, consensus, wallet and mining tools.",
-      "categories": ["build", "verify"],
+      "categories": [
+        "build",
+        "verify"
+      ],
       "status": "Live",
-      "tags": ["Source", "Open", "Rust"],
+      "tags": [
+        "Source",
+        "Open",
+        "Rust"
+      ],
       "action": "View repository",
       "href": "https://zkas.info/code/rusty",
       "icon": "git"
@@ -122,9 +235,14 @@
       "id": "whitepaper",
       "name": "Whitepaper",
       "description": "Learn how ZKas privacy, consensus and economics work.",
-      "categories": ["build"],
+      "categories": [
+        "build"
+      ],
       "status": "Published",
-      "tags": ["Documentation", "Protocol"],
+      "tags": [
+        "Documentation",
+        "Protocol"
+      ],
       "action": "Read whitepaper",
       "href": "https://zkas.info/whitepaper.html",
       "icon": "book"
@@ -133,14 +251,23 @@
       "id": "community",
       "name": "Community",
       "description": "Get help, follow updates and talk with ZKAS users.",
-      "categories": ["build"],
+      "categories": [
+        "build"
+      ],
       "status": "Open",
-      "tags": ["Discord", "X", "Support"],
+      "tags": [
+        "Discord",
+        "X",
+        "Support"
+      ],
       "action": "Open Discord",
       "href": "https://discord.gg/jysMS4XNFT",
       "icon": "users",
       "secondary": [
-        { "label": "X", "href": "https://x.com/ZKas_X" }
+        {
+          "label": "X",
+          "href": "https://x.com/ZKas_X"
+        }
       ]
     }
   ]
